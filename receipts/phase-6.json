@@ -1,0 +1,47 @@
+{
+  "phase": 6,
+  "status": "verified",
+  "version": "0.6.0",
+  "publicOrigin": "https://resumilio.danielx9.workers.dev",
+  "artifactSourceCommit": "8e7383dd8ef559272332a7143548e86ee1488051",
+  "verificationCommands": [
+    "npm run phase6",
+    "npm run verify:browser-quality",
+    "npm run verify:deployment -- http://127.0.0.1:8791 https://resumilio.danielx9.workers.dev",
+    "npm run scan:history"
+  ],
+  "publication": {
+    "provider": "Cloudflare Workers Static Assets",
+    "worker": "resumilio",
+    "versionId": "31f28221-4fb6-444c-b48f-22432e7d2cde",
+    "deploymentId": "a58059ae-3c3e-4243-ad5e-2c6f8436c529",
+    "trafficPercent": 100,
+    "publishedAt": "2026-09-13T04:28:28.314316Z",
+    "assetsOnly": true,
+    "workerModules": false,
+    "bindingCount": 0,
+    "customDomain": "deferred"
+  },
+  "verification": {
+    "githubActions": {
+      "runId": 34737912526,
+      "headSha": "8e7383dd8ef559272332a7143548e86ee1488051",
+      "conclusion": "success"
+    },
+    "localRemotePreviewRoutesEquivalent": 13,
+    "localPublicRoutesEquivalent": 13,
+    "authoritativeResumeSha256": "9918c5052851f2977adcdba28db8e1062201c853984a8c0d695b06560eae9f15",
+    "headersAndLocalesReadBack": true,
+    "publicBuildSensitiveFindings": 0,
+    "reachableGitHistorySensitiveFindings": 0,
+    "allReachableHistoryScanned": true
+  },
+  "jobSearchHandoff": {
+    "repositoryBranch": "codex/job-search-pc-handoff",
+    "commit": "8d65ff03573e04fe8ba48796fcb7ccdbef4534d7",
+    "sourceSha256": "9918c5052851f2977adcdba28db8e1062201c853984a8c0d695b06560eae9f15",
+    "professionalAiExperience": "verified-working-prelaunch",
+    "jobMatchResult": "matched",
+    "productionClaim": false
+  }
+}

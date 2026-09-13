@@ -27,6 +27,7 @@
     "validate": "tsx scripts/validate-profile.ts profiles/daniel.json",
     "test": "tsx --test tests/**/*.test.ts",
     "scan:public": "tsx scripts/scan-public.ts",
+    "scan:history": "tsx scripts/scan-public-history.ts",
     "verify:static": "tsx scripts/verify-static-experience.ts",
     "verify:machine": "tsx scripts/verify-machine-experience.ts",
     "verify:quality-contract": "tsx scripts/verify-quality-contract.ts",
@@ -42,7 +43,7 @@
     "phase3": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run scan:public",
     "phase4": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run verify:machine && npm run scan:public",
     "phase5": "npm run phase4 && npm run verify:quality-contract && npm run verify:lighthouse",
-    "phase6": "npm run phase5 && npm run verify:release-build"
+    "phase6": "npm run phase5 && npm run verify:release-build && npm run scan:history"
   },
   "repository": {
     "type": "git",
