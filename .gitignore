@@ -6,6 +6,7 @@ site-dist/
 .playwright-cli/
 .wrangler/
 output/playwright/
+qa-artifacts/
 *.log
 .env
 .env.*

@@ -18,5 +18,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run phase6
+      - name: Verify release contract
+        run: npm run phase6
+        env:
+          RESUMILIO_LIGHTHOUSE_OUTPUT_DIR: qa-artifacts/lighthouse
+      - name: Verify rendered browser experience
+        run: npm run verify:browser-quality
+        env:
+          RESUMILIO_QA_OUTPUT_DIR: qa-artifacts/browser
       - run: npm pack --dry-run
+      - name: Preserve quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resumilio-quality-${{ github.sha }}
+          path: qa-artifacts/
+          if-no-files-found: error
+          retention-days: 90

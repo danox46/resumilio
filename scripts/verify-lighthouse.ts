@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
-import { existsSync, readFileSync } from "node:fs";
-import { extname, join, normalize } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { extname, isAbsolute, join, normalize, resolve } from "node:path";
 import lighthouse from "lighthouse";
 import * as chromeLauncher from "chrome-launcher";
 
@@ -40,6 +40,11 @@ try {
     chromePath: process.env.CHROME_PATH,
     chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu"],
   });
+  const requestedOutputDirectory = process.env.RESUMILIO_LIGHTHOUSE_OUTPUT_DIR;
+  const outputDirectory = requestedOutputDirectory
+    ? isAbsolute(requestedOutputDirectory) ? requestedOutputDirectory : resolve(requestedOutputDirectory)
+    : null;
+  if (outputDirectory) mkdirSync(outputDirectory, { recursive: true });
   const samples: Array<{ scores: Record<string, number>; largestContentfulPaintMs: number; cumulativeLayoutShift: number }> = [];
   for (let run = 0; run < 3; run += 1) {
     const result = await lighthouse(`http://127.0.0.1:${address.port}/`, {
@@ -51,6 +56,7 @@ try {
       screenEmulation: { mobile: true, width: 390, height: 844, deviceScaleFactor: 2, disabled: false },
     });
     if (!result) throw new Error("Lighthouse did not return a result.");
+    if (outputDirectory) writeFileSync(join(outputDirectory, `run-${run + 1}.json`), `${JSON.stringify(result.lhr, null, 2)}\n`);
     samples.push({
       scores: Object.fromEntries(Object.entries(result.lhr.categories).map(([key, category]) => [key, Math.round((category.score ?? 0) * 100)])),
       largestContentfulPaintMs: Math.round(result.lhr.audits["largest-contentful-paint"].numericValue ?? Number.POSITIVE_INFINITY),
@@ -63,6 +69,7 @@ try {
   const largestContentfulPaintMs = median(samples.map((sample) => sample.largestContentfulPaintMs));
   const cumulativeLayoutShift = median(samples.map((sample) => sample.cumulativeLayoutShift));
   const receipt = { runs: samples.length, scores, largestContentfulPaintMs, cumulativeLayoutShift, samples };
+  if (outputDirectory) writeFileSync(join(outputDirectory, "summary.json"), `${JSON.stringify(receipt, null, 2)}\n`);
 
   for (const [category, score] of Object.entries(scores)) {
     if (score < 95) throw new Error(`${category} score is ${score}; required minimum is 95.`);

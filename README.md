@@ -60,7 +60,7 @@ npm run phase6
 npm run dev
 ```
 
-The Phase 6 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs authoring, discovery, machine-contract, structured-data, static-experience, accessibility, Lighthouse, release-origin, and public-safety checks. CI also inspects the npm package contents.
+The Phase 6 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, and runs authoring, discovery, machine-contract, structured-data, static-experience, accessibility-structure, Lighthouse, release-origin, and public-safety checks. CI separately exercises the rendered browser experience and retains its screenshots, browser report, Lighthouse summaries, and raw Lighthouse results as build artifacts. These checks do not claim a real screen-reader user test.
 
 The flagship static site is published as an assets-only Cloudflare Worker. See [Cloudflare deployment](docs/deployment.md) for the preview, parity, publication, and readback sequence.
 

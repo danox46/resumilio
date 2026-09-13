@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "release": "v0.6.1",
+  "status": "verified-with-open-review",
+  "releasedAt": "2026-09-13T13:52:15.000Z",
+  "publicOrigin": "https://resumilio.danielx9.workers.dev",
+  "releaseSourceCommit": "2d76be38139d02770a18e5614b9d133036e90d5f",
+  "publication": {
+    "provider": "Cloudflare Workers Static Assets",
+    "versionId": "7eccd0e0-6275-4e51-aad9-2f7b3eafc878",
+    "assetsOnly": true,
+    "bindingCount": 0
+  },
+  "verification": {
+    "githubActionsRunId": 34760351675,
+    "githubActionsConclusion": "success",
+    "automatedTestsPassed": 21,
+    "localPublicRoutesEquivalent": 13,
+    "viewportsChecked": 7,
+    "horizontalOverflowPixels": 0,
+    "lighthouseMedian": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "largestContentfulPaintMs": 1352,
+      "cumulativeLayoutShift": 0
+    },
+    "externalRuntimeRequests": 0,
+    "reachableGitHistorySensitiveFindings": 0
+  },
+  "evidenceRetention": {
+    "summary": "The release receipt remains versioned in Git. Subsequent CI runs preserve seven rendered screenshots, a browser report, Lighthouse summaries, and three raw Lighthouse results as named build artifacts for 90 days.",
+    "artifactNamePattern": "resumilio-quality-{commit-sha}"
+  },
+  "openReview": {
+    "ownerLanguageReview": "needs-review",
+    "realScreenReaderUserTest": "not-run",
+    "note": "Automated semantic structure checks are not represented as a real screen-reader test."
+  }
+}
