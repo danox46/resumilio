@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, recommendationReason, searchClaims, type DiscoveryState } from "../discovery.js";
+import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
+import { marketClaimSummary, marketEvidenceTitle, marketLabel, marketRecommendationReason, marketSourceSummary } from "../presentation.js";
 import { claimPath } from "../site.js";
 
 const sessionKey = "resumilio:discovery:v1";
@@ -8,26 +9,28 @@ type Claim = ResumilioProfile["claims"][number];
 
 const copy = {
   en: {
-    evidence: "Evidence", graph: "Graph", search: "Search", explore: "Explore the evidence behind the work.",
-    placeholder: "Search skills, projects, and evidence", allTypes: "All types", allStatuses: "All statuses",
-    allSkills: "All skills", allTime: "All time", clear: "Clear filters", selected: "Selected claim", lifecycle: "Lifecycle",
-    strength: "Evidence strength", visibility: "Source visibility", recommended: "Recommended because",
-    view: "View evidence", more: "More like this", results: "results", allEvidence: "All evidence",
-    listIntro: "A searchable list of claims and evidence related to Daniel's work.", type: "Type", status: "Status",
-    keyEvidence: "Key evidence", reset: "Reset this session", powered: "Powered by Resumilio", menu: "Open navigation",
-    empty: "No evidence matches this search.", publicSummary: "Public summary · underlying material restricted", sortBy: "Sort by", relevant: "Most relevant", titleAsc: "Title A–Z",
-    graphHelp: "Use the arrow keys to move between visible claims. Press Enter or Space to select one.",
+    evidence: "Experience", graph: "Career map", search: "Search", explore: "CRM integrations, backend systems, APIs, and practical automation for real teams and client workflows.",
+    placeholder: "Search experience, skills, or projects", allTypes: "All experience", allStatuses: "All stages",
+    allSkills: "All skills", allTime: "Any year", clear: "Clear", selected: "Featured experience", lifecycle: "Project stage",
+    strength: "Portfolio format", visibility: "Available details", recommended: "Why it matters",
+    view: "View experience", more: "Show similar work", results: "highlights", allEvidence: "Career highlights",
+    listIntro: "Browse Daniel's professional experience, projects, and training.", type: "Category", status: "Stage", title: "Role or project",
+    keyEvidence: "More about it", reset: "Reset view", powered: "Built with Resumilio", menu: "Open navigation", primaryNav: "Primary navigation",
+    empty: "No experience matches this search.", sortBy: "Sort by", relevant: "Most relevant", titleAsc: "Title A–Z",
+    graphHelp: "Use the arrow keys to move between visible career highlights. Press Enter or Space to select one.",
+    selectedLegend: "Selected highlight", otherLegend: "Related experience", supportLegend: "More context", relationshipLegend: "Related work",
   },
   es: {
-    evidence: "Evidencia", graph: "Grafo", search: "Buscar", explore: "Explora la evidencia detrás del trabajo.",
-    placeholder: "Busca habilidades, proyectos y evidencia", allTypes: "Todos los tipos", allStatuses: "Todos los estados",
-    allSkills: "Todas las habilidades", allTime: "Todo el tiempo", clear: "Limpiar filtros", selected: "Afirmación seleccionada", lifecycle: "Ciclo de vida",
-    strength: "Solidez de la evidencia", visibility: "Visibilidad de la fuente", recommended: "Recomendado porque",
-    view: "Ver evidencia", more: "Más como esto", results: "resultados", allEvidence: "Toda la evidencia",
-    listIntro: "Una lista consultable de afirmaciones y evidencia sobre el trabajo de Daniel.", type: "Tipo", status: "Estado",
-    keyEvidence: "Evidencia clave", reset: "Reiniciar esta sesión", powered: "Creado con Resumilio", menu: "Abrir navegación",
-    empty: "Ninguna evidencia coincide con esta búsqueda.", publicSummary: "Resumen público · material subyacente restringido", sortBy: "Ordenar por", relevant: "Más relevante", titleAsc: "Título A–Z",
-    graphHelp: "Usa las flechas para moverte entre las afirmaciones visibles. Pulsa Enter o Espacio para seleccionar una.",
+    evidence: "Experiencia", graph: "Trayectoria", search: "Buscar", explore: "Integraciones CRM, sistemas backend, APIs y automatización práctica para equipos y flujos de clientes reales.",
+    placeholder: "Busca experiencia, habilidades o proyectos", allTypes: "Toda la experiencia", allStatuses: "Todas las etapas",
+    allSkills: "Todas las habilidades", allTime: "Cualquier año", clear: "Limpiar", selected: "Experiencia destacada", lifecycle: "Etapa del proyecto",
+    strength: "Formato del portafolio", visibility: "Detalles disponibles", recommended: "Por qué importa",
+    view: "Ver experiencia", more: "Ver trabajo similar", results: "destacados", allEvidence: "Experiencia destacada",
+    listIntro: "Explora la experiencia profesional, los proyectos y la formación de Daniel.", type: "Categoría", status: "Etapa", title: "Rol o proyecto",
+    keyEvidence: "Más información", reset: "Reiniciar vista", powered: "Creado con Resumilio", menu: "Abrir navegación", primaryNav: "Navegación principal",
+    empty: "No encontramos experiencia que coincida con esta búsqueda.", sortBy: "Ordenar por", relevant: "Más relevante", titleAsc: "Título A–Z",
+    graphHelp: "Usa las flechas para recorrer la experiencia visible. Pulsa Enter o Espacio para seleccionar una.",
+    selectedLegend: "Experiencia seleccionada", otherLegend: "Experiencia relacionada", supportLegend: "Más contexto", relationshipLegend: "Trabajo relacionado",
   },
 } as const;
 
@@ -37,22 +40,6 @@ const layout: Record<string, { claim: [number, number]; evidence: [number, numbe
   "claim-masglo-commercial-proposal": { claim: [20, 40], evidence: [8, 28] },
   "claim-google-cloud-big-data-course": { claim: [78, 70], evidence: [80, 91] },
 };
-
-function contractLabel(value: string, locale: Locale): string {
-  const labels: Record<Locale, Record<string, string>> = {
-    en: {
-      experience: "Experience", project: "Project", education: "Education", certification: "Certification", publication: "Publication", skill: "Skill",
-      "working-prelaunch": "Working prelaunch", shipped: "Shipped", proposal: "Proposal", completed: "Completed", production: "Production", idea: "Idea", retired: "Retired",
-      "self-attested": "Self-attested", corroborated: "Corroborated", primary: "Primary",
-    },
-    es: {
-      experience: "Experiencia", project: "Proyecto", education: "Educación", certification: "Certificación", publication: "Publicación", skill: "Habilidad",
-      "working-prelaunch": "Funcional antes del lanzamiento", shipped: "Entregado", proposal: "Propuesta", completed: "Completado", production: "Producción", idea: "Idea", retired: "Retirado",
-      "self-attested": "Declaración propia", corroborated: "Corroborada", primary: "Primaria",
-    },
-  };
-  return labels[locale][value] ?? `${value.charAt(0).toUpperCase()}${value.slice(1).replaceAll("-", " ")}`;
-}
 
 function SearchIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>;
@@ -75,16 +62,16 @@ function ClaimDetail({ profile, claim, locale, state, compact = false, onMoreLik
 }) {
   const t = copy[locale];
   const evidence = evidenceFor(profile, claim);
-  const reason = recommendationReason(state, locale).replace(locale === "es" ? "Recomendado porque " : "Recommended because ", "");
-  const visibility = evidence.source.visibility === "public" ? evidence.source.label[locale] : t.publicSummary;
+  const reason = marketRecommendationReason(state, locale);
+  const visibility = marketSourceSummary(evidence, locale);
   return <section className={compact ? "claim-detail claim-detail--compact" : "claim-detail"} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
     <p className="detail-label">{t.selected}</p>
     <h2>{claim.title[locale]}</h2>
-    <p className="detail-status">{contractLabel(claim.lifecycle, locale)}</p>
-    <p className="detail-summary">{claim.summary[locale]}</p>
+    <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
+    <p className="detail-summary">{marketClaimSummary(claim, locale)}</p>
     <dl>
-      <div><dt>{t.lifecycle}</dt><dd>{contractLabel(claim.lifecycle, locale)}</dd></div>
-      <div><dt>{t.strength}</dt><dd>{contractLabel(evidence.strength, locale)}</dd></div>
+      <div><dt>{t.lifecycle}</dt><dd>{marketLabel(claim.lifecycle, locale)}</dd></div>
+      <div><dt>{t.strength}</dt><dd>{marketLabel(evidence.strength, locale)}</dd></div>
       <div><dt>{t.visibility}</dt><dd>{visibility}</dd></div>
       <div><dt>{t.recommended}</dt><dd>{reason}</dd></div>
     </dl>
@@ -176,7 +163,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     <header className="site-header">
       <a className="wordmark" href="#top">{profile.profile.name[locale]}</a>
       <button className="menu-button" type="button" aria-label={t.menu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span/><span/><span/></button>
-      <nav className={menuOpen ? "primary-nav primary-nav--open" : "primary-nav"} aria-label="Primary">
+      <nav className={menuOpen ? "primary-nav primary-nav--open" : "primary-nav"} aria-label={t.primaryNav}>
         <a href="#evidence">{t.evidence}</a><a href="#graph">{t.graph}</a><a href="#search">{t.search}</a>
       </nav>
       <div className="header-actions">
@@ -188,23 +175,23 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     <main id="top">
       <section className="introduction" aria-labelledby="person-name">
         <h1 id="person-name">{profile.profile.name[locale]}</h1>
-        <p className="headline">{profile.profile.headline[locale]}</p>
+        <p className="headline">{locale === "en" ? "Integration & Automation Engineer" : "Ingeniero de Integraciones y Automatización"}</p>
         <p className="intro-copy">{t.explore}</p>
       </section>
 
       <form className="search-controls" id="search" role="search" onSubmit={submitSearch}>
         <label className="search-field"><span className="sr-only">{t.search}</span><SearchIcon/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder}/></label>
-        <select aria-label={t.allTypes} value={type} onChange={(event) => { setType(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTypes}</option>{[...new Set(profile.claims.map((claim) => claim.type))].map((value) => <option key={value} value={value}>{contractLabel(value, locale)}</option>)}</select>
-        <select aria-label={t.allStatuses} value={lifecycle} onChange={(event) => { setLifecycle(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allStatuses}</option>{[...new Set(profile.claims.map((claim) => claim.lifecycle))].map((value) => <option key={value} value={value}>{contractLabel(value, locale)}</option>)}</select>
-        <select aria-label={t.allSkills} value={tag} onChange={(event) => { setTag(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allSkills}</option>{tags.map((value) => <option key={value} value={value}>{contractLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allTypes} value={type} onChange={(event) => { setType(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTypes}</option>{[...new Set(profile.claims.map((claim) => claim.type))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allStatuses} value={lifecycle} onChange={(event) => { setLifecycle(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allStatuses}</option>{[...new Set(profile.claims.map((claim) => claim.lifecycle))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allSkills} value={tag} onChange={(event) => { setTag(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allSkills}</option>{tags.map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
         <select aria-label={t.allTime} value={year} onChange={(event) => { setYear(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTime}</option>{years.map((value) => <option key={value} value={value}>{value}</option>)}</select>
         <button className="clear-control" type="button" onClick={() => { setQuery(""); setType(""); setLifecycle(""); setTag(""); setYear(""); }}>{t.clear}</button>
       </form>
 
-      <section className="constellation" id="graph" aria-label="Evidence constellation" aria-describedby="graph-help">
+      <section className="constellation" id="graph" aria-label={locale === "en" ? "Career highlights map" : "Mapa de experiencia profesional"} aria-describedby="graph-help">
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="graph-stage">
-          <div className="legend" aria-hidden="true"><span><i className="legend-selected"/>Selected claim</span><span><i className="legend-claim"/>Other claim</span><span><i className="legend-evidence"/>Evidence / source</span><span><i className="legend-line"/>Relationship</span></div>
+          <div className="legend" aria-hidden="true"><span><i className="legend-selected"/>{t.selectedLegend}</span><span><i className="legend-claim"/>{t.otherLegend}</span><span><i className="legend-evidence"/>{t.supportLegend}</span><span><i className="legend-line"/>{t.relationshipLegend}</span></div>
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             <line x1="58" y1="31" x2="40" y2="65" className="relation relation--claim"/><line x1="58" y1="31" x2="78" y2="70" className="relation relation--claim"/><line x1="40" y1="65" x2="20" y2="40" className="relation relation--claim"/>
             {profile.claims.map((claim) => { const point = layout[claim.id]; return point ? <line key={claim.id} x1={point.claim[0]} y1={point.claim[1]} x2={point.evidence[0]} y2={point.evidence[1]} className="relation"/> : null; })}
@@ -218,8 +205,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               const claimStyle = { "--x": `${point.claim[0]}%`, "--y": `${point.claim[1]}%` } as CSSProperties;
               const evidenceStyle = { "--x": `${point.evidence[0]}%`, "--y": `${point.evidence[1]}%` } as CSSProperties;
               return <article key={claim.id} className={`graph-branch${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
-                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{claim.title[locale]}</strong><small>{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</small></span></button>
-                <div className="evidence-node" style={evidenceStyle}><span className="node-dot"/><span>{evidence.title[locale]}</span></div>
+                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{claim.title[locale]}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
+                <div className="evidence-node" style={evidenceStyle}><span className="node-dot"/><span>{marketEvidenceTitle(evidence, locale)}</span></div>
                 {isSelected && <ClaimDetail profile={profile} claim={claim} locale={locale} state={discovery} compact onMoreLike={moreLike}/>}
               </article>;
             })}
@@ -232,9 +219,9 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       <section className="evidence-list" id="evidence" aria-labelledby="evidence-heading">
         <div className="list-heading"><div><h2 id="evidence-heading">{t.allEvidence} <span>({results.length} {t.results})</span></h2><p>{t.listIntro}</p></div><label className="sort-control"><span>{t.sortBy}</span><select value={sort} onChange={(event) => setSort(event.target.value as "relevant" | "title")}><option value="relevant">{t.relevant}</option><option value="title">{t.titleAsc}</option></select></label></div>
         <div className="evidence-table" role="table" aria-label={t.allEvidence}>
-          <div className="evidence-row evidence-row--header" role="row"><span role="columnheader">Title</span><span role="columnheader">{t.type}</span><span role="columnheader">{t.status}</span><span role="columnheader">{t.keyEvidence}</span><span role="columnheader">{t.strength}</span><span/></div>
+          <div className="evidence-row evidence-row--header" role="row"><span role="columnheader">{t.title}</span><span role="columnheader">{t.type}</span><span role="columnheader">{t.status}</span><span role="columnheader">{t.keyEvidence}</span><span role="columnheader">{t.strength}</span><span/></div>
           {results.map(({ claim }) => { const evidence = evidenceFor(profile, claim); return <article className="evidence-row" role="row" id={claim.id} key={claim.id} onClick={() => selectClaim(claim)}>
-            <a role="cell" href={claimPath(claim.id, locale)} onClick={(event) => { event.stopPropagation(); signal("open", claim.tags, claim.id); }}>{claim.title[locale]}</a><span role="cell">{contractLabel(claim.type, locale)}</span><span role="cell">{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</span><span role="cell" id={evidence.id}>{evidence.source.url ? <a href={evidence.source.url} target="_blank" rel="noreferrer" onClick={() => signal("source-visit", claim.tags, claim.id)}>{evidence.title[locale]}</a> : evidence.title[locale]}</span><span role="cell">{contractLabel(evidence.strength, locale)}</span><Chevron/></article>; })}
+            <a role="cell" href={claimPath(claim.id, locale)} onClick={(event) => { event.stopPropagation(); signal("open", claim.tags, claim.id); }}>{claim.title[locale]}</a><span role="cell">{marketLabel(claim.type, locale)}</span><span role="cell">{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</span><span role="cell" id={evidence.id}>{evidence.source.url ? <a href={evidence.source.url} target="_blank" rel="noreferrer" onClick={() => signal("source-visit", claim.tags, claim.id)}>{marketEvidenceTitle(evidence, locale)}</a> : marketEvidenceTitle(evidence, locale)}</span><span role="cell">{marketLabel(evidence.strength, locale)}</span><Chevron/></article>; })}
         </div>
       </section>
     </main>

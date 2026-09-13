@@ -61,7 +61,7 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .headline { margin: 8px 0 4px; color: #31415a; font-size: clamp(22px, 2vw, 32px); line-height: 1.15; letter-spacing: -.035em; font-weight: 650; }
 .intro-copy { margin: 0; color: var(--body); font-size: 17px; line-height: 1.5; }
 
-.search-controls { display: grid; grid-template-columns: minmax(300px, 1fr) repeat(4, minmax(108px, 136px)) auto; align-items: center; gap: 12px; margin-bottom: 14px; }
+.search-controls { display: grid; grid-template-columns: minmax(300px, 1fr) repeat(4, minmax(136px, 168px)) auto; align-items: center; gap: 12px; margin-bottom: 14px; }
 .search-field { min-height: 44px; display: flex; align-items: center; gap: 13px; padding: 0 15px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--ink); }
 .search-field:focus-within { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
 .search-field input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 15px; }
@@ -190,8 +190,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .introduction h1 { font-size: clamp(40px, 12vw, 54px); }
   .headline { font-size: clamp(22px, 7vw, 30px); }
   .intro-copy { font-size: 16px; }
-  .search-controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 22px; }
-  .search-field, .search-controls select { min-height: 54px; font-size: 16px; }
+  .search-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-bottom: 22px; }
+  .search-field, .search-controls select { min-width: 0; width: 100%; min-height: 54px; font-size: 16px; }
   .search-controls select:nth-of-type(2), .search-controls select:nth-of-type(3), .search-controls select:nth-of-type(4) { display: none; }
   .clear-control { display: none; }
   .constellation { display: block; min-height: 0; border: 0; }

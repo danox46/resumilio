@@ -1,6 +1,6 @@
 {
   "name": "resumilio",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "description": "Person-first, evidence-backed living resume engine.",
   "license": "MIT",

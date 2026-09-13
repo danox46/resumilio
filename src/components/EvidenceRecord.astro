@@ -2,6 +2,7 @@
 import type { Locale, ResumilioProfile } from "../profile";
 import { absoluteUrl, claimPath, localeRoot } from "../site";
 import { buildClaimJsonLd } from "../structured-data";
+import { marketClaimSummary, marketEvidenceTitle, marketLabel, marketSourceSummary } from "../presentation";
 import "../styles/global.css";
 
 interface Props {
@@ -16,13 +17,13 @@ const organization = claim.organizationId ? profile.organizations.find((item) =>
 const path = claimPath(claim.id, locale);
 const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const text = locale === "en" ? {
-  back: "Back to all evidence", record: "Evidence record", status: "Lifecycle", organization: "Organization", proof: "Supporting evidence",
-  strength: "Evidence strength", visibility: "Source visibility", observed: "Observed", publicSource: "Open public source", attribution: "Powered by Resumilio",
+  back: "Back to career highlights", record: "Career highlight", status: "Project stage", organization: "Company or provider", proof: "About this work",
+  strength: "Portfolio format", visibility: "Available details", observed: "Last updated", publicSource: "View public project", attribution: "Built with Resumilio",
 } : {
-  back: "Volver a toda la evidencia", record: "Registro de evidencia", status: "Ciclo de vida", organization: "Organización", proof: "Evidencia de respaldo",
-  strength: "Fuerza de la evidencia", visibility: "Visibilidad de la fuente", observed: "Verificado", publicSource: "Abrir fuente pública", attribution: "Con tecnología de Resumilio",
+  back: "Volver a la experiencia", record: "Experiencia destacada", status: "Etapa del proyecto", organization: "Empresa o institución", proof: "Sobre este trabajo",
+  strength: "Formato del portafolio", visibility: "Detalles disponibles", observed: "Última actualización", publicSource: "Ver proyecto público", attribution: "Creado con Resumilio",
 };
-const description = claim.summary[locale];
+const description = marketClaimSummary(claim, locale);
 const canonical = absoluteUrl(path);
 const alternate = absoluteUrl(claimPath(claim.id, alternateLocale));
 const jsonLd = buildClaimJsonLd(profile, claim, locale);
@@ -63,20 +64,20 @@ const jsonLd = buildClaimJsonLd(profile, claim, locale);
       <article class="record-claim" id={claim.id}>
         <p class="detail-label">{text.record}</p>
         <h1>{claim.title[locale]}</h1>
-        <p class="record-summary">{claim.summary[locale]}</p>
+        <p class="record-summary">{description}</p>
         <dl class="record-meta">
-          <div><dt>{text.status}</dt><dd>{claim.lifecycle}</dd></div>
+          <div><dt>{text.status}</dt><dd>{marketLabel(claim.lifecycle, locale)}</dd></div>
           {organization && <div><dt>{text.organization}</dt><dd>{organization.name[locale]}</dd></div>}
         </dl>
       </article>
       <section class="record-evidence" aria-labelledby="supporting-evidence">
         <h2 id="supporting-evidence">{text.proof}</h2>
         {evidence.map((item) => <article class="record-proof" id={item.id}>
-          <h3>{item.title[locale]}</h3>
-          <p>{item.source.label[locale]}</p>
+          <h3>{marketEvidenceTitle(item, locale)}</h3>
+          <p>{marketSourceSummary(item, locale)}</p>
           <dl class="record-meta">
-            <div><dt>{text.strength}</dt><dd>{item.strength}</dd></div>
-            <div><dt>{text.visibility}</dt><dd>{item.source.visibility}</dd></div>
+            <div><dt>{text.strength}</dt><dd>{marketLabel(item.strength, locale)}</dd></div>
+            <div><dt>{text.visibility}</dt><dd>{marketLabel(item.source.visibility, locale)}</dd></div>
             <div><dt>{text.observed}</dt><dd><time datetime={item.observedAt}>{item.observedAt}</time></dd></div>
           </dl>
           {item.source.url && <a class="button button--primary record-source" href={item.source.url} rel="noreferrer">{text.publicSource}</a>}

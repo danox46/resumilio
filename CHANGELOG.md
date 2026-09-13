@@ -4,6 +4,13 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-13
+
+### Changed
+
+- Reframed the public interface in natural job-market language while preserving the underlying profile, lifecycle, source, and machine-readable contracts.
+- Polished English and Spanish navigation, filters, recommendations, career-map labels, experience summaries, and detail-page copy for visitor review.
+
 ## [0.4.0] - 2026-09-12
 
 ### Added

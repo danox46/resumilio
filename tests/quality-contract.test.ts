@@ -24,3 +24,12 @@ test("personalization remains session-local and network-independent", () => {
   assert.match(component, /sessionStorage/);
   assert.doesNotMatch(component, /fetch\(|XMLHttpRequest|WebSocket|sendBeacon|localStorage|indexedDB|document\.cookie/);
 });
+
+test("public labels use job-market language while internal contracts stay unchanged", () => {
+  for (const label of ["Career highlights", "Professional experience", "Project stage", "More about it", "Related work"]) {
+    assert.match(component + readFileSync("src/presentation.ts", "utf8"), new RegExp(label));
+  }
+  for (const internalLabel of ["Selected claim", "Evidence strength", "Source visibility", "Evidence / source"]) {
+    assert.doesNotMatch(component, new RegExp(internalLabel));
+  }
+});
