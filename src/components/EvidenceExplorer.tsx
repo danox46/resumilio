@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, recommendationReason, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { claimPath } from "../site.js";
@@ -16,6 +16,7 @@ const copy = {
     listIntro: "A searchable list of claims and evidence related to Daniel's work.", type: "Type", status: "Status",
     keyEvidence: "Key evidence", reset: "Reset this session", powered: "Powered by Resumilio", menu: "Open navigation",
     empty: "No evidence matches this search.", publicSummary: "Public summary · underlying material restricted", sortBy: "Sort by", relevant: "Most relevant", titleAsc: "Title A–Z",
+    graphHelp: "Use the arrow keys to move between visible claims. Press Enter or Space to select one.",
   },
   es: {
     evidence: "Evidencia", graph: "Grafo", search: "Buscar", explore: "Explora la evidencia detrás del trabajo.",
@@ -26,6 +27,7 @@ const copy = {
     listIntro: "Una lista consultable de afirmaciones y evidencia sobre el trabajo de Daniel.", type: "Tipo", status: "Estado",
     keyEvidence: "Evidencia clave", reset: "Reiniciar esta sesión", powered: "Creado con Resumilio", menu: "Abrir navegación",
     empty: "Ninguna evidencia coincide con esta búsqueda.", publicSummary: "Resumen público · material subyacente restringido", sortBy: "Ordenar por", relevant: "Más relevante", titleAsc: "Título A–Z",
+    graphHelp: "Usa las flechas para moverte entre las afirmaciones visibles. Pulsa Enter o Espacio para seleccionar una.",
   },
 } as const;
 
@@ -144,6 +146,20 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const tags = [...new Set(profile.claims.flatMap((claim) => claim.tags))].sort();
   const years = [...new Set(profile.evidence.map((item) => item.observedAt.slice(0, 4)))].sort().reverse();
   const selectClaim = (claim: Claim) => { setSelectedId(claim.id); signal("open", claim.tags, claim.id); };
+  const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
+    const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
+    if (!keys.includes(event.key) || results.length === 0) return;
+    event.preventDefault();
+    const current = Math.max(0, results.findIndex((item) => item.claim.id === claim.id));
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? results.length - 1
+        : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + results.length) % results.length;
+    const next = results[nextIndex].claim;
+    selectClaim(next);
+    window.requestAnimationFrame(() => document.getElementById(`claim-node-${next.id}`)?.focus());
+  };
   const moreLike = () => {
     const next = applySignal(discovery, "more-like-this", selected.tags, selected.id);
     setDiscovery(next);
@@ -185,7 +201,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <button className="clear-control" type="button" onClick={() => { setQuery(""); setType(""); setLifecycle(""); setTag(""); setYear(""); }}>{t.clear}</button>
       </form>
 
-      <section className="constellation" id="graph" aria-label="Evidence constellation">
+      <section className="constellation" id="graph" aria-label="Evidence constellation" aria-describedby="graph-help">
+        <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="graph-stage">
           <div className="legend" aria-hidden="true"><span><i className="legend-selected"/>Selected claim</span><span><i className="legend-claim"/>Other claim</span><span><i className="legend-evidence"/>Evidence / source</span><span><i className="legend-line"/>Relationship</span></div>
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -201,7 +218,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               const claimStyle = { "--x": `${point.claim[0]}%`, "--y": `${point.claim[1]}%` } as CSSProperties;
               const evidenceStyle = { "--x": `${point.evidence[0]}%`, "--y": `${point.evidence[1]}%` } as CSSProperties;
               return <article key={claim.id} className={`graph-branch${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
-                <button className="claim-node" style={claimStyle} type="button" aria-pressed={isSelected} onClick={() => selectClaim(claim)}><span className="node-dot"/><span><strong>{claim.title[locale]}</strong><small>{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</small></span></button>
+                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{claim.title[locale]}</strong><small>{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</small></span></button>
                 <div className="evidence-node" style={evidenceStyle}><span className="node-dot"/><span>{evidence.title[locale]}</span></div>
                 {isSelected && <ClaimDetail profile={profile} claim={claim} locale={locale} state={discovery} compact onMoreLike={moreLike}/>}
               </article>;

@@ -85,6 +85,7 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .graph-branch--hidden .claim-node, .graph-branch--hidden .evidence-node { opacity: .1; pointer-events: none; }
 .claim-node, .evidence-node { position: absolute; left: var(--x); top: var(--y); transform: translate(-18px,-50%); display: flex; align-items: center; gap: 11px; max-width: 250px; color: var(--ink); transition: opacity 180ms ease, transform 180ms ease; }
 .claim-node { appearance: none; border: 0; background: transparent; padding: 10px; cursor: pointer; text-align: left; }
+.claim-node:disabled { cursor: default; }
 .claim-node:hover { transform: translate(-18px,-50%) scale(1.018); }
 .claim-node .node-dot { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; background: var(--leaf); box-shadow: 0 0 0 1px rgb(0 0 0 / 3%); }
 .graph-branch--selected .claim-node .node-dot { background: var(--green); box-shadow: 0 0 0 4px var(--coral); }

@@ -37,6 +37,6 @@ const jsonLd = buildProfileJsonLd(publicProfile, "es");
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
   <body>
-    <EvidenceExplorer profile={publicProfile} initialLocale="es" client:load />
+    <EvidenceExplorer profile={publicProfile} initialLocale="es" client:idle />
   </body>
 </html>

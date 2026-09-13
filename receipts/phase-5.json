@@ -1,0 +1,42 @@
+{
+  "phase": 5,
+  "status": "verified",
+  "version": "0.5.0",
+  "verificationCommands": [
+    "npm run phase5",
+    "npm run verify:browser-quality"
+  ],
+  "verification": {
+    "automatedTestsPassed": 20,
+    "viewportsReviewed": [
+      "240x240",
+      "320x568",
+      "390x844",
+      "768x1024",
+      "1440x1024",
+      "1920x1080",
+      "3840x2160"
+    ],
+    "horizontalOverflowPixels": 0,
+    "manualScreenshotReviewPassed": true,
+    "keyboardAndDpadSmokePassed": true,
+    "screenReaderStructureSmokePassed": true,
+    "visibleFocusPassed": true,
+    "reducedMotionPassed": true,
+    "lighthouseMobile": {
+      "runs": 3,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "largestContentfulPaintMs": 1201,
+      "cumulativeLayoutShift": 0
+    },
+    "interactiveJavascriptGzipBytes": 74735,
+    "externalRuntimeRequests": 0,
+    "staticEvidencePageScriptRequests": 0,
+    "personalizationStorage": "session-only",
+    "publicFilesScanned": 91,
+    "forbiddenArtifacts": 0
+  }
+}
