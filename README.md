@@ -1,17 +1,69 @@
 # Resumilio
 
-Resumilio is a person-first, evidence-backed living resume engine. The resume owner is the primary public identity; Resumilio is the reusable engine underneath it.
+Resumilio is a person-first, evidence-backed living resume engine. The person is the public identity; Resumilio is the reusable engine underneath it.
 
-Phase 1 defines the public profile contract and a deliberately small bilingual Daniel seed. It keeps claim lifecycle, provenance, evidence strength, relationships, and translated copy separate so later interfaces cannot flatten truthful distinctions.
+It starts with a bilingual data contract that keeps claims, lifecycle, provenance, evidence strength, and relationships distinct. A local CLI and MCP server let people or agents maintain the same profile without a model key, proprietary account, or hosted service.
 
-## Verify Phase 1
+## Start in a fresh directory
+
+```sh
+npm install -g resumilio
+resumilio init my-profile
+cd my-profile
+resumilio validate
+resumilio preview
+resumilio export --format markdown
+resumilio deploy
+```
+
+Until the package is published to npm, clone this repository, run `npm ci && npm run build`, and use `node /path/to/resumilio/dist/cli.js` with the same commands.
+
+`deploy` deliberately creates sanitized local static artifacts only. It does not publish them or require credentials.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `init` | Create a valid bilingual starter profile and experience-level guidance. |
+| `ingest` | Replace a profile with valid JSON or merge a validated `claim-bundle`. |
+| `validate` | Check schema, graph integrity, evidence reciprocity, and lifecycle wording. |
+| `preview` | Create a local HTML preview. |
+| `export` | Export JSON, Markdown, or HTML. |
+| `doctor` | Check the runtime and profile without requiring a model key. |
+| `deploy` | Build sanitized local static deployment artifacts without publishing. |
+
+Choose `--level nontechnical`, `intermediate`, or `advanced` during `init`. The explanation changes; the generated profile and deployment schema do not.
+
+## Included profiles
+
+- `profiles/starter.json` is a generic bilingual starter.
+- `profiles/daniel.json` is a deliberately small public seed that demonstrates truthful lifecycle and evidence distinctions. It is not a private résumé archive.
+
+## Local MCP server
+
+```sh
+npm run build
+node dist/mcp-server.js --profile ./resumilio.json
+```
+
+The stdio server exposes bounded tools to read and update claims, link public sources, validate the graph, preview, and build local deployment artifacts. See `docs/mcp.md`.
+
+## Development
 
 ```sh
 npm ci
-npm run phase1
+npm run phase2
 ```
 
-The Phase 1 command type-checks the validator, validates the seed, runs negative contract tests, and scans the public repository surface for private artifacts and unsafe references.
+The Phase 2 gate builds the distributable, type-checks, validates the Daniel seed, runs contract and fresh-directory workflow tests, scans the public tree, and inspects the npm package contents.
 
-No model key is required.
+## Project documents
 
+- [Architecture](docs/architecture.md)
+- [Public data contract](docs/phase-1-public-data-contract.md)
+- [Onboarding modes](docs/onboarding.md)
+- [Local MCP server](docs/mcp.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+
+Resumilio is available under the MIT License. The project name and marks are covered separately by `TRADEMARKS.md`.

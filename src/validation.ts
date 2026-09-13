@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
-import type { ResumilioProfile } from "./profile.ts";
+import type { ResumilioProfile } from "./profile.js";
 
 export interface ValidationResult {
   valid: boolean;
@@ -86,6 +86,7 @@ export function validateProfileDocument(value: unknown): ValidationResult {
   }
 
   for (const contact of document.profile.contacts) {
+    if (document.profile.id !== "daniel-rosales") continue;
     if (contact.kind === "email") {
       if (contact.url !== "mailto:daniel@danienremoto.com") errors.push(`Email contact ${contact.id} is not approved for publication.`);
       continue;
@@ -100,4 +101,3 @@ export function validateProfileDocument(value: unknown): ValidationResult {
 
   return { valid: errors.length === 0, errors };
 }
-

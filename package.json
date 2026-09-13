@@ -1,16 +1,29 @@
 {
   "name": "resumilio",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.0",
   "type": "module",
   "description": "Person-first, evidence-backed living resume engine.",
+  "license": "MIT",
+  "bin": {
+    "resumilio": "dist/cli.js",
+    "resumilio-mcp": "dist/mcp-server.js"
+  },
+  "files": ["dist", "schemas", "profiles/starter.json", "README.md", "LICENSE", "TRADEMARKS.md"],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
+    "cli": "tsx src/cli.ts",
+    "mcp": "tsx src/mcp-server.ts",
     "validate": "tsx scripts/validate-profile.ts profiles/daniel.json",
     "test": "tsx --test tests/**/*.test.ts",
     "scan:public": "tsx scripts/scan-public.ts",
-    "phase1": "npm run typecheck && npm run validate && npm test && npm run scan:public"
+    "phase1": "npm run typecheck && npm run validate && npm test && npm run scan:public",
+    "phase2": "npm run build && npm run typecheck && npm run validate && npm test && npm run scan:public && npm pack --dry-run"
   },
+  "repository": { "type": "git", "url": "git+https://github.com/danox46/resumilio.git" },
+  "bugs": { "url": "https://github.com/danox46/resumilio/issues" },
+  "homepage": "https://github.com/danox46/resumilio#readme",
+  "keywords": ["resume", "portfolio", "evidence", "mcp", "bilingual"],
   "devDependencies": {
     "@types/node": "^24.0.0",
     "ajv": "^8.17.1",
@@ -19,6 +32,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.4"
   }
 }
-

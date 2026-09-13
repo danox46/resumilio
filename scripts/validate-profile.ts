@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { validateProfileDocument } from "../src/validation.ts";
+import { validateProfileDocument } from "../src/validation.js";
 
 const file = resolve(process.argv[2] ?? "profiles/daniel.json");
 const document = JSON.parse(await readFile(file, "utf8"));
@@ -12,4 +12,3 @@ if (!result.valid) {
 } else {
   console.log(JSON.stringify({ file, valid: true, claims: document.claims.length, evidence: document.evidence.length, locales: document.profile.locales }, null, 2));
 }
-

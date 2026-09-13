@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import type { ResumilioProfile } from "../src/profile.ts";
-import { validateProfileDocument } from "../src/validation.ts";
+import type { ResumilioProfile } from "../src/profile.js";
+import { validateProfileDocument } from "../src/validation.js";
 
 const seedPath = fileURLToPath(new URL("../profiles/daniel.json", import.meta.url));
 const seed = JSON.parse(await readFile(seedPath, "utf8")) as ResumilioProfile;
