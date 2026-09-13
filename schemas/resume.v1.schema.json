@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/resume.v1.schema.json",
+  "title": "Resumilio localized resume export v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "locale", "canonicalUrl", "profile", "claims"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "resumilio-resume" },
+    "locale": { "enum": ["en", "es"] },
+    "canonicalUrl": { "$ref": "#/$defs/url" },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "headline", "summary", "contacts"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "headline": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind", "label", "url"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" }, "kind": { "type": "string" }, "label": { "type": "string", "minLength": 1 }, "url": { "type": "string", "pattern": "^(https://|mailto:)[^\\s]+$" }
+            }
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "lifecycle", "title", "summary", "url", "tags", "evidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "type": { "type": "string" },
+          "lifecycle": { "type": "string" },
+          "title": { "type": "string", "minLength": 1 },
+          "summary": { "type": "string", "minLength": 1 },
+          "url": { "$ref": "#/$defs/url" },
+          "organization": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name"],
+            "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 }, "url": { "$ref": "#/$defs/url" } }
+          },
+          "tags": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "title", "strength", "visibility", "url"],
+              "properties": {
+                "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "strength": { "type": "string" },
+                "visibility": { "type": "string" }, "url": { "$ref": "#/$defs/url" }, "sourceUrl": { "$ref": "#/$defs/url" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "url": { "type": "string", "pattern": "^https://[^\\s]+$" }
+  }
+}

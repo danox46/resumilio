@@ -4,6 +4,15 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-12
+
+### Added
+
+- Versioned, cacheable English and Spanish resume, evidence, graph, search-index, and agent-readable exports.
+- Well-known capability discovery with public schema, citation, locale, and local MCP contracts.
+- Eight crawlable evidence pages with symmetric canonical and hreflang metadata, localized social metadata, sitemap coverage, and source-derived structured data.
+- Contract verification that resolves every claim to supporting evidence in one hop.
+
 ## [0.3.0] - 2026-09-12
 
 ### Added

@@ -4,6 +4,6 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/cli.ts", "src/mcp-server.ts"],
   "exclude": ["tests", "scripts"]
 }

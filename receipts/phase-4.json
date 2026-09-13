@@ -1,0 +1,32 @@
+{
+  "phase": 4,
+  "status": "verified",
+  "machineInterfaces": [
+    "resume.json",
+    ".well-known/resumilio",
+    "evidence.json",
+    "graph.json",
+    "search-index.json",
+    "llms.txt",
+    "llms-full.txt"
+  ],
+  "locales": ["en", "es"],
+  "structuredTypes": ["Person", "ProfilePage", "CreativeWork", "SoftwareSourceCode"],
+  "verificationCommand": "npm run phase4",
+  "verification": {
+    "automatedTestsPassed": 17,
+    "jsonEndpoints": 10,
+    "textAndDiscoveryEndpoints": 6,
+    "schemaEndpoints": 6,
+    "crawlableEvidencePages": 8,
+    "citationResolutionHops": 1,
+    "bilingualRouteParity": true,
+    "canonicalAndHreflangSymmetry": true,
+    "localizedSocialMetadata": true,
+    "cacheHeadersReadBack": true,
+    "screenReaderStructureReadBack": true,
+    "officialSchemaOrgDefinitionsChecked": true,
+    "publicFilesScanned": 87,
+    "forbiddenArtifacts": 0
+  }
+}

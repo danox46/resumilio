@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/discovery.v1.schema.json",
+  "title": "Resumilio discovery manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "protocol", "profileId", "defaultLocale", "locales", "schemas", "capabilities", "citation", "mcp"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "resumilio-discovery" },
+    "protocol": { "$ref": "#/$defs/url" },
+    "profileId": { "$ref": "#/$defs/id" },
+    "defaultLocale": { "enum": ["en", "es"] },
+    "locales": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "es"],
+      "properties": { "en": { "$ref": "#/$defs/endpoints" }, "es": { "$ref": "#/$defs/endpoints" } }
+    },
+    "schemas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "resume", "evidence", "graph", "searchIndex", "discovery"],
+      "properties": {
+        "profile": { "$ref": "#/$defs/url" }, "resume": { "$ref": "#/$defs/url" }, "evidence": { "$ref": "#/$defs/url" },
+        "graph": { "$ref": "#/$defs/url" }, "searchIndex": { "$ref": "#/$defs/url" }, "discovery": { "$ref": "#/$defs/url" }
+      }
+    },
+    "capabilities": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "enum": ["profile", "evidence", "graph", "search", "schema", "citation"] } },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claimUrlField", "evidenceUrlField", "maximumResolutionHops"],
+      "properties": { "claimUrlField": { "type": "string" }, "evidenceUrlField": { "type": "string" }, "maximumResolutionHops": { "const": 1 } }
+    },
+    "mcp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transport", "command", "tools"],
+      "properties": { "transport": { "const": "stdio" }, "command": { "const": "resumilio-mcp" }, "tools": { "type": "array", "minItems": 6, "items": { "type": "string" } } }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "url": { "type": "string", "pattern": "^https://[^\\s]+$" },
+    "endpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resume", "evidence", "graph", "searchIndex", "llms", "llmsFull"],
+      "properties": {
+        "resume": { "$ref": "#/$defs/url" }, "evidence": { "$ref": "#/$defs/url" }, "graph": { "$ref": "#/$defs/url" },
+        "searchIndex": { "$ref": "#/$defs/url" }, "llms": { "$ref": "#/$defs/url" }, "llmsFull": { "$ref": "#/$defs/url" }
+      }
+    }
+  }
+}

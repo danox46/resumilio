@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/evidence.v1.schema.json",
+  "title": "Resumilio localized evidence export v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "locale", "canonicalUrl", "evidence"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "resumilio-evidence" },
+    "locale": { "enum": ["en", "es"] },
+    "canonicalUrl": { "$ref": "#/$defs/url" },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "evidenceType", "strength", "lifecycle", "observedAt", "source", "claims"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "title": { "type": "string", "minLength": 1 },
+          "evidenceType": { "type": "string" },
+          "strength": { "type": "string" },
+          "lifecycle": { "type": "string" },
+          "observedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "visibility"],
+            "properties": { "label": { "type": "string", "minLength": 1 }, "visibility": { "type": "string" }, "url": { "$ref": "#/$defs/url" } }
+          },
+          "claims": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "url"],
+              "properties": { "id": { "$ref": "#/$defs/id" }, "url": { "$ref": "#/$defs/url" } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "url": { "type": "string", "pattern": "^https://[^\\s]+$" }
+  }
+}

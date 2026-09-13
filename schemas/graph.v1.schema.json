@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/graph.v1.schema.json",
+  "title": "Resumilio localized graph export v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "locale", "canonicalUrl", "nodes", "edges"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "resumilio-graph" },
+    "locale": { "enum": ["en", "es"] },
+    "canonicalUrl": { "$ref": "#/$defs/url" },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "label"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "kind": { "enum": ["person", "organization", "claim", "evidence"] },
+          "label": { "type": "string", "minLength": 1 },
+          "url": { "$ref": "#/$defs/url" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "sourceId", "targetId"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "type": { "enum": ["performed-for", "provided-by", "supports", "related-to"] },
+          "sourceId": { "$ref": "#/$defs/id" },
+          "targetId": { "$ref": "#/$defs/id" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "url": { "type": "string", "pattern": "^https://[^\\s]+$" }
+  }
+}

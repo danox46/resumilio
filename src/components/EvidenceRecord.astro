@@ -1,0 +1,88 @@
+---
+import type { Locale, ResumilioProfile } from "../profile";
+import { absoluteUrl, claimPath, localeRoot } from "../site";
+import { buildClaimJsonLd } from "../structured-data";
+import "../styles/global.css";
+
+interface Props {
+  profile: ResumilioProfile;
+  claim: ResumilioProfile["claims"][number];
+  locale: Locale;
+}
+
+const { profile, claim, locale } = Astro.props;
+const evidence = claim.evidenceIds.map((id) => profile.evidence.find((item) => item.id === id)!);
+const organization = claim.organizationId ? profile.organizations.find((item) => item.id === claim.organizationId) : undefined;
+const path = claimPath(claim.id, locale);
+const alternateLocale: Locale = locale === "en" ? "es" : "en";
+const text = locale === "en" ? {
+  back: "Back to all evidence", record: "Evidence record", status: "Lifecycle", organization: "Organization", proof: "Supporting evidence",
+  strength: "Evidence strength", visibility: "Source visibility", observed: "Observed", publicSource: "Open public source", attribution: "Powered by Resumilio",
+} : {
+  back: "Volver a toda la evidencia", record: "Registro de evidencia", status: "Ciclo de vida", organization: "Organización", proof: "Evidencia de respaldo",
+  strength: "Fuerza de la evidencia", visibility: "Visibilidad de la fuente", observed: "Verificado", publicSource: "Abrir fuente pública", attribution: "Con tecnología de Resumilio",
+};
+const description = claim.summary[locale];
+const canonical = absoluteUrl(path);
+const alternate = absoluteUrl(claimPath(claim.id, alternateLocale));
+const jsonLd = buildClaimJsonLd(profile, claim, locale);
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={locale} href={canonical} />
+    <link rel="alternate" hreflang={alternateLocale} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl(claimPath(claim.id, "en"))} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={profile.profile.name[locale]} />
+    <meta property="og:title" content={claim.title[locale]} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locale === "en" ? "en_US" : "es_CO"} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={claim.title[locale]} />
+    <meta name="twitter:description" content={description} />
+    <title>{claim.title[locale]} — {profile.profile.name[locale]}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body>
+    <header class="site-header evidence-record-header">
+      <a class="wordmark" href={localeRoot(locale)}>{profile.profile.name[locale]}</a>
+      <div class="header-actions">
+        <a class="locale-control" href={claimPath(claim.id, alternateLocale)} aria-label={locale === "en" ? "Cambiar a español" : "Switch to English"}><strong>EN</strong><span>/</span><strong>ES</strong></a>
+      </div>
+    </header>
+    <main class="record-shell">
+      <a class="record-back" href={`${localeRoot(locale)}#evidence`}>← {text.back}</a>
+      <article class="record-claim" id={claim.id}>
+        <p class="detail-label">{text.record}</p>
+        <h1>{claim.title[locale]}</h1>
+        <p class="record-summary">{claim.summary[locale]}</p>
+        <dl class="record-meta">
+          <div><dt>{text.status}</dt><dd>{claim.lifecycle}</dd></div>
+          {organization && <div><dt>{text.organization}</dt><dd>{organization.name[locale]}</dd></div>}
+        </dl>
+      </article>
+      <section class="record-evidence" aria-labelledby="supporting-evidence">
+        <h2 id="supporting-evidence">{text.proof}</h2>
+        {evidence.map((item) => <article class="record-proof" id={item.id}>
+          <h3>{item.title[locale]}</h3>
+          <p>{item.source.label[locale]}</p>
+          <dl class="record-meta">
+            <div><dt>{text.strength}</dt><dd>{item.strength}</dd></div>
+            <div><dt>{text.visibility}</dt><dd>{item.source.visibility}</dd></div>
+            <div><dt>{text.observed}</dt><dd><time datetime={item.observedAt}>{item.observedAt}</time></dd></div>
+          </dl>
+          {item.source.url && <a class="button button--primary record-source" href={item.source.url} rel="noreferrer">{text.publicSource}</a>}
+        </article>)}
+      </section>
+    </main>
+    <footer class="record-footer"><span>{text.attribution}</span></footer>
+  </body>
+</html>

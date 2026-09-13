@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, recommendationReason, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
+import { claimPath } from "../site.js";
 
 const sessionKey = "resumilio:discovery:v1";
 type Claim = ResumilioProfile["claims"][number];
@@ -86,7 +87,7 @@ function ClaimDetail({ profile, claim, locale, state, compact = false, onMoreLik
       <div><dt>{t.recommended}</dt><dd>{reason}</dd></div>
     </dl>
     <div className="detail-actions">
-      <a className="button button--primary" href={`#${evidence.id}`}>{t.view}</a>
+      <a className="button button--primary" href={`${claimPath(claim.id, locale)}#${evidence.id}`}>{t.view}</a>
       <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
     </div>
   </section>;
@@ -216,7 +217,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <div className="evidence-table" role="table" aria-label={t.allEvidence}>
           <div className="evidence-row evidence-row--header" role="row"><span role="columnheader">Title</span><span role="columnheader">{t.type}</span><span role="columnheader">{t.status}</span><span role="columnheader">{t.keyEvidence}</span><span role="columnheader">{t.strength}</span><span/></div>
           {results.map(({ claim }) => { const evidence = evidenceFor(profile, claim); return <article className="evidence-row" role="row" id={claim.id} key={claim.id} onClick={() => selectClaim(claim)}>
-            <a role="cell" href={`#${claim.id}`} onClick={(event) => { event.preventDefault(); selectClaim(claim); }}>{claim.title[locale]}</a><span role="cell">{contractLabel(claim.type, locale)}</span><span role="cell">{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</span><span role="cell" id={evidence.id}>{evidence.source.url ? <a href={evidence.source.url} target="_blank" rel="noreferrer" onClick={() => signal("source-visit", claim.tags, claim.id)}>{evidence.title[locale]}</a> : evidence.title[locale]}</span><span role="cell">{contractLabel(evidence.strength, locale)}</span><Chevron/></article>; })}
+            <a role="cell" href={claimPath(claim.id, locale)} onClick={(event) => { event.stopPropagation(); signal("open", claim.tags, claim.id); }}>{claim.title[locale]}</a><span role="cell">{contractLabel(claim.type, locale)}</span><span role="cell">{contractLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? " · non-AI" : ""}</span><span role="cell" id={evidence.id}>{evidence.source.url ? <a href={evidence.source.url} target="_blank" rel="noreferrer" onClick={() => signal("source-visit", claim.tags, claim.id)}>{evidence.title[locale]}</a> : evidence.title[locale]}</span><span role="cell">{contractLabel(evidence.strength, locale)}</span><Chevron/></article>; })}
         </div>
       </section>
     </main>

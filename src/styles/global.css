@@ -127,6 +127,23 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 clamp(20px, 2.5vw, 38px); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); color: #40506a; font-size: 12px; }
 .reset-control--mobile { display: none; }
 
+.evidence-record-header { max-width: 100%; }
+.record-shell { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 58px 0 96px; }
+.record-back { display: inline-block; margin-bottom: 48px; color: var(--green); font-weight: 700; text-underline-offset: 4px; }
+.record-claim h1 { max-width: 820px; margin: 0; font-size: clamp(42px, 7vw, 76px); line-height: .98; letter-spacing: -.05em; }
+.record-summary { max-width: 720px; margin: 28px 0 0; color: var(--body); font-size: 19px; line-height: 1.65; }
+.record-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px 32px; margin: 32px 0 0; padding-top: 24px; border-top: 1px solid var(--line); }
+.record-meta div { display: grid; gap: 7px; }
+.record-meta dt { color: var(--body); font-size: 13px; }
+.record-meta dd { margin: 0; font-weight: 650; }
+.record-evidence { margin-top: 72px; }
+.record-evidence > h2 { margin: 0 0 20px; font-size: 28px; letter-spacing: -.03em; }
+.record-proof { padding: 28px 0; border-top: 1px solid var(--line); }
+.record-proof h3 { margin: 0; font-size: 21px; }
+.record-proof > p { max-width: 680px; color: var(--body); line-height: 1.6; }
+.record-source { width: max-content; margin-top: 24px; padding-inline: 24px; }
+.record-footer { max-width: 100%; justify-content: center; }
+
 @media (min-width: 1700px) {
   .experience-shell { max-width: 1920px; margin: 0 auto; }
   .graph-stage { min-height: 520px; }
@@ -211,6 +228,11 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   footer > span { order: 2; margin-left: auto; }
   footer .locale-control { order: 3; }
   .reset-control--mobile { display: inline-flex; min-height: 44px; order: 1; padding-left: 0; border-left: 0; font-size: 13px; }
+  .record-shell { width: min(100% - 40px, 920px); padding-top: 38px; }
+  .record-back { margin-bottom: 32px; }
+  .record-claim h1 { font-size: 42px; }
+  .record-summary { font-size: 17px; }
+  .record-evidence { margin-top: 54px; }
 }
 
 @media (max-width: 300px) {

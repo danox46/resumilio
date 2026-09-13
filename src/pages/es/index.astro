@@ -2,7 +2,14 @@
 import EvidenceExplorer from "../../components/EvidenceExplorer";
 import profile from "../../../profiles/daniel.json";
 import type { ResumilioProfile } from "../../profile";
+import { absoluteUrl } from "../../site";
+import { buildProfileJsonLd } from "../../structured-data";
 import "../../styles/global.css";
+
+const publicProfile = profile as ResumilioProfile;
+const canonical = absoluteUrl("/es/");
+const alternate = absoluteUrl("/");
+const jsonLd = buildProfileJsonLd(publicProfile, "es");
 ---
 
 <!doctype html>
@@ -11,10 +18,25 @@ import "../../styles/global.css";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content="Daniel Rosales — sistemas, CRM y automatización práctica, con evidencia detrás de cada afirmación pública." />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="es" href={canonical} />
+    <link rel="alternate" hreflang="en" href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={alternate} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Daniel Rosales" />
+    <meta property="og:title" content="Daniel Rosales — Trabajo respaldado por evidencia" />
+    <meta property="og:description" content="Sistemas, CRM y automatización práctica, con evidencia detrás de cada afirmación pública." />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Daniel Rosales — Trabajo respaldado por evidencia" />
+    <meta name="twitter:description" content="Sistemas, CRM y automatización práctica, con evidencia detrás de cada afirmación pública." />
     <title>Daniel Rosales — Trabajo respaldado por evidencia</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
   <body>
-    <EvidenceExplorer profile={profile as ResumilioProfile} initialLocale="es" client:load />
+    <EvidenceExplorer profile={publicProfile} initialLocale="es" client:load />
   </body>
 </html>

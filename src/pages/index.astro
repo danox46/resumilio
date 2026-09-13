@@ -2,7 +2,14 @@
 import EvidenceExplorer from "../components/EvidenceExplorer";
 import profile from "../../profiles/daniel.json";
 import type { ResumilioProfile } from "../profile";
+import { absoluteUrl } from "../site";
+import { buildProfileJsonLd } from "../structured-data";
 import "../styles/global.css";
+
+const publicProfile = profile as ResumilioProfile;
+const canonical = absoluteUrl("/");
+const alternate = absoluteUrl("/es/");
+const jsonLd = buildProfileJsonLd(publicProfile, "en");
 ---
 
 <!doctype html>
@@ -11,10 +18,25 @@ import "../styles/global.css";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content="Daniel Rosales — systems, CRM, and practical automation, with evidence behind every public claim." />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={canonical} />
+    <link rel="alternate" hreflang="es" href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Daniel Rosales" />
+    <meta property="og:title" content="Daniel Rosales — Evidence-backed work" />
+    <meta property="og:description" content="Systems, CRM, and practical automation, with evidence behind every public claim." />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_CO" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Daniel Rosales — Evidence-backed work" />
+    <meta name="twitter:description" content="Systems, CRM, and practical automation, with evidence behind every public claim." />
     <title>Daniel Rosales — Evidence-backed work</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
   <body>
-    <EvidenceExplorer profile={profile as ResumilioProfile} initialLocale="en" client:load />
+    <EvidenceExplorer profile={publicProfile} initialLocale="en" client:load />
   </body>
 </html>

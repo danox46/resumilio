@@ -1,6 +1,6 @@
 {
   "name": "resumilio",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "description": "Person-first, evidence-backed living resume engine.",
   "license": "MIT",
@@ -19,7 +19,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "npm run build:package && npm run build:site",
-    "build:package": "tsc -p tsconfig.build.json",
+    "build:package": "node scripts/clean-package-build.mjs && tsc -p tsconfig.build.json",
     "build:site": "astro build",
     "typecheck": "tsc --noEmit && astro check",
     "cli": "tsx src/cli.ts",
@@ -28,9 +28,11 @@
     "test": "tsx --test tests/**/*.test.ts",
     "scan:public": "tsx scripts/scan-public.ts",
     "verify:static": "tsx scripts/verify-static-experience.ts",
+    "verify:machine": "tsx scripts/verify-machine-experience.ts",
     "phase1": "npm run typecheck && npm run validate && npm test && npm run scan:public",
     "phase2": "npm run build && npm run typecheck && npm run validate && npm test && npm run scan:public && npm pack --dry-run",
-    "phase3": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run scan:public"
+    "phase3": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run scan:public",
+    "phase4": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run verify:machine && npm run scan:public"
   },
   "repository": {
     "type": "git",

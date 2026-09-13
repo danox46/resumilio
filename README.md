@@ -6,6 +6,8 @@ It starts with a bilingual data contract that keeps claims, lifecycle, provenanc
 
 The included web experience turns that contract into an adaptive Evidence Constellation: search and filter the complete public record, open the proof behind a claim, and understand why a related item is recommended. The initial HTML remains complete when JavaScript is unavailable; session adaptation stays local to the current browser tab.
 
+Machines can discover the same public record through `/.well-known/resumilio.json`, localized `resume.json`, `evidence.json`, `graph.json`, `search-index.json`, `llms.txt`, and versioned schemas. Every claim export links to a crawlable evidence page where its supporting record resolves in one hop.
+
 ## Start in a fresh directory
 
 ```sh
@@ -54,11 +56,11 @@ The stdio server exposes bounded tools to read and update claims, link public so
 
 ```sh
 npm ci
-npm run phase3
+npm run phase4
 npm run dev
 ```
 
-The Phase 3 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs contract, workflow, discovery, and static-experience tests, and scans the public tree. CI also inspects the npm package contents.
+The Phase 4 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs authoring, discovery, machine-contract, structured-data, and static-experience tests, and scans the public tree. CI also inspects the npm package contents.
 
 ## Project documents
 
@@ -68,6 +70,7 @@ The Phase 3 gate builds the package and bilingual static site, type-checks both,
 - [Local MCP server](docs/mcp.md)
 - [Phase 3 design system](docs/design/phase-3-design-system.md)
 - [Phase 3 fidelity ledger](docs/design/phase-3-fidelity-ledger.md)
+- [Machine interfaces and bilingual discovery](docs/machine-interfaces.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 
