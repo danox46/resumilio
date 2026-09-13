@@ -4,6 +4,7 @@ dist/
 site-dist/
 .astro/
 .playwright-cli/
+.wrangler/
 output/playwright/
 *.log
 .env
