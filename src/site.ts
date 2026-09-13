@@ -1,6 +1,6 @@
 import type { Locale } from "./profile.js";
 
-export const siteOrigin = (process.env.PUBLIC_SITE_ORIGIN ?? "https://resumilio.example").replace(/\/+$/, "");
+export const siteOrigin = (process.env.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
 
 export function localeRoot(locale: Locale): string {
   return locale === "en" ? "/" : "/es/";

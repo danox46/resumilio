@@ -18,5 +18,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run phase5
+      - run: npm run phase6
       - run: npm pack --dry-run

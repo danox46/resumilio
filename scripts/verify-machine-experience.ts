@@ -71,7 +71,7 @@ for (const claim of profile.claims) {
   assert.match(sitemap, new RegExp(`/evidence/${claim.id}/`));
   assert.match(sitemap, new RegExp(`/es/evidencia/${claim.id}/`));
 }
-assert.match(await read("robots.txt"), /Sitemap: https:\/\/resumilio\.example\/sitemap\.xml/);
+assert.ok((await read("robots.txt")).includes(`Sitemap: ${siteOrigin}/sitemap.xml`));
 assert.match(await read("_headers"), /s-maxage=3600/);
 
 console.log(JSON.stringify({

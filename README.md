@@ -56,11 +56,13 @@ The stdio server exposes bounded tools to read and update claims, link public so
 
 ```sh
 npm ci
-npm run phase4
+npm run phase6
 npm run dev
 ```
 
-The Phase 4 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs authoring, discovery, machine-contract, structured-data, and static-experience tests, and scans the public tree. CI also inspects the npm package contents.
+The Phase 6 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs authoring, discovery, machine-contract, structured-data, static-experience, accessibility, Lighthouse, release-origin, and public-safety checks. CI also inspects the npm package contents.
+
+The flagship static site is published as an assets-only Cloudflare Worker. See [Cloudflare deployment](docs/deployment.md) for the preview, parity, publication, and readback sequence.
 
 ## Project documents
 
@@ -71,6 +73,8 @@ The Phase 4 gate builds the package and bilingual static site, type-checks both,
 - [Phase 3 design system](docs/design/phase-3-design-system.md)
 - [Phase 3 fidelity ledger](docs/design/phase-3-fidelity-ledger.md)
 - [Machine interfaces and bilingual discovery](docs/machine-interfaces.md)
+- [Quality assurance](docs/quality-assurance.md)
+- [Cloudflare deployment](docs/deployment.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 

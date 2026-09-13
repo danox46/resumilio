@@ -19,7 +19,7 @@ JSON and text responses declare language, safe content type, and shared-cache po
 
 ## Canonical origin
 
-Local and CI builds use the reserved `https://resumilio.example` origin so canonical, hreflang, sitemap, and agent contracts can be validated before publication without implying a live destination. Set `PUBLIC_SITE_ORIGIN` to the exact verified public origin when building a deployable release. Phase 6 must reject the reserved origin before publication.
+The release build uses the verified public origin `https://resumilio.danielx9.workers.dev`. `PUBLIC_SITE_ORIGIN` may override it only for an intentional alternate deployment; the Phase 6 build gate rejects the reserved pre-publication origin.
 
 ## Structured evidence pages
 
