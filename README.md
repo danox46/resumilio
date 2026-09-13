@@ -4,6 +4,8 @@ Resumilio is a person-first, evidence-backed living resume engine. The person is
 
 It starts with a bilingual data contract that keeps claims, lifecycle, provenance, evidence strength, and relationships distinct. A local CLI and MCP server let people or agents maintain the same profile without a model key, proprietary account, or hosted service.
 
+The included web experience turns that contract into an adaptive Evidence Constellation: search and filter the complete public record, open the proof behind a claim, and understand why a related item is recommended. The initial HTML remains complete when JavaScript is unavailable; session adaptation stays local to the current browser tab.
+
 ## Start in a fresh directory
 
 ```sh
@@ -52,10 +54,11 @@ The stdio server exposes bounded tools to read and update claims, link public so
 
 ```sh
 npm ci
-npm run phase2
+npm run phase3
+npm run dev
 ```
 
-The Phase 2 gate builds the distributable, type-checks, validates the Daniel seed, runs contract and fresh-directory workflow tests, scans the public tree, and inspects the npm package contents.
+The Phase 3 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, runs contract, workflow, discovery, and static-experience tests, and scans the public tree. CI also inspects the npm package contents.
 
 ## Project documents
 
@@ -63,6 +66,8 @@ The Phase 2 gate builds the distributable, type-checks, validates the Daniel see
 - [Public data contract](docs/phase-1-public-data-contract.md)
 - [Onboarding modes](docs/onboarding.md)
 - [Local MCP server](docs/mcp.md)
+- [Phase 3 design system](docs/design/phase-3-design-system.md)
+- [Phase 3 fidelity ledger](docs/design/phase-3-fidelity-ledger.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 

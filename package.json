@@ -1,6 +1,6 @@
 {
   "name": "resumilio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Person-first, evidence-backed living resume engine.",
   "license": "MIT",
@@ -8,25 +8,56 @@
     "resumilio": "dist/cli.js",
     "resumilio-mcp": "dist/mcp-server.js"
   },
-  "files": ["dist", "schemas", "profiles/starter.json", "README.md", "LICENSE", "TRADEMARKS.md"],
+  "files": [
+    "dist",
+    "schemas",
+    "profiles/starter.json",
+    "README.md",
+    "LICENSE",
+    "TRADEMARKS.md"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
+    "dev": "astro dev",
+    "build": "npm run build:package && npm run build:site",
+    "build:package": "tsc -p tsconfig.build.json",
+    "build:site": "astro build",
+    "typecheck": "tsc --noEmit && astro check",
     "cli": "tsx src/cli.ts",
     "mcp": "tsx src/mcp-server.ts",
     "validate": "tsx scripts/validate-profile.ts profiles/daniel.json",
     "test": "tsx --test tests/**/*.test.ts",
     "scan:public": "tsx scripts/scan-public.ts",
+    "verify:static": "tsx scripts/verify-static-experience.ts",
     "phase1": "npm run typecheck && npm run validate && npm test && npm run scan:public",
-    "phase2": "npm run build && npm run typecheck && npm run validate && npm test && npm run scan:public && npm pack --dry-run"
+    "phase2": "npm run build && npm run typecheck && npm run validate && npm test && npm run scan:public && npm pack --dry-run",
+    "phase3": "npm run build && npm run typecheck && npm run validate && npm test && npm run verify:static && npm run scan:public"
   },
-  "repository": { "type": "git", "url": "git+https://github.com/danox46/resumilio.git" },
-  "bugs": { "url": "https://github.com/danox46/resumilio/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danox46/resumilio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danox46/resumilio/issues"
+  },
   "homepage": "https://github.com/danox46/resumilio#readme",
-  "keywords": ["resume", "portfolio", "evidence", "mcp", "bilingual"],
+  "keywords": [
+    "resume",
+    "portfolio",
+    "evidence",
+    "mcp",
+    "bilingual"
+  ],
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/react": "^6.0.5",
     "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "ajv": "^8.17.1",
+    "astro": "^7.3.2",
+    "cookie": "^2.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },

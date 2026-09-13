@@ -6,7 +6,7 @@ import { buildLocalDeployment, buildLocalPreview, linkPublicSource, readProfile,
 const text = (value: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] });
 
 export function createResumilioMcpServer(defaultProfilePath = "resumilio.json"): McpServer {
-  const server = new McpServer({ name: "resumilio", version: "0.2.0" });
+  const server = new McpServer({ name: "resumilio", version: "0.3.0" });
 
   server.registerTool("profile_read", {
     description: "Read a validated, public Resumilio profile graph.",

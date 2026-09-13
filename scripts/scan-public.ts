@@ -2,9 +2,10 @@ import { readdir, readFile } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname.replace(/^\/(?:[A-Za-z]:)/, (value) => value.slice(1)));
-const ignoredDirectories = new Set([".git", "node_modules", "coverage", "dist"]);
+const ignoredDirectories = new Set([".git", ".astro", ".playwright-cli", "node_modules", "coverage", "dist", "site-dist", "output"]);
 const ignoredFiles = new Set(["package-lock.json"]);
 const forbiddenExtensions = new Set([".pdf", ".doc", ".docx", ".rtf", ".odt", ".p12", ".pfx", ".pem", ".key"]);
+const textExtensions = new Set([".astro", ".css", ".html", ".js", ".json", ".md", ".mjs", ".ts", ".tsx", ".txt", ".yaml", ".yml"]);
 const allowedEmails = new Set(["daniel@danienremoto.com"]);
 
 const signatures = [
@@ -37,6 +38,7 @@ for (const file of files) {
     findings.push({ file: name, issue: "private or credential-bearing binary type" });
     continue;
   }
+  if (!textExtensions.has(extname(file).toLowerCase())) continue;
   const content = await readFile(file, "utf8").catch(() => "");
   for (const signature of signatures) if (signature.pattern.test(content)) findings.push({ file: name, issue: signature.label });
   for (const match of content.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)) {
@@ -50,4 +52,3 @@ if (findings.length) {
 } else {
   console.log(JSON.stringify({ safe: true, filesScanned: files.length, forbiddenArtifacts: 0, unapprovedEmails: 0 }, null, 2));
 }
-

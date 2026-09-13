@@ -1,0 +1,20 @@
+---
+import EvidenceExplorer from "../../components/EvidenceExplorer";
+import profile from "../../../profiles/daniel.json";
+import type { ResumilioProfile } from "../../profile";
+import "../../styles/global.css";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Daniel Rosales — sistemas, CRM y automatización práctica, con evidencia detrás de cada afirmación pública." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Daniel Rosales — Trabajo respaldado por evidencia</title>
+  </head>
+  <body>
+    <EvidenceExplorer profile={profile as ResumilioProfile} initialLocale="es" client:load />
+  </body>
+</html>

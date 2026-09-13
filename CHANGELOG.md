@@ -4,6 +4,17 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-12
+
+### Added
+
+- A responsive Evidence Constellation experience from 240px watch layouts through 4K displays.
+- Deterministic bilingual search, fuzzy and prefix matching, filters, sorting, and session-local recommendations without a model dependency.
+- Accessible recommendation explanations and reset controls for keyboard, touch, and assistive technology.
+- Static English and Spanish routes with all core claims, evidence, and deep links available without JavaScript.
+
+## [0.2.0] - 2026-09-12
+
 ### Added
 
 - Public repository foundation and contribution policies.
