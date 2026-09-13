@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "phase-1-evidence-contract",
+  "status": "passed",
+  "verifiedAt": "2026-09-12",
+  "verificationCommand": "npm run phase1",
+  "gates": [
+    {
+      "id": "1.1",
+      "status": "passed",
+      "evidence": "JSON Schema and graph validation pass; negative tests reject orphaned and non-reciprocal evidence references and later-stage wording on working-prelaunch claims."
+    },
+    {
+      "id": "1.2",
+      "status": "passed",
+      "evidence": "Seed assertions preserve professional AI as working-prelaunch, HubSpot SMS as shipped and non-AI, Masglo as a commercial proposal, and the verified course as completed."
+    },
+    {
+      "id": "1.3",
+      "status": "passed",
+      "evidence": "Schema requires English and Spanish for every localized field; the seed validates with stable shared entity IDs and the missing-translation test fails as expected."
+    },
+    {
+      "id": "1.4",
+      "status": "passed",
+      "evidence": "Public-surface scan reports zero private artifact types, local user paths, internal dashboard hosts, credential signatures, unapproved emails, or telephone values."
+    }
+  ]
+}

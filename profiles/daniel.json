@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "1.0.0",
+  "profile": {
+    "id": "daniel-rosales",
+    "name": {
+      "en": "Daniel Rosales",
+      "es": "Daniel Rosales"
+    },
+    "headline": {
+      "en": "Systems, CRM, and practical automation",
+      "es": "Sistemas, CRM y automatización práctica"
+    },
+    "summary": {
+      "en": "Digital projects, operational systems, and practical automation built from real work.",
+      "es": "Proyectos digitales, sistemas operativos y automatización práctica construidos desde el trabajo real."
+    },
+    "defaultLocale": "en",
+    "locales": ["en", "es"],
+    "contacts": [
+      {
+        "id": "contact-github",
+        "kind": "github",
+        "label": { "en": "GitHub", "es": "GitHub" },
+        "url": "https://github.com/danox46"
+      },
+      {
+        "id": "contact-linkedin",
+        "kind": "linkedin",
+        "label": { "en": "LinkedIn", "es": "LinkedIn" },
+        "url": "https://www.linkedin.com/in/danieltalking/"
+      },
+      {
+        "id": "contact-portfolio",
+        "kind": "portfolio",
+        "label": { "en": "Portfolio", "es": "Portafolio" },
+        "url": "https://danienremoto.com/"
+      },
+      {
+        "id": "contact-email",
+        "kind": "email",
+        "label": { "en": "Public email", "es": "Correo público" },
+        "url": "mailto:daniel@danienremoto.com"
+      }
+    ]
+  },
+  "organizations": [
+    {
+      "id": "organization-on-the-fuze",
+      "name": { "en": "On The Fuze", "es": "On The Fuze" }
+    },
+    {
+      "id": "organization-coursera",
+      "name": { "en": "Coursera", "es": "Coursera" },
+      "url": "https://www.coursera.org/"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-professional-ai-text-completion",
+      "type": "experience",
+      "lifecycle": "working-prelaunch",
+      "title": {
+        "en": "HubSpot custom app with OpenAI-assisted text completion",
+        "es": "Aplicación personalizada de HubSpot con finalización de texto asistida por OpenAI"
+      },
+      "summary": {
+        "en": "Led a working professional HubSpot custom app that used OpenAI-assisted text completion. The work is classified as working prelaunch and is not represented as shipped.",
+        "es": "Lideró una aplicación profesional y funcional de HubSpot que usó finalización de texto asistida por OpenAI. El trabajo se clasifica como funcional antes del lanzamiento y no se presenta como entregado."
+      },
+      "organizationId": "organization-on-the-fuze",
+      "evidenceIds": ["evidence-professional-ai-owner-record"],
+      "tags": ["hubspot", "openai", "professional-ai"]
+    },
+    {
+      "id": "claim-hubspot-sms-app",
+      "type": "experience",
+      "lifecycle": "shipped",
+      "title": {
+        "en": "HubSpot SMS custom app",
+        "es": "Aplicación personalizada de SMS para HubSpot"
+      },
+      "summary": {
+        "en": "Built and shipped a professional HubSpot SMS custom app. This work is explicitly non-AI.",
+        "es": "Construyó y entregó una aplicación profesional de SMS para HubSpot. Este trabajo no usa IA."
+      },
+      "organizationId": "organization-on-the-fuze",
+      "evidenceIds": ["evidence-hubspot-sms-owner-record"],
+      "tags": ["hubspot", "sms", "integration", "non-ai"]
+    },
+    {
+      "id": "claim-masglo-commercial-proposal",
+      "type": "project",
+      "lifecycle": "proposal",
+      "title": {
+        "en": "Masglo facial-recognition proposal",
+        "es": "Propuesta de reconocimiento facial para Masglo"
+      },
+      "summary": {
+        "en": "Public commercial proposal and portfolio project intended for sale; not paid client work.",
+        "es": "Propuesta comercial pública y proyecto de portafolio destinado a la venta; no fue trabajo pagado por un cliente."
+      },
+      "evidenceIds": ["evidence-masglo-public-repository"],
+      "tags": ["computer-vision", "commercial-proposal", "portfolio"]
+    },
+    {
+      "id": "claim-google-cloud-big-data-course",
+      "type": "education",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Google Cloud Big Data and Machine Learning Fundamentals",
+        "es": "Fundamentos de Big Data y aprendizaje automático de Google Cloud"
+      },
+      "summary": {
+        "en": "Verified course completed through Coursera.",
+        "es": "Curso verificado y completado a través de Coursera."
+      },
+      "organizationId": "organization-coursera",
+      "evidenceIds": ["evidence-google-cloud-course-credential"],
+      "tags": ["google-cloud", "big-data", "machine-learning"]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-professional-ai-owner-record",
+      "claimIds": ["claim-professional-ai-text-completion"],
+      "title": {
+        "en": "Owner-verified professional work record",
+        "es": "Registro profesional verificado por el titular"
+      },
+      "evidenceType": "owner-attestation",
+      "strength": "self-attested",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Sanitized owner verification; underlying work material is not public",
+          "es": "Verificación pública resumida; el material de trabajo subyacente no es público"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-12"
+    },
+    {
+      "id": "evidence-hubspot-sms-owner-record",
+      "claimIds": ["claim-hubspot-sms-app"],
+      "title": {
+        "en": "Owner-verified shipped work record",
+        "es": "Registro de trabajo entregado verificado por el titular"
+      },
+      "evidenceType": "owner-attestation",
+      "strength": "self-attested",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Sanitized owner verification; underlying work material is not public",
+          "es": "Verificación pública resumida; el material de trabajo subyacente no es público"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-12"
+    },
+    {
+      "id": "evidence-masglo-public-repository",
+      "claimIds": ["claim-masglo-commercial-proposal"],
+      "title": {
+        "en": "Public Masglo project repository",
+        "es": "Repositorio público del proyecto Masglo"
+      },
+      "evidenceType": "repository",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Masglo facial-recognition repository",
+          "es": "Repositorio de reconocimiento facial para Masglo"
+        },
+        "visibility": "public",
+        "url": "https://github.com/danox46/masglo-facial-recognition"
+      },
+      "observedAt": "2026-09-12"
+    },
+    {
+      "id": "evidence-google-cloud-course-credential",
+      "claimIds": ["claim-google-cloud-big-data-course"],
+      "title": {
+        "en": "Verified course credential",
+        "es": "Credencial de curso verificada"
+      },
+      "evidenceType": "credential",
+      "strength": "primary",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Sanitized credential verification; credential artifact is not public",
+          "es": "Verificación resumida de la credencial; el archivo de la credencial no es público"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-12"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "relationship-professional-ai-on-the-fuze",
+      "type": "performed-for",
+      "sourceId": "claim-professional-ai-text-completion",
+      "targetId": "organization-on-the-fuze"
+    },
+    {
+      "id": "relationship-hubspot-sms-on-the-fuze",
+      "type": "performed-for",
+      "sourceId": "claim-hubspot-sms-app",
+      "targetId": "organization-on-the-fuze"
+    },
+    {
+      "id": "relationship-google-cloud-coursera",
+      "type": "provided-by",
+      "sourceId": "claim-google-cloud-big-data-course",
+      "targetId": "organization-coursera"
+    }
+  ]
+}
+

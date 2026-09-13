@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/profile.v1.schema.json",
+  "title": "Resumilio public profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "profile", "organizations", "claims", "evidence", "relationships"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "profile": { "$ref": "#/$defs/profile" },
+    "organizations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/organization" }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/claim" }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "relationships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "localized": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "es"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "es": { "type": "string", "minLength": 1, "maxLength": 600 }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "headline", "summary", "defaultLocale", "locales", "contacts"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/localized" },
+        "headline": { "$ref": "#/$defs/localized" },
+        "summary": { "$ref": "#/$defs/localized" },
+        "defaultLocale": { "enum": ["en", "es"] },
+        "locales": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "allOf": [
+            { "contains": { "const": "en" } },
+            { "contains": { "const": "es" } }
+          ]
+        },
+        "contacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind", "label", "url"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "kind": { "enum": ["github", "linkedin", "portfolio", "email"] },
+              "label": { "$ref": "#/$defs/localized" },
+              "url": { "type": "string", "pattern": "^(https://|mailto:)[^\\s]+$", "maxLength": 300 }
+            }
+          }
+        }
+      }
+    },
+    "organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/localized" },
+        "url": { "type": "string", "pattern": "^https://[^\\s]+$", "maxLength": 300 }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "lifecycle", "title", "summary", "evidenceIds", "tags"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "enum": ["experience", "project", "education", "certification", "publication", "skill"] },
+        "lifecycle": { "enum": ["idea", "proposal", "working-prelaunch", "shipped", "production", "completed", "retired"] },
+        "title": { "$ref": "#/$defs/localized" },
+        "summary": { "$ref": "#/$defs/localized" },
+        "organizationId": { "$ref": "#/$defs/id" },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "claimIds", "title", "evidenceType", "strength", "lifecycle", "source", "observedAt"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "claimIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "title": { "$ref": "#/$defs/localized" },
+        "evidenceType": { "enum": ["public-source", "owner-attestation", "repository", "credential", "artifact"] },
+        "strength": { "enum": ["self-attested", "corroborated", "primary"] },
+        "lifecycle": { "enum": ["available", "restricted", "archived", "unavailable"] },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "visibility"],
+          "properties": {
+            "label": { "$ref": "#/$defs/localized" },
+            "visibility": { "enum": ["public", "public-summary", "private-reference"] },
+            "url": { "type": "string", "pattern": "^https://[^\\s]+$", "maxLength": 300 }
+          }
+        },
+        "observedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "sourceId", "targetId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "enum": ["performed-for", "provided-by", "supports", "related-to"] },
+        "sourceId": { "$ref": "#/$defs/id" },
+        "targetId": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}
+
