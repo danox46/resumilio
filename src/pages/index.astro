@@ -17,7 +17,7 @@ const jsonLd = buildProfileJsonLd(publicProfile, "en");
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Daniel Rosales — integration and automation engineer working across CRM platforms, backend systems, APIs, and practical automation." />
+    <meta name="description" content={publicProfile.profile.summary.en} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="en" href={canonical} />
     <link rel="alternate" hreflang="es" href={alternate} />
@@ -25,15 +25,15 @@ const jsonLd = buildProfileJsonLd(publicProfile, "en");
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="profile" />
     <meta property="og:site_name" content="Daniel Rosales" />
-    <meta property="og:title" content="Daniel Rosales — Integration & Automation Engineer" />
-    <meta property="og:description" content="CRM integrations, backend systems, APIs, and practical automation for real teams and client workflows." />
+    <meta property="og:title" content={`Daniel Rosales — ${publicProfile.profile.headline.en}`} />
+    <meta property="og:description" content={publicProfile.profile.summary.en} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="es_CO" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Daniel Rosales — Integration & Automation Engineer" />
-    <meta name="twitter:description" content="CRM integrations, backend systems, APIs, and practical automation for real teams and client workflows." />
-    <title>Daniel Rosales — Integration & Automation Engineer</title>
+    <meta name="twitter:title" content={`Daniel Rosales — ${publicProfile.profile.headline.en}`} />
+    <meta name="twitter:description" content={publicProfile.profile.summary.en} />
+    <title>Daniel Rosales — {publicProfile.profile.headline.en}</title>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
   <body>

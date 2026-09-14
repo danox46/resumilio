@@ -4,6 +4,19 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-14
+
+### Added
+
+- Expanded Daniel's bilingual public profile from four to fifteen career records using his current résumé, public LinkedIn profile, and privately reviewed credential files.
+- Added current and previous CRM, integration, backend, support, product, content, education, Coursera, HubSpot Academy, and Platzi experience.
+
+### Changed
+
+- Reworked the career map to keep a curated eight-item overview while the complete profile remains searchable and filterable below it.
+- Added company or provider context to the selected career record and refreshed the visitor-facing headline and summary.
+- Kept résumé files, certificate files, credential numbers, and private Drive locations out of the public profile.
+
 ## [0.6.1] - 2026-09-13
 
 ### Changed

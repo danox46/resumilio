@@ -17,11 +17,11 @@ const organization = claim.organizationId ? profile.organizations.find((item) =>
 const path = claimPath(claim.id, locale);
 const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const text = locale === "en" ? {
-  back: "Back to career highlights", record: "Career highlight", status: "Project stage", organization: "Company or provider", proof: "About this work",
-  strength: "Portfolio format", visibility: "Available details", observed: "Last updated", publicSource: "View public project", attribution: "Built with Resumilio",
+  back: "Back to career highlights", record: "Career highlight", status: "Career status", organization: "Company or provider", proof: "Career details",
+  strength: "How it's documented", visibility: "Available details", observed: "Last updated", publicSource: "Open public link", attribution: "Built with Resumilio",
 } : {
-  back: "Volver a la experiencia", record: "Experiencia destacada", status: "Etapa del proyecto", organization: "Empresa o institución", proof: "Sobre este trabajo",
-  strength: "Formato del portafolio", visibility: "Detalles disponibles", observed: "Última actualización", publicSource: "Ver proyecto público", attribution: "Creado con Resumilio",
+  back: "Volver a la experiencia", record: "Experiencia destacada", status: "Estado profesional", organization: "Empresa o institución", proof: "Detalles profesionales",
+  strength: "Cómo está documentado", visibility: "Detalles disponibles", observed: "Última actualización", publicSource: "Abrir enlace público", attribution: "Creado con Resumilio",
 };
 const description = marketClaimSummary(claim, locale);
 const canonical = absoluteUrl(path);

@@ -10,11 +10,11 @@ type Claim = ResumilioProfile["claims"][number];
 const copy = {
   en: {
     evidence: "Experience", graph: "Career map", search: "Search", explore: "CRM integrations, backend systems, APIs, and practical automation for real teams and client workflows.",
-    placeholder: "Search experience, skills, or projects", allTypes: "All experience", allStatuses: "All stages",
-    allSkills: "All skills", allTime: "Any year", clear: "Clear", selected: "Featured experience", lifecycle: "Project stage",
-    strength: "Portfolio format", visibility: "Available details", recommended: "Why it matters",
+    placeholder: "Search experience, skills, or projects", allTypes: "All experience", allStatuses: "All statuses",
+    allSkills: "All skills", allTime: "Any year", clear: "Clear", selected: "Featured experience", lifecycle: "Career status",
+    strength: "How it's documented", visibility: "Available details", recommended: "Why it matters",
     view: "View experience", more: "Show similar work", results: "highlights", allEvidence: "Career highlights",
-    listIntro: "Browse Daniel's professional experience, projects, and training.", type: "Category", status: "Stage", title: "Role or project",
+    listIntro: "Browse Daniel's professional experience, projects, and training.", type: "Category", status: "Status", title: "Role or project",
     keyEvidence: "More about it", reset: "Reset view", powered: "Built with Resumilio", menu: "Open navigation", primaryNav: "Primary navigation",
     empty: "No experience matches this search.", sortBy: "Sort by", relevant: "Most relevant", titleAsc: "Title A–Z",
     graphHelp: "Use the arrow keys to move between visible career highlights. Press Enter or Space to select one.",
@@ -22,11 +22,11 @@ const copy = {
   },
   es: {
     evidence: "Experiencia", graph: "Trayectoria", search: "Buscar", explore: "Integraciones CRM, sistemas backend, APIs y automatización práctica para equipos y flujos de clientes reales.",
-    placeholder: "Busca experiencia, habilidades o proyectos", allTypes: "Toda la experiencia", allStatuses: "Todas las etapas",
-    allSkills: "Todas las habilidades", allTime: "Cualquier año", clear: "Limpiar", selected: "Experiencia destacada", lifecycle: "Etapa del proyecto",
-    strength: "Formato del portafolio", visibility: "Detalles disponibles", recommended: "Por qué importa",
+    placeholder: "Busca experiencia, habilidades o proyectos", allTypes: "Toda la experiencia", allStatuses: "Todos los estados",
+    allSkills: "Todas las habilidades", allTime: "Cualquier año", clear: "Limpiar", selected: "Experiencia destacada", lifecycle: "Estado profesional",
+    strength: "Cómo está documentado", visibility: "Detalles disponibles", recommended: "Por qué importa",
     view: "Ver experiencia", more: "Ver trabajo similar", results: "destacados", allEvidence: "Experiencia destacada",
-    listIntro: "Explora la experiencia profesional, los proyectos y la formación de Daniel.", type: "Categoría", status: "Etapa", title: "Rol o proyecto",
+    listIntro: "Explora la experiencia profesional, los proyectos y la formación de Daniel.", type: "Categoría", status: "Estado", title: "Rol o proyecto",
     keyEvidence: "Más información", reset: "Reiniciar vista", powered: "Creado con Resumilio", menu: "Abrir navegación", primaryNav: "Navegación principal",
     empty: "No encontramos experiencia que coincida con esta búsqueda.", sortBy: "Ordenar por", relevant: "Más relevante", titleAsc: "Título A–Z",
     graphHelp: "Usa las flechas para recorrer la experiencia visible. Pulsa Enter o Espacio para seleccionar una.",
@@ -34,12 +34,35 @@ const copy = {
   },
 } as const;
 
-const layout: Record<string, { claim: [number, number]; evidence: [number, number] }> = {
-  "claim-professional-ai-text-completion": { claim: [58, 31], evidence: [62, 9] },
-  "claim-hubspot-sms-app": { claim: [40, 65], evidence: [40, 88] },
-  "claim-masglo-commercial-proposal": { claim: [20, 40], evidence: [8, 28] },
-  "claim-google-cloud-big-data-course": { claim: [78, 70], evidence: [80, 91] },
-};
+const featuredClaimIds = [
+  "claim-alphahub-hubspot-specialist",
+  "claim-operations-company-integration-specialist",
+  "claim-on-the-fuze-backend-lead",
+  "claim-professional-ai-text-completion",
+  "claim-hubspot-sms-app",
+  "claim-mai-full-stack-developer",
+  "claim-masglo-commercial-proposal",
+  "claim-computer-science-studies",
+];
+
+const graphSlots: Array<{ claim: [number, number] }> = [
+  { claim: [17, 28] },
+  { claim: [49, 22] },
+  { claim: [79, 30] },
+  { claim: [18, 61] },
+  { claim: [49, 55] },
+  { claim: [80, 64] },
+  { claim: [26, 88] },
+  { claim: [68, 86] },
+];
+
+function graphTitle(title: string) {
+  return title.split(" — ")[0];
+}
+
+function organizationFor(profile: ResumilioProfile, claim: Claim) {
+  return claim.organizationId ? profile.organizations.find((item) => item.id === claim.organizationId) : undefined;
+}
 
 function SearchIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>;
@@ -62,11 +85,13 @@ function ClaimDetail({ profile, claim, locale, state, compact = false, onMoreLik
 }) {
   const t = copy[locale];
   const evidence = evidenceFor(profile, claim);
+  const organization = organizationFor(profile, claim);
   const reason = marketRecommendationReason(state, locale);
   const visibility = marketSourceSummary(evidence, locale);
   return <section className={compact ? "claim-detail claim-detail--compact" : "claim-detail"} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
     <p className="detail-label">{t.selected}</p>
     <h2>{claim.title[locale]}</h2>
+    {organization && <p className="detail-organization">{organization.name[locale]}</p>}
     <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
     <p className="detail-summary">{marketClaimSummary(claim, locale)}</p>
     <dl>
@@ -83,13 +108,13 @@ function ClaimDetail({ profile, claim, locale, state, compact = false, onMoreLik
 }
 
 export default function EvidenceExplorer({ profile, initialLocale = profile.profile.defaultLocale }: { profile: ResumilioProfile; initialLocale?: Locale }) {
+  const defaultClaimId = profile.claims.find((claim) => claim.id === featuredClaimIds[0])?.id ?? profile.claims[0].id;
   const [locale, setLocale] = useState<Locale>(initialLocale);
-  const [selectedId, setSelectedId] = useState(profile.claims[0].id);
+  const [selectedId, setSelectedId] = useState(defaultClaimId);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("");
   const [lifecycle, setLifecycle] = useState("");
   const [tag, setTag] = useState("");
-  const [year, setYear] = useState("");
   const [sort, setSort] = useState<"relevant" | "title">("relevant");
   const [menuOpen, setMenuOpen] = useState(false);
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
@@ -122,28 +147,32 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   }, [selected.id, selected.tags, signal]);
 
   const results = useMemo(() => {
-    const searched = searchClaims(profile, query, { type, lifecycle, tag, year });
+    const searched = searchClaims(profile, query, { type, lifecycle, tag });
     if (sort === "title") return [...searched].sort((a, b) => a.claim.title[locale].localeCompare(b.claim.title[locale]));
-    if (query || type || lifecycle || tag || year || discovery.signalCount === 0) return searched;
+    if (query || type || lifecycle || tag || discovery.signalCount === 0) return searched;
     const order = new Map(rankRecommendations(profile, discovery).map((item, index) => [item.claim.id, index]));
     return [...searched].sort((a, b) => (order.get(a.claim.id) ?? 99) - (order.get(b.claim.id) ?? 99));
-  }, [profile, query, type, lifecycle, tag, year, sort, locale, discovery]);
+  }, [profile, query, type, lifecycle, tag, sort, locale, discovery]);
 
   const visibleIds = new Set(results.map((item) => item.claim.id));
+  const resultClaims = results.map((item) => item.claim);
+  const resultById = new Map(resultClaims.map((claim) => [claim.id, claim]));
+  const featured = featuredClaimIds.map((id) => resultById.get(id)).filter((claim): claim is Claim => Boolean(claim));
+  const graphClaims = [...featured, ...resultClaims.filter((claim) => !featuredClaimIds.includes(claim.id))].slice(0, graphSlots.length);
+  const graphPoints = new Map(graphClaims.map((claim, index) => [claim.id, graphSlots[index]]));
   const tags = [...new Set(profile.claims.flatMap((claim) => claim.tags))].sort();
-  const years = [...new Set(profile.evidence.map((item) => item.observedAt.slice(0, 4)))].sort().reverse();
   const selectClaim = (claim: Claim) => { setSelectedId(claim.id); signal("open", claim.tags, claim.id); };
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
-    if (!keys.includes(event.key) || results.length === 0) return;
+    if (!keys.includes(event.key) || graphClaims.length === 0) return;
     event.preventDefault();
-    const current = Math.max(0, results.findIndex((item) => item.claim.id === claim.id));
+    const current = Math.max(0, graphClaims.findIndex((item) => item.id === claim.id));
     const nextIndex = event.key === "Home"
       ? 0
       : event.key === "End"
-        ? results.length - 1
-        : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + results.length) % results.length;
-    const next = results[nextIndex].claim;
+        ? graphClaims.length - 1
+        : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + graphClaims.length) % graphClaims.length;
+    const next = graphClaims[nextIndex];
     selectClaim(next);
     window.requestAnimationFrame(() => document.getElementById(`claim-node-${next.id}`)?.focus());
   };
@@ -155,7 +184,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const submitSearch = (event: { preventDefault: () => void }) => { event.preventDefault(); signal("search", normalizeTerm(query).split(" ")); };
   const reset = () => {
-    setDiscovery(emptyDiscoveryState()); setQuery(""); setType(""); setLifecycle(""); setTag(""); setYear(""); setSort("relevant"); setSelectedId(profile.claims[0].id);
+    setDiscovery(emptyDiscoveryState()); setQuery(""); setType(""); setLifecycle(""); setTag(""); setSort("relevant"); setSelectedId(defaultClaimId);
     try { sessionStorage.removeItem(sessionKey); } catch { /* Nothing else to reset. */ }
   };
 
@@ -175,8 +204,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     <main id="top">
       <section className="introduction" aria-labelledby="person-name">
         <h1 id="person-name">{profile.profile.name[locale]}</h1>
-        <p className="headline">{locale === "en" ? "Integration & Automation Engineer" : "Ingeniero de Integraciones y Automatización"}</p>
-        <p className="intro-copy">{t.explore}</p>
+        <p className="headline">{profile.profile.headline[locale]}</p>
+        <p className="intro-copy">{profile.profile.summary[locale]}</p>
       </section>
 
       <form className="search-controls" id="search" role="search" onSubmit={submitSearch}>
@@ -184,29 +213,23 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <select aria-label={t.allTypes} value={type} onChange={(event) => { setType(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTypes}</option>{[...new Set(profile.claims.map((claim) => claim.type))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
         <select aria-label={t.allStatuses} value={lifecycle} onChange={(event) => { setLifecycle(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allStatuses}</option>{[...new Set(profile.claims.map((claim) => claim.lifecycle))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
         <select aria-label={t.allSkills} value={tag} onChange={(event) => { setTag(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allSkills}</option>{tags.map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
-        <select aria-label={t.allTime} value={year} onChange={(event) => { setYear(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTime}</option>{years.map((value) => <option key={value} value={value}>{value}</option>)}</select>
-        <button className="clear-control" type="button" onClick={() => { setQuery(""); setType(""); setLifecycle(""); setTag(""); setYear(""); }}>{t.clear}</button>
+        <button className="clear-control" type="button" onClick={() => { setQuery(""); setType(""); setLifecycle(""); setTag(""); }}>{t.clear}</button>
       </form>
 
       <section className="constellation" id="graph" aria-label={locale === "en" ? "Career highlights map" : "Mapa de experiencia profesional"} aria-describedby="graph-help">
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="graph-stage">
-          <div className="legend" aria-hidden="true"><span><i className="legend-selected"/>{t.selectedLegend}</span><span><i className="legend-claim"/>{t.otherLegend}</span><span><i className="legend-evidence"/>{t.supportLegend}</span><span><i className="legend-line"/>{t.relationshipLegend}</span></div>
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <line x1="58" y1="31" x2="40" y2="65" className="relation relation--claim"/><line x1="58" y1="31" x2="78" y2="70" className="relation relation--claim"/><line x1="40" y1="65" x2="20" y2="40" className="relation relation--claim"/>
-            {profile.claims.map((claim) => { const point = layout[claim.id]; return point ? <line key={claim.id} x1={point.claim[0]} y1={point.claim[1]} x2={point.evidence[0]} y2={point.evidence[1]} className="relation"/> : null; })}
+            {graphClaims.slice(1).map((claim, index) => { const from = graphPoints.get(graphClaims[index].id)!; const to = graphPoints.get(claim.id)!; return <line key={`career-${claim.id}`} x1={from.claim[0]} y1={from.claim[1]} x2={to.claim[0]} y2={to.claim[1]} className="relation relation--claim"/>; })}
           </svg>
           <div className="claim-graph">
-            {profile.claims.map((claim) => {
-              const point = layout[claim.id] ?? { claim: [50, 50], evidence: [50, 80] };
-              const evidence = evidenceFor(profile, claim);
+            {graphClaims.map((claim) => {
+              const point = graphPoints.get(claim.id)!;
               const isSelected = claim.id === selected.id;
               const hidden = !visibleIds.has(claim.id);
               const claimStyle = { "--x": `${point.claim[0]}%`, "--y": `${point.claim[1]}%` } as CSSProperties;
-              const evidenceStyle = { "--x": `${point.evidence[0]}%`, "--y": `${point.evidence[1]}%` } as CSSProperties;
               return <article key={claim.id} className={`graph-branch${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
-                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{claim.title[locale]}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
-                <div className="evidence-node" style={evidenceStyle}><span className="node-dot"/><span>{marketEvidenceTitle(evidence, locale)}</span></div>
+                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{graphTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
                 {isSelected && <ClaimDetail profile={profile} claim={claim} locale={locale} state={discovery} compact onMoreLike={moreLike}/>}
               </article>;
             })}

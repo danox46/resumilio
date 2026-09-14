@@ -53,6 +53,7 @@ function claimText(claim: ResumilioProfile["claims"][number]): string[] {
 
 export function searchClaims(profile: ResumilioProfile, query: string, filters: SearchFilters = {}) {
   const terms = normalizeTerm(query).split(" ").filter(Boolean);
+  const profileOrder = new Map(profile.claims.map((claim, index) => [claim.id, index]));
   return profile.claims
     .filter((claim) => !filters.type || claim.type === filters.type)
     .filter((claim) => !filters.lifecycle || claim.lifecycle === filters.lifecycle)
@@ -64,7 +65,7 @@ export function searchClaims(profile: ResumilioProfile, query: string, filters: 
       return { claim, score };
     })
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || a.claim.id.localeCompare(b.claim.id));
+    .sort((a, b) => b.score - a.score || (profileOrder.get(a.claim.id) ?? 999) - (profileOrder.get(b.claim.id) ?? 999));
 }
 
 const signalWeights: Record<SignalKind, number> = {

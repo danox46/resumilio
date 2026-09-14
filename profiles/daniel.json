@@ -7,38 +7,53 @@
       "es": "Daniel Rosales"
     },
     "headline": {
-      "en": "Systems, CRM, and practical automation",
-      "es": "Sistemas, CRM y automatización práctica"
+      "en": "CRM Integration Specialist and Automation Engineer",
+      "es": "Especialista en Integraciones CRM e Ingeniero de Automatización"
     },
     "summary": {
-      "en": "Digital projects, operational systems, and practical automation built from real work.",
-      "es": "Proyectos digitales, sistemas operativos y automatización práctica construidos desde el trabajo real."
+      "en": "CRM integrations, backend systems, APIs, and AI-ready operations for small business teams, HubSpot partners, and advisory clients.",
+      "es": "Integraciones CRM, sistemas backend, APIs y operaciones preparadas para IA para pequeñas empresas, partners de HubSpot y clientes de consultoría."
     },
     "defaultLocale": "en",
-    "locales": ["en", "es"],
+    "locales": [
+      "en",
+      "es"
+    ],
     "contacts": [
       {
         "id": "contact-github",
         "kind": "github",
-        "label": { "en": "GitHub", "es": "GitHub" },
+        "label": {
+          "en": "GitHub",
+          "es": "GitHub"
+        },
         "url": "https://github.com/danox46"
       },
       {
         "id": "contact-linkedin",
         "kind": "linkedin",
-        "label": { "en": "LinkedIn", "es": "LinkedIn" },
+        "label": {
+          "en": "LinkedIn",
+          "es": "LinkedIn"
+        },
         "url": "https://www.linkedin.com/in/danieltalking/"
       },
       {
         "id": "contact-portfolio",
         "kind": "portfolio",
-        "label": { "en": "Portfolio", "es": "Portafolio" },
+        "label": {
+          "en": "Portfolio",
+          "es": "Portafolio"
+        },
         "url": "https://danienremoto.com/"
       },
       {
         "id": "contact-email",
         "kind": "email",
-        "label": { "en": "Public email", "es": "Correo público" },
+        "label": {
+          "en": "Public email",
+          "es": "Correo público"
+        },
         "url": "mailto:daniel@danienremoto.com"
       }
     ]
@@ -46,15 +61,222 @@
   "organizations": [
     {
       "id": "organization-on-the-fuze",
-      "name": { "en": "On The Fuze", "es": "On The Fuze" }
+      "name": {
+        "en": "On The Fuze",
+        "es": "On The Fuze"
+      }
     },
     {
       "id": "organization-coursera",
-      "name": { "en": "Coursera", "es": "Coursera" },
+      "name": {
+        "en": "Coursera",
+        "es": "Coursera"
+      },
       "url": "https://www.coursera.org/"
+    },
+    {
+      "id": "organization-alphahub-advisory",
+      "name": {
+        "en": "AlphaHub Advisory",
+        "es": "AlphaHub Advisory"
+      }
+    },
+    {
+      "id": "organization-operations-company",
+      "name": {
+        "en": "The Operations Company",
+        "es": "The Operations Company"
+      }
+    },
+    {
+      "id": "organization-teleperformance",
+      "name": {
+        "en": "Teleperformance",
+        "es": "Teleperformance"
+      }
+    },
+    {
+      "id": "organization-mai",
+      "name": {
+        "en": "MAI (Marketing Artificial Intelligence)",
+        "es": "MAI (Marketing Artificial Intelligence)"
+      }
+    },
+    {
+      "id": "organization-hivebound",
+      "name": {
+        "en": "Hivebound",
+        "es": "Hivebound"
+      }
+    },
+    {
+      "id": "organization-universidad-carabobo",
+      "name": {
+        "en": "Universidad de Carabobo",
+        "es": "Universidad de Carabobo"
+      }
+    },
+    {
+      "id": "organization-hubspot-academy",
+      "name": {
+        "en": "HubSpot Academy",
+        "es": "HubSpot Academy"
+      },
+      "url": "https://academy.hubspot.com/"
+    },
+    {
+      "id": "organization-platzi",
+      "name": {
+        "en": "Platzi",
+        "es": "Platzi"
+      },
+      "url": "https://platzi.com/"
     }
   ],
   "claims": [
+    {
+      "id": "claim-alphahub-hubspot-specialist",
+      "type": "experience",
+      "lifecycle": "production",
+      "title": {
+        "en": "HubSpot Specialist — AlphaHub Advisory",
+        "es": "Especialista de HubSpot — AlphaHub Advisory"
+      },
+      "summary": {
+        "en": "Provides HubSpot implementation and integration work for advisory clients, connecting CRM configuration, custom integrations, and practical operational readiness. May 2026 to present.",
+        "es": "Desarrolla implementaciones e integraciones de HubSpot para clientes de consultoría, conectando configuración de CRM, integraciones personalizadas y preparación operativa práctica. Mayo de 2026 a la actualidad."
+      },
+      "organizationId": "organization-alphahub-advisory",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "crm",
+        "integrations",
+        "operations"
+      ]
+    },
+    {
+      "id": "claim-operations-company-integration-specialist",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Integration Specialist — The Operations Company",
+        "es": "Especialista de Integraciones — The Operations Company"
+      },
+      "summary": {
+        "en": "Helped launch the integration practice for a HubSpot Elite Partner, established delivery processes and infrastructure, scoped client requirements, and designed integrations across business systems. June 2025 to May 2026.",
+        "es": "Ayudó a lanzar la práctica de integraciones de un HubSpot Elite Partner, estableció procesos e infraestructura de entrega, definió requisitos con clientes y diseñó integraciones entre sistemas empresariales. Junio de 2025 a mayo de 2026."
+      },
+      "organizationId": "organization-operations-company",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile",
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "hubspot",
+        "integrations",
+        "technical-discovery",
+        "delivery"
+      ]
+    },
+    {
+      "id": "claim-on-the-fuze-backend-lead",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Backend Technical Lead — On The Fuze",
+        "es": "Líder Técnico Backend — On The Fuze"
+      },
+      "summary": {
+        "en": "Led complex Node.js integrations between HubSpot and external CRMs, guided backend delivery, built internal applications, and handled OAuth, migrations, frontend integrations, and client discovery. April 2022 to September 2025.",
+        "es": "Lideró integraciones complejas en Node.js entre HubSpot y CRM externos, guio la entrega backend y desarrolló aplicaciones internas, OAuth, migraciones, integraciones frontend y descubrimiento con clientes. Abril de 2022 a septiembre de 2025."
+      },
+      "organizationId": "organization-on-the-fuze",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile",
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "node-js",
+        "hubspot",
+        "oauth",
+        "crm",
+        "technical-leadership"
+      ]
+    },
+    {
+      "id": "claim-teleperformance-support-engineer",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Support Engineer — Teleperformance",
+        "es": "Ingeniero de Soporte — Teleperformance"
+      },
+      "summary": {
+        "en": "Investigated and resolved technical issues for business customers using Microsoft Dynamics 365 Finance and Operations, including workflows, security, services, reporting, alerts, email, and Office integrations. January to April 2022.",
+        "es": "Investigó y resolvió problemas técnicos para clientes empresariales de Microsoft Dynamics 365 Finance and Operations, incluidos flujos, seguridad, servicios, reportes, alertas, correo e integraciones con Office. Enero a abril de 2022."
+      },
+      "organizationId": "organization-teleperformance",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile",
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "technical-support",
+        "dynamics-365",
+        "troubleshooting",
+        "b2b"
+      ]
+    },
+    {
+      "id": "claim-mai-full-stack-developer",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Full-Stack Developer — MAI",
+        "es": "Desarrollador Full-Stack — MAI"
+      },
+      "summary": {
+        "en": "Built a data-intensive marketing planning application and helped migrate its backend from C# and .NET to Node.js and MongoDB. 2020 to 2022.",
+        "es": "Desarrolló una aplicación de planificación de marketing intensiva en datos y ayudó a migrar su backend de C# y .NET a Node.js y MongoDB. 2020 a 2022."
+      },
+      "organizationId": "organization-mai",
+      "evidenceIds": [
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "node-js",
+        "mongodb",
+        "dot-net",
+        "full-stack"
+      ]
+    },
+    {
+      "id": "claim-hivebound-content-lead",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Chief Content Officer — Hivebound",
+        "es": "Director de Contenido — Hivebound"
+      },
+      "summary": {
+        "en": "Led a team of up to seven content creators and developers delivering multi-platform client initiatives across WordPress, Shopify, Mailchimp, and Zoho. 2018 to 2021.",
+        "es": "Lideró un equipo de hasta siete creadores de contenido y desarrolladores para iniciativas de clientes en WordPress, Shopify, Mailchimp y Zoho. 2018 a 2021."
+      },
+      "organizationId": "organization-hivebound",
+      "evidenceIds": [
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "leadership",
+        "content-operations",
+        "wordpress",
+        "shopify",
+        "zoho"
+      ]
+    },
     {
       "id": "claim-professional-ai-text-completion",
       "type": "experience",
@@ -68,8 +290,14 @@
         "es": "Lideró una aplicación profesional y funcional de HubSpot que usó finalización de texto asistida por OpenAI. El trabajo se clasifica como funcional antes del lanzamiento y no se presenta como entregado."
       },
       "organizationId": "organization-on-the-fuze",
-      "evidenceIds": ["evidence-professional-ai-owner-record"],
-      "tags": ["hubspot", "openai", "professional-ai"]
+      "evidenceIds": [
+        "evidence-professional-ai-owner-record"
+      ],
+      "tags": [
+        "hubspot",
+        "openai",
+        "professional-ai"
+      ]
     },
     {
       "id": "claim-hubspot-sms-app",
@@ -84,8 +312,15 @@
         "es": "Construyó y entregó una aplicación profesional de SMS para HubSpot. Este trabajo no usa IA."
       },
       "organizationId": "organization-on-the-fuze",
-      "evidenceIds": ["evidence-hubspot-sms-owner-record"],
-      "tags": ["hubspot", "sms", "integration", "non-ai"]
+      "evidenceIds": [
+        "evidence-hubspot-sms-owner-record"
+      ],
+      "tags": [
+        "hubspot",
+        "sms",
+        "integration",
+        "non-ai"
+      ]
     },
     {
       "id": "claim-masglo-commercial-proposal",
@@ -99,8 +334,36 @@
         "en": "Public commercial proposal and portfolio project intended for sale; not paid client work.",
         "es": "Propuesta comercial pública y proyecto de portafolio destinado a la venta; no fue trabajo pagado por un cliente."
       },
-      "evidenceIds": ["evidence-masglo-public-repository"],
-      "tags": ["computer-vision", "commercial-proposal", "portfolio"]
+      "evidenceIds": [
+        "evidence-masglo-public-repository"
+      ],
+      "tags": [
+        "computer-vision",
+        "commercial-proposal",
+        "portfolio"
+      ]
+    },
+    {
+      "id": "claim-computer-science-studies",
+      "type": "education",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Computer Science — Universidad de Carabobo",
+        "es": "Ciencias de la Computación — Universidad de Carabobo"
+      },
+      "summary": {
+        "en": "Completed university-level Computer Science studies at Universidad de Carabobo from 2008 to 2013.",
+        "es": "Realizó estudios universitarios de Ciencias de la Computación en la Universidad de Carabobo entre 2008 y 2013."
+      },
+      "organizationId": "organization-universidad-carabobo",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile",
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "computer-science",
+        "software-development"
+      ]
     },
     {
       "id": "claim-google-cloud-big-data-course",
@@ -115,14 +378,113 @@
         "es": "Curso verificado y completado a través de Coursera."
       },
       "organizationId": "organization-coursera",
-      "evidenceIds": ["evidence-google-cloud-course-credential"],
-      "tags": ["google-cloud", "big-data", "machine-learning"]
+      "evidenceIds": [
+        "evidence-google-cloud-course-credential"
+      ],
+      "tags": [
+        "google-cloud",
+        "big-data",
+        "machine-learning"
+      ]
+    },
+    {
+      "id": "claim-hubspot-academy-credentials",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot Academy credentials",
+        "es": "Credenciales de HubSpot Academy"
+      },
+      "summary": {
+        "en": "Earned time-bounded HubSpot credentials covering Marketing Software, Reporting, CMS for Marketers, Revenue Operations, and CMS Development. These are presented as historical qualifications, not current certifications.",
+        "es": "Obtuvo credenciales temporales de HubSpot en Marketing Software, Reporting, CMS para Marketers, Revenue Operations y desarrollo de CMS. Se presentan como formación histórica, no como certificaciones vigentes."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "revenue-operations",
+        "digital-marketing",
+        "cms"
+      ]
+    },
+    {
+      "id": "claim-how-google-does-machine-learning",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "How Google Does Machine Learning",
+        "es": "Cómo Google aplica aprendizaje automático"
+      },
+      "summary": {
+        "en": "Completed the Coursera course How Google Does Machine Learning in November 2021.",
+        "es": "Completó el curso de Coursera Cómo Google aplica aprendizaje automático en noviembre de 2021."
+      },
+      "organizationId": "organization-coursera",
+      "evidenceIds": [
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "machine-learning",
+        "google-cloud"
+      ]
+    },
+    {
+      "id": "claim-introduction-sql",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Introduction to Structured Query Language (SQL)",
+        "es": "Introducción al lenguaje de consulta estructurado (SQL)"
+      },
+      "summary": {
+        "en": "Completed Introduction to Structured Query Language through Coursera in November 2021.",
+        "es": "Completó Introducción al lenguaje de consulta estructurado a través de Coursera en noviembre de 2021."
+      },
+      "organizationId": "organization-coursera",
+      "evidenceIds": [
+        "evidence-linkedin-credentials-profile",
+        "evidence-private-resume"
+      ],
+      "tags": [
+        "sql",
+        "databases",
+        "software-development"
+      ]
+    },
+    {
+      "id": "claim-platzi-node-backend-courses",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Node.js backend coursework — Platzi",
+        "es": "Formación backend en Node.js — Platzi"
+      },
+      "summary": {
+        "en": "Completed 17-hour courses in Node.js Fundamentals and Backend Authentication with Passport.js and JWT, in December 2022 and January 2023 respectively.",
+        "es": "Completó cursos de 17 horas en Fundamentos de Node.js y Autenticación Backend con Passport.js y JWT, en diciembre de 2022 y enero de 2023 respectivamente."
+      },
+      "organizationId": "organization-platzi",
+      "evidenceIds": [
+        "evidence-platzi-node-credentials"
+      ],
+      "tags": [
+        "node-js",
+        "authentication",
+        "jwt",
+        "backend"
+      ]
     }
   ],
   "evidence": [
     {
       "id": "evidence-professional-ai-owner-record",
-      "claimIds": ["claim-professional-ai-text-completion"],
+      "claimIds": [
+        "claim-professional-ai-text-completion"
+      ],
       "title": {
         "en": "Owner-verified professional work record",
         "es": "Registro profesional verificado por el titular"
@@ -141,7 +503,9 @@
     },
     {
       "id": "evidence-hubspot-sms-owner-record",
-      "claimIds": ["claim-hubspot-sms-app"],
+      "claimIds": [
+        "claim-hubspot-sms-app"
+      ],
       "title": {
         "en": "Owner-verified shipped work record",
         "es": "Registro de trabajo entregado verificado por el titular"
@@ -160,7 +524,9 @@
     },
     {
       "id": "evidence-masglo-public-repository",
-      "claimIds": ["claim-masglo-commercial-proposal"],
+      "claimIds": [
+        "claim-masglo-commercial-proposal"
+      ],
       "title": {
         "en": "Public Masglo project repository",
         "es": "Repositorio público del proyecto Masglo"
@@ -180,7 +546,9 @@
     },
     {
       "id": "evidence-google-cloud-course-credential",
-      "claimIds": ["claim-google-cloud-big-data-course"],
+      "claimIds": [
+        "claim-google-cloud-big-data-course"
+      ],
       "title": {
         "en": "Verified course credential",
         "es": "Credencial de curso verificada"
@@ -196,6 +564,125 @@
         "visibility": "public-summary"
       },
       "observedAt": "2026-09-12"
+    },
+    {
+      "id": "evidence-linkedin-career-profile",
+      "claimIds": [
+        "claim-alphahub-hubspot-specialist",
+        "claim-operations-company-integration-specialist",
+        "claim-on-the-fuze-backend-lead",
+        "claim-teleperformance-support-engineer",
+        "claim-computer-science-studies"
+      ],
+      "title": {
+        "en": "Role and career timeline",
+        "es": "Roles y trayectoria profesional"
+      },
+      "evidenceType": "public-source",
+      "strength": "corroborated",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Current role, work history, and education listed on LinkedIn",
+          "es": "Rol actual, trayectoria y formación publicados en LinkedIn"
+        },
+        "visibility": "public",
+        "url": "https://www.linkedin.com/in/danieltalking/"
+      },
+      "observedAt": "2026-09-14"
+    },
+    {
+      "id": "evidence-private-resume",
+      "claimIds": [
+        "claim-operations-company-integration-specialist",
+        "claim-on-the-fuze-backend-lead",
+        "claim-teleperformance-support-engineer",
+        "claim-mai-full-stack-developer",
+        "claim-hivebound-content-lead",
+        "claim-computer-science-studies",
+        "claim-introduction-sql"
+      ],
+      "title": {
+        "en": "Work history",
+        "es": "Trayectoria laboral"
+      },
+      "evidenceType": "artifact",
+      "strength": "corroborated",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Role, project, and training details drawn from Daniel's current résumé; the document itself stays private",
+          "es": "Detalles de roles, proyectos y formación tomados del currículum actual de Daniel; el documento permanece privado"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-14"
+    },
+    {
+      "id": "evidence-linkedin-credentials-profile",
+      "claimIds": [
+        "claim-hubspot-academy-credentials",
+        "claim-how-google-does-machine-learning",
+        "claim-introduction-sql"
+      ],
+      "title": {
+        "en": "Public qualifications",
+        "es": "Formación pública"
+      },
+      "evidenceType": "public-source",
+      "strength": "corroborated",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Courses and historical credentials listed on LinkedIn",
+          "es": "Cursos y credenciales históricas publicados en LinkedIn"
+        },
+        "visibility": "public",
+        "url": "https://www.linkedin.com/in/danieltalking/details/certifications/"
+      },
+      "observedAt": "2026-09-14"
+    },
+    {
+      "id": "evidence-hubspot-certificate-archive",
+      "claimIds": [
+        "claim-hubspot-academy-credentials"
+      ],
+      "title": {
+        "en": "HubSpot qualifications",
+        "es": "Formación en HubSpot"
+      },
+      "evidenceType": "credential",
+      "strength": "primary",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Five credential files reviewed privately; validity periods are historical and the files are not published",
+          "es": "Cinco credenciales revisadas de forma privada; sus periodos de vigencia son históricos y los archivos no se publican"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-14"
+    },
+    {
+      "id": "evidence-platzi-node-credentials",
+      "claimIds": [
+        "claim-platzi-node-backend-courses"
+      ],
+      "title": {
+        "en": "Node.js coursework",
+        "es": "Formación en Node.js"
+      },
+      "evidenceType": "credential",
+      "strength": "primary",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Two course certificates reviewed privately; certificate numbers and Drive links are not published",
+          "es": "Dos certificados revisados de forma privada; no se publican números de certificado ni enlaces de Drive"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-14"
     }
   ],
   "relationships": [
@@ -216,7 +703,72 @@
       "type": "provided-by",
       "sourceId": "claim-google-cloud-big-data-course",
       "targetId": "organization-coursera"
+    },
+    {
+      "id": "relationship-alphahub-hubspot-specialist",
+      "type": "performed-for",
+      "sourceId": "claim-alphahub-hubspot-specialist",
+      "targetId": "organization-alphahub-advisory"
+    },
+    {
+      "id": "relationship-operations-company-integration-specialist",
+      "type": "performed-for",
+      "sourceId": "claim-operations-company-integration-specialist",
+      "targetId": "organization-operations-company"
+    },
+    {
+      "id": "relationship-on-the-fuze-backend-lead",
+      "type": "performed-for",
+      "sourceId": "claim-on-the-fuze-backend-lead",
+      "targetId": "organization-on-the-fuze"
+    },
+    {
+      "id": "relationship-teleperformance-support-engineer",
+      "type": "performed-for",
+      "sourceId": "claim-teleperformance-support-engineer",
+      "targetId": "organization-teleperformance"
+    },
+    {
+      "id": "relationship-mai-full-stack-developer",
+      "type": "performed-for",
+      "sourceId": "claim-mai-full-stack-developer",
+      "targetId": "organization-mai"
+    },
+    {
+      "id": "relationship-hivebound-content-lead",
+      "type": "performed-for",
+      "sourceId": "claim-hivebound-content-lead",
+      "targetId": "organization-hivebound"
+    },
+    {
+      "id": "relationship-computer-science-studies",
+      "type": "provided-by",
+      "sourceId": "claim-computer-science-studies",
+      "targetId": "organization-universidad-carabobo"
+    },
+    {
+      "id": "relationship-hubspot-academy-credentials",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-academy-credentials",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-how-google-does-machine-learning",
+      "type": "provided-by",
+      "sourceId": "claim-how-google-does-machine-learning",
+      "targetId": "organization-coursera"
+    },
+    {
+      "id": "relationship-introduction-sql",
+      "type": "provided-by",
+      "sourceId": "claim-introduction-sql",
+      "targetId": "organization-coursera"
+    },
+    {
+      "id": "relationship-platzi-node-backend-courses",
+      "type": "provided-by",
+      "sourceId": "claim-platzi-node-backend-courses",
+      "targetId": "organization-platzi"
     }
   ]
 }
-

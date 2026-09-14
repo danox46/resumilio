@@ -15,7 +15,7 @@ test("Daniel seed satisfies the bilingual evidence graph contract", () => {
   assert.deepEqual(seed.profile.locales, ["en", "es"]);
 });
 
-test("Daniel seed preserves the four approved truth distinctions", () => {
+test("Daniel profile preserves approved truth distinctions and career breadth", () => {
   const claims = new Map(seed.claims.map((claim) => [claim.id, claim]));
   assert.equal(claims.get("claim-professional-ai-text-completion")?.lifecycle, "working-prelaunch");
   assert.equal(claims.get("claim-hubspot-sms-app")?.lifecycle, "shipped");
@@ -23,6 +23,18 @@ test("Daniel seed preserves the four approved truth distinctions", () => {
   assert.equal(claims.get("claim-masglo-commercial-proposal")?.lifecycle, "proposal");
   assert.equal(claims.get("claim-google-cloud-big-data-course")?.lifecycle, "completed");
   assert.equal(claims.get("claim-google-cloud-big-data-course")?.title.en, "Google Cloud Big Data and Machine Learning Fundamentals");
+  assert.equal(claims.get("claim-alphahub-hubspot-specialist")?.lifecycle, "production");
+  assert.equal(claims.get("claim-on-the-fuze-backend-lead")?.type, "experience");
+  assert.equal(claims.get("claim-hubspot-academy-credentials")?.type, "certification");
+  assert.equal(claims.get("claim-platzi-node-backend-courses")?.type, "certification");
+  assert.ok(seed.claims.length >= 15);
+  assert.ok(seed.organizations.length >= 10);
+});
+
+test("private career artifacts remain locator-free", () => {
+  const privateSources = seed.evidence.filter((item) => item.source.visibility !== "public");
+  assert.ok(privateSources.length > 0);
+  assert.ok(privateSources.every((item) => item.source.url === undefined));
 });
 
 test("missing Spanish copy fails validation", () => {
@@ -43,7 +55,8 @@ test("orphaned evidence fails validation", () => {
 
 test("working-prelaunch copy cannot imply a later release stage", () => {
   const candidate = clone();
-  candidate.claims[0].summary.en = ["Running in pro", "duction"].join("");
+  const claim = candidate.claims.find((item) => item.id === "claim-professional-ai-text-completion")!;
+  claim.summary.en = ["Running in pro", "duction"].join("");
   const result = validateProfileDocument(candidate);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.includes("later-stage release label")));

@@ -61,7 +61,7 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .headline { margin: 8px 0 4px; color: #31415a; font-size: clamp(22px, 2vw, 32px); line-height: 1.15; letter-spacing: -.035em; font-weight: 650; }
 .intro-copy { margin: 0; color: var(--body); font-size: 17px; line-height: 1.5; }
 
-.search-controls { display: grid; grid-template-columns: minmax(300px, 1fr) repeat(4, minmax(136px, 168px)) auto; align-items: center; gap: 12px; margin-bottom: 14px; }
+.search-controls { display: grid; grid-template-columns: minmax(300px, 1fr) repeat(3, minmax(150px, 190px)) auto; align-items: center; gap: 12px; margin-bottom: 14px; }
 .search-field { min-height: 44px; display: flex; align-items: center; gap: 13px; padding: 0 15px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--ink); }
 .search-field:focus-within { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
 .search-field input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 15px; }
@@ -71,19 +71,13 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 
 .constellation { min-height: 444px; display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(320px, .96fr); border: 1px solid var(--line); }
 .graph-stage { position: relative; min-height: 444px; overflow: hidden; }
-.legend { position: absolute; z-index: 4; top: 16px; left: 18px; display: grid; gap: 7px; color: #40506a; font-size: 12px; pointer-events: none; }
-.legend span { display: flex; align-items: center; gap: 8px; }
-.legend i { width: 12px; height: 12px; display: inline-block; border-radius: 50%; background: var(--leaf); }
-.legend .legend-selected { background: var(--green); }
-.legend .legend-evidence { background: var(--evidence); }
-.legend .legend-line { width: 14px; height: 1px; border-radius: 0; background: var(--line-strong); }
 .relationship-map { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .relation { vector-effect: non-scaling-stroke; stroke: var(--line-strong); stroke-width: 1.2; }
 .relation--claim { stroke-dasharray: 4 5; stroke: #c8d5e0; }
 .claim-graph { position: absolute; inset: 0; }
 .graph-branch { display: contents; }
 .graph-branch--hidden .claim-node, .graph-branch--hidden .evidence-node { opacity: .1; pointer-events: none; }
-.claim-node, .evidence-node { position: absolute; left: var(--x); top: var(--y); transform: translate(-18px,-50%); display: flex; align-items: center; gap: 11px; max-width: 250px; color: var(--ink); transition: opacity 180ms ease, transform 180ms ease; }
+.claim-node, .evidence-node { position: absolute; left: var(--x); top: var(--y); transform: translate(-18px,-50%); display: flex; align-items: center; gap: 11px; max-width: 210px; color: var(--ink); transition: opacity 180ms ease, transform 180ms ease; }
 .claim-node { appearance: none; border: 0; background: transparent; padding: 10px; cursor: pointer; text-align: left; }
 .claim-node:disabled { cursor: default; }
 .claim-node:hover { transform: translate(-18px,-50%) scale(1.018); }
@@ -99,6 +93,7 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .claim-detail--compact { display: none; }
 .detail-label { margin: 0 0 8px; color: #40506a; font-size: 12px; }
 .claim-detail h2 { margin: 0; font-size: clamp(20px, 1.65vw, 27px); line-height: 1.1; letter-spacing: -.035em; }
+.detail-organization { margin: 8px 0 0; color: var(--green); font-size: 13px; font-weight: 700; }
 .detail-status { margin: 7px 0 10px; color: #40506a; font-size: 14px; }
 .detail-summary { margin: 0; color: #33445e; font-size: 14px; line-height: 1.52; }
 .claim-detail dl { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -153,7 +148,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 }
 
 @media (max-width: 1100px) {
-  .search-controls { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .search-controls { grid-template-columns: repeat(3, minmax(0,1fr)); }
   .search-field { grid-column: 1 / -1; }
   .clear-control { grid-column: 1 / -1; min-height: auto; width: max-content; }
   .constellation { grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); }
@@ -192,7 +187,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .intro-copy { font-size: 16px; }
   .search-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-bottom: 22px; }
   .search-field, .search-controls select { min-width: 0; width: 100%; min-height: 54px; font-size: 16px; }
-  .search-controls select:nth-of-type(2), .search-controls select:nth-of-type(3), .search-controls select:nth-of-type(4) { display: none; }
+  .search-controls select:nth-of-type(2), .search-controls select:nth-of-type(3) { display: none; }
   .clear-control { display: none; }
   .constellation { display: block; min-height: 0; border: 0; }
   .graph-stage { min-height: 0; overflow: visible; border: 0; }

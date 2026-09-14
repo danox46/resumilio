@@ -11,7 +11,7 @@ const profile = JSON.parse(await readFile(resolve(repository, "profiles/daniel.j
 
 test("weighted search supports bilingual prefixes, fuzzy terms, and facets without a model", () => {
   assert.equal(searchClaims(profile, "finaliza")[0].claim.id, "claim-professional-ai-text-completion");
-  assert.equal(searchClaims(profile, "hubspat")[0].claim.id, "claim-hubspot-sms-app");
+  assert.equal(searchClaims(profile, "hubspat")[0].claim.id, "claim-alphahub-hubspot-specialist");
   assert.deepEqual(searchClaims(profile, "", { lifecycle: "proposal" }).map((item) => item.claim.id), ["claim-masglo-commercial-proposal"]);
   assert.deepEqual(searchClaims(profile, "", { tag: "non-ai" }).map((item) => item.claim.id), ["claim-hubspot-sms-app"]);
 });
@@ -21,7 +21,7 @@ test("session signals rank deterministically, reward novelty, and grow related b
   const rankedOnce = rankRecommendations(profile, base, "claim-professional-ai-text-completion").map((item) => item.claim.id);
   const rankedTwice = rankRecommendations(profile, base, "claim-professional-ai-text-completion").map((item) => item.claim.id);
   assert.deepEqual(rankedOnce, rankedTwice);
-  assert.equal(rankedOnce[0], "claim-hubspot-sms-app");
+  assert.equal(rankedOnce[0], "claim-alphahub-hubspot-specialist");
   const grown = applySignal(base, "more-like-this", ["hubspot"], "claim-professional-ai-text-completion");
   assert.ok(rankRecommendations(profile, grown, "claim-professional-ai-text-completion")[0].score > rankRecommendations(profile, base, "claim-professional-ai-text-completion")[0].score);
   assert.ok(rankedOnce.indexOf("claim-masglo-commercial-proposal") < rankedOnce.length);

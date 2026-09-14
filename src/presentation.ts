@@ -116,7 +116,7 @@ export function marketEvidenceTitle(evidence: Evidence, locale: Locale): string 
 
 export function marketSourceSummary(evidence: Evidence, locale: Locale): string {
   if (evidence.source.visibility === "public") return evidence.source.label[locale];
-  return sourceSummaries[evidence.id]?.[locale] ?? marketLabel(evidence.source.visibility, locale);
+  return sourceSummaries[evidence.id]?.[locale] ?? evidence.source.label[locale];
 }
 
 function displayTopic(topic: string): string {
