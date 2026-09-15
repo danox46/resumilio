@@ -464,6 +464,11 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   width: clamp(205px, 19vw, 300px);
   transform: translateX(-50%);
 }
+@media (min-width: 1800px) {
+  .experience-shell .avatar-guide {
+    width: clamp(300px, min(18vw, 38svh, calc(30vw - 300px)), 470px);
+  }
+}
 .avatar-node-backdrop {
   position: absolute;
   left: 50%;

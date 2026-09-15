@@ -46,6 +46,7 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(component, /data-avatar-variant=\{reaction === "guide" \? layout : "shared"\}/);
   assert.match(styles, /\.experience-shell \.avatar-mobile-callout \{\s*position: absolute;/);
   assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
+  assert.match(styles, /@media \(min-width: 1800px\)[\s\S]*?width: clamp\(300px, min\(18vw, 38svh, calc\(30vw - 300px\)\), 470px\)/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
   assert.match(styles, /\.avatar-media \{[\s\S]*?-webkit-mask-image:[\s\S]*?linear-gradient[\s\S]*?radial-gradient/);
   assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);

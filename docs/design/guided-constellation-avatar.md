@@ -30,7 +30,7 @@ Personalization is deterministic and session-local. There is no model call, trac
 ## Composition
 
 - The selected experience is the visual center.
-- On wide layouts, Daniel is anchored in the lower-left as a supporting presence. He is never the graph hub.
+- On wide layouts, Daniel is anchored in the lower-left as a supporting presence. He is never the graph hub. Above 1800px, the portrait can grow into unused space until viewport height or the nearest active-node corridor becomes the limiting dimension; its anchor does not move.
 - On layouts at 700px and below, Daniel is centered above the selected detail and the selected title appears on his chest during the visual sequence. The 701-1100px composition keeps all five active nodes visible around the circular focus.
 - Circular nodes are intentionally simple CSS buttons. Their straight connectors are one inline SVG on wide screens and short CSS line segments in the stacked representation.
 - The neutral background follows the source video rather than introducing a separate blue universe: roughly `#202121` at the top, `#151616` through the middle, and `#080909` at the base.
@@ -64,7 +64,7 @@ Agents extending the system should keep event meaning independent from the viewp
 - Focus remains visible, the changing detail is announced politely, and the neighborhood has an accessible group label and instruction.
 - `prefers-reduced-motion` hides moving video and retains the poster.
 - A missing video never blocks search, selection, recommendations, or classic record routes.
-- Browser QA covers 240px, 320px, 390px, 768px, 1440px, 1920px, and 3840px without horizontal overflow.
+- Browser QA covers 240px, 320px, 390px, 768px, 1440px, 1920px, the 2572x1233 wide-short reference ratio, and 3840px without horizontal overflow. The wide-short check also proves the expanded avatar backdrop does not intersect the featured record or any active node.
 
 ## Media preparation
 

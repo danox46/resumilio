@@ -46,8 +46,14 @@ const viewports = [
   { name: "tablet", width: 768, height: 1024 },
   { name: "desktop", width: 1440, height: 1024 },
   { name: "full-hd", width: 1920, height: 1080 },
+  { name: "wide-short", width: 2572, height: 1233 },
   { name: "four-k", width: 3840, height: 2160 },
 ];
+
+function overlaps(first: { x: number; y: number; width: number; height: number }, second: { x: number; y: number; width: number; height: number }) {
+  return first.x < second.x + second.width && first.x + first.width > second.x
+    && first.y < second.y + second.height && first.y + first.height > second.y;
+}
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
 const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
@@ -63,13 +69,26 @@ try {
     const visibleTargets = await page.locator("button:visible, a:visible, input:visible, select:visible").count();
     if (visibleTargets === 0) throw new Error(`${viewport.name} exposes no interactive targets.`);
     const visibleNodeCount = await page.locator(".claim-node:visible").count();
-    if (["tablet", "desktop", "full-hd", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
+    if (["tablet", "desktop", "full-hd", "wide-short", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
+    let responsiveAvatarSizing: Record<string, unknown> | undefined;
+    if (viewport.name === "wide-short") {
+      const avatarBox = await page.locator(".avatar-guide").boundingBox();
+      const backdropBox = await page.locator(".avatar-node-backdrop").boundingBox();
+      const focusBox = await page.locator(".experience-focus").boundingBox();
+      const nodeBoxes = await page.locator(".claim-node").evaluateAll((nodes) => nodes.map((node) => {
+        const box = node.getBoundingClientRect();
+        return { x: box.x, y: box.y, width: box.width, height: box.height };
+      }));
+      if (!avatarBox || !backdropBox || !focusBox || avatarBox.width < 430) throw new Error("Wide-short layout did not expand the avatar into available space.");
+      if (overlaps(backdropBox, focusBox) || nodeBoxes.some((nodeBox) => overlaps(backdropBox, nodeBox))) throw new Error("Responsive avatar growth intrudes into featured or active experience nodes.");
+      responsiveAvatarSizing = { avatarWidth: avatarBox.width, backdropWidth: backdropBox.width, collisionFree: true };
+    }
     const screenshot = join(outputDirectory, `${viewport.width}x${viewport.height}-${viewport.name}.png`);
     await page.screenshot({ path: screenshot, fullPage: true });
     const external = requests.filter((url) => new URL(url).origin !== origin);
     report.externalRequests.push(...external);
     report.firstPartyRequests += requests.length - external.length;
-    report.viewports.push({ ...viewport, overflow, visibleTargets, visibleNodeCount, screenshot });
+    report.viewports.push({ ...viewport, overflow, visibleTargets, visibleNodeCount, responsiveAvatarSizing, screenshot });
 
     if (viewport.name === "mobile") {
       const initialNodes = page.locator(".claim-node");
