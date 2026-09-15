@@ -3,6 +3,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
 const component = readFileSync("src/components/EvidenceExplorer.tsx", "utf8");
+const avatarComponent = readFileSync("src/components/AvatarGuide.tsx", "utf8");
 const avatarSchedule = readFileSync("src/avatar-schedule.ts", "utf8");
 const styles = readFileSync("src/styles/global.css", "utf8");
 const siteSource = readFileSync("src/site.ts", "utf8");
@@ -54,16 +55,16 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
     assert.ok(existsSync(path), `${path} is missing`);
     assert.ok(statSync(path).size > 0, `${path} is empty`);
   }
-  assert.match(component, /data-avatar-state=\{reaction\}/);
-  assert.match(component, /data-avatar-mode=\{mode\}/);
+  assert.match(avatarComponent, /data-avatar-state=\{playback\.reaction\}/);
+  assert.match(avatarComponent, /data-avatar-mode=\{playback\.mode\}/);
   assert.match(component, /onFocus=\{acknowledgeNode\}/);
   assert.match(component, /onMouseEnter=\{acknowledgeNode\}/);
-  assert.match(component, /current\.mode === "ambient" \? \{ reaction: "nod"/);
+  assert.match(component, /avatarRef\.current\.mode !== "interactive"/);
   assert.match(component, /const selectClaim = \(claim: Claim, reaction: "guide" \| "smile" = "guide"\)/);
-  assert.match(component, /showReaction\(intent\.reaction\)/);
+  assert.match(component, /intent\.reaction === "guide"\) showGuide\(\)/);
   assert.match(component, /stackedAvatarQuery = "\(max-width: 700px\)"/);
   assert.match(component, /media\.addEventListener\("change", syncLayout\)/);
-  assert.match(component, /data-avatar-variant=\{reaction === "guide" \? layout : "shared"\}/);
+  assert.match(avatarComponent, /data-avatar-variant=\{playback\.reaction === "guide" \? layout : "shared"\}/);
   assert.match(styles, /\.experience-shell \.avatar-mobile-callout \{\s*position: absolute;/);
   assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
   assert.match(styles, /@media \(min-width: 1800px\)[\s\S]*?width: clamp\(300px, min\(18vw, 38svh, calc\(30vw - 300px\)\), 470px\)/);
@@ -75,13 +76,28 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(avatarSchedule, /reaction: "idle", weight: 0\.6/);
   assert.match(avatarSchedule, /reaction: "waiting", weight: 0\.2/);
   assert.match(avatarSchedule, /reaction: "smile", weight: 0\.2/);
-  assert.match(component, /onEnded=\{onComplete\}/);
+  assert.match(avatarComponent, /onEnded=\{role === "active" \? \(\) => onComplete\(layer\.sequence\)/);
   assert.doesNotMatch(component, /waitingReactionDelayMs|loop=|showReaction\("waiting"\)/);
-  assert.match(component, /autoPlay/);
-  assert.match(component, /preload="auto"/);
+  assert.match(avatarComponent, /autoPlay=\{role !== "pending"\}/);
+  assert.match(avatarComponent, /preload="auto"/);
   assert.doesNotMatch(component, /beginMotion|mediaReady/);
   assert.equal(entryPages.match(/rel="preload" as="image" type="image\/webp" href="\/media\/avatar\/daniel-idle-poster\.webp" fetchpriority="high"/g)?.length, 2);
-  assert.doesNotMatch(component, /flow\.google|labs\.google|generativelanguage|veo/i);
+  assert.doesNotMatch(component + avatarComponent, /flow\.google|labs\.google|generativelanguage|\bveo\b/i);
+  assert.match(component, /mode: "loading"/);
+  assert.match(component, /commitAvatar\("smile", "welcome"\)/);
+  assert.match(component, /shouldStartGuide\(avatarRef\.current, Date\.now\(\), guideCooldownUntil\.current\)/);
+  assert.match(avatarComponent, /crossfadeDurationMs = 180/);
+  assert.match(avatarComponent, /incomingFallbackMs = 1_000/);
+  assert.match(avatarComponent, /data-avatar-video-role=\{role\}/);
+  for (const framing of [
+    /idle: \{ scale: 1, offsetY: "0%" \}/,
+    /waiting: \{ scale: 0\.99, offsetY: "-0\.4%" \}/,
+    /nod: \{ scale: 1\.01, offsetY: "-0\.4%" \}/,
+    /smile: \{ scale: 1\.01, offsetY: "-0\.8%" \}/,
+    /"guide-wide": \{ scale: 1, offsetY: "-0\.8%" \}/,
+    /"guide-stacked": \{ scale: 1, offsetY: "-1%" \}/,
+  ]) assert.match(avatarComponent, framing);
+  assert.match(styles, /transition: opacity 180ms cubic-bezier\(\.22, \.8, \.25, 1\)/);
 });
 
 test("personalization remains session-local and network-independent", () => {

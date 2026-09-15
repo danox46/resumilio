@@ -537,6 +537,15 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   -webkit-mask-image: none;
   mask-image: none;
 }
+.experience-shell .avatar-video {
+  transform: translateY(var(--avatar-video-offset-y, 0%)) scale(var(--avatar-video-scale, 1));
+  transform-origin: 50% 50%;
+  transition: opacity 180ms cubic-bezier(.22, .8, .25, 1);
+  will-change: opacity, transform;
+}
+.experience-shell .avatar-video--active { z-index: 4; opacity: 1; }
+.experience-shell .avatar-video--pending { z-index: 3; opacity: 0; }
+.experience-shell .avatar-video--outgoing { z-index: 3; opacity: 0; pointer-events: none; }
 .experience-shell .avatar-mobile-callout { display: none; }
 .experience-shell .empty-state {
   z-index: 10;

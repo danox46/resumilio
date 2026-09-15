@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, ambientAvatarMix: false, avatarInteractionPriority: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -157,13 +157,31 @@ try {
 
   const motionContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const motionPage = await motionContext.newPage();
-  await motionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
-  const video = motionPage.locator(".avatar-video");
-  await motionPage.waitForFunction(() => {
-    const element = document.querySelector<HTMLVideoElement>(".avatar-video");
-    return Boolean(element && !element.paused && element.currentTime > 0.1 && element.currentSrc.endsWith("daniel-idle.mp4"));
+  const browserProblems: string[] = [];
+  motionPage.on("pageerror", (error) => browserProblems.push(error.message));
+  motionPage.on("console", (message) => { if (message.type() === "error") browserProblems.push(message.text()); });
+
+  let releasePoster!: () => void;
+  const posterGate = new Promise<void>((resolve) => { releasePoster = resolve; });
+  let heldPoster = false;
+  await motionPage.route("**/daniel-idle-poster.webp", async (route) => {
+    if (!heldPoster) {
+      heldPoster = true;
+      await posterGate;
+    }
+    await route.continue();
   });
-  const playbackConfiguration = await video.evaluate((element) => {
+  await motionPage.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
+  const avatar = motionPage.locator(".avatar-guide");
+  const activeVideo = () => motionPage.locator('.avatar-video[data-avatar-video-role="active"]');
+  await motionPage.waitForFunction(() => {
+    const shell = document.querySelector(".avatar-guide");
+    const element = document.querySelector<HTMLVideoElement>('.avatar-video[data-avatar-video-role="active"]');
+    return shell?.getAttribute("data-avatar-mode") === "loading"
+      && shell.getAttribute("data-avatar-active-state") === "idle"
+      && Boolean(element && !element.paused && element.currentTime > 0.1 && element.currentSrc.endsWith("daniel-idle.mp4"));
+  });
+  const playbackConfiguration = await activeVideo().evaluate((element) => {
     const media = element as HTMLVideoElement;
     return {
       autoPlay: media.autoplay,
@@ -177,7 +195,37 @@ try {
     throw new Error("Ambient avatar playback configuration does not support natural clip handoffs.");
   }
   report.immediateIdlePlayback = true;
-  const avatar = motionPage.locator(".avatar-guide");
+
+  releasePoster();
+  await motionPage.waitForLoadState("load");
+  await motionPage.unroute("**/daniel-idle-poster.webp");
+  await motionPage.waitForFunction(() => {
+    const shell = document.querySelector(".avatar-guide");
+    return shell?.getAttribute("data-avatar-mode") === "welcome"
+      && shell.getAttribute("data-avatar-state") === "smile"
+      && shell.getAttribute("data-avatar-transition") === "crossfade"
+      && document.querySelectorAll(".avatar-video").length === 2;
+  });
+  report.crossfade = true;
+  await motionPage.waitForFunction(() => {
+    const shell = document.querySelector(".avatar-guide");
+    const media = document.querySelector<HTMLVideoElement>('.avatar-video[data-avatar-video-role="active"]');
+    return shell?.getAttribute("data-avatar-mode") === "welcome"
+      && shell.getAttribute("data-avatar-active-state") === "smile"
+      && shell.getAttribute("data-avatar-transition") === "settled"
+      && document.querySelectorAll(".avatar-video").length === 1
+      && Boolean(media?.currentSrc.endsWith("daniel-smile.mp4"));
+  });
+  report.welcomeAfterLoad = true;
+  const welcomeScreenshot = join(outputDirectory, "avatar-welcome-desktop.png");
+  await motionPage.screenshot({ path: welcomeScreenshot });
+  report.responsiveAvatarScreenshots.push(welcomeScreenshot);
+  const welcomeFrame = await activeVideo().evaluate((element) => ({
+    scale: element.style.getPropertyValue("--avatar-video-scale"),
+    offsetY: element.style.getPropertyValue("--avatar-video-offset-y"),
+  }));
+  if (welcomeFrame.scale !== "1.01" || welcomeFrame.offsetY !== "-0.8%") throw new Error("Welcome smile did not receive its normalized framing.");
+
   await motionPage.evaluate(() => {
     const values = [0.1, 0.7, 0.9];
     let index = 0;
@@ -185,15 +233,19 @@ try {
   });
   for (const expected of ["idle", "waiting", "smile"]) {
     const previousSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
-    await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+    await activeVideo().evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
     await motionPage.waitForFunction(({ reaction, sequence }) => {
       const element = document.querySelector(".avatar-guide");
-      return element?.getAttribute("data-avatar-state") === reaction
+      return element?.getAttribute("data-avatar-active-state") === reaction
         && element.getAttribute("data-avatar-mode") === "ambient"
+        && element.getAttribute("data-avatar-transition") === "settled"
         && Number(element.getAttribute("data-avatar-sequence")) > sequence;
     }, { reaction: expected, sequence: previousSequence });
   }
   report.ambientAvatarMix = true;
+  report.framing = await activeVideo().evaluate((element) => element.style.getPropertyValue("--avatar-video-scale") === "1.01"
+    && element.style.getPropertyValue("--avatar-video-offset-y") === "-0.8%");
+  if (!report.framing) throw new Error("Per-clip avatar framing was not applied to the active layer.");
   const graphBox = await motionPage.locator(".graph-stage").boundingBox();
   const avatarBox = await avatar.boundingBox();
   report.wideAvatarPlacement = Boolean(graphBox && avatarBox
@@ -203,8 +255,8 @@ try {
   const previousCenterId = await motionPage.locator(".experience-focus").getAttribute("data-selected-id");
   const transitionTarget = await motionPage.locator(".claim-node").first().getAttribute("data-claim-id");
   await motionPage.locator(".claim-node").first().hover();
-  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-state") === "nod"
-    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive");
+  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "nod"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
   await motionPage.locator(".claim-node").first().click();
   await motionPage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
     && document.querySelector('[data-node-role="selected-target"]')?.getAttribute("data-claim-id") === claimId, transitionTarget);
@@ -244,35 +296,74 @@ try {
   const layerSettledScreenshot = join(outputDirectory, "node-transition-settled.png");
   await motionPage.screenshot({ path: layerSettledScreenshot });
   report.layerTransitionScreenshots.push(layerSettledScreenshot);
+  await motionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "guide"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
   report.nodeTransition = true;
   if (await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "wide"
-    || !String(await video.getAttribute("src")).endsWith("daniel-guide-wide.mp4")) throw new Error("Wide selection did not use the pointing guidance clip.");
+    || !String(await activeVideo().getAttribute("src")).endsWith("daniel-guide-wide.mp4")) throw new Error("Wide selection did not use the pointing guidance clip.");
   report.avatarReactions = true;
-  await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>(".avatar-video")?.currentTime ?? 0) > 2);
+  await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>('.avatar-video[data-avatar-video-role="active"]')?.currentTime ?? 0) > 0.5);
   const wideGuideScreenshot = join(outputDirectory, "responsive-guide-wide.png");
   await motionPage.screenshot({ path: wideGuideScreenshot });
   report.responsiveAvatarScreenshots.push(wideGuideScreenshot);
   const guideSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
-  await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+  const guideTime = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
+  const secondNode = motionPage.locator(".claim-node").nth(1);
+  const secondNodeId = await secondNode.getAttribute("data-claim-id");
+  await secondNode.click();
+  await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, secondNodeId);
+  await motionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  const guideSequenceAfterSuppressedClick = Number(await avatar.getAttribute("data-avatar-sequence"));
+  const guideTimeAfterSuppressedClick = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
+  if (guideSequenceAfterSuppressedClick !== guideSequence || guideTimeAfterSuppressedClick <= guideTime) throw new Error("A repeated node click restarted active guidance instead of only changing the constellation.");
+
+  await motionPage.evaluate(() => {
+    const values = [0, 0.1];
+    let index = 0;
+    Math.random = () => values[index++] ?? 0.1;
+  });
+  await activeVideo().evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
   await motionPage.waitForFunction((sequence) => {
     const element = document.querySelector(".avatar-guide");
-    return element?.getAttribute("data-avatar-state") === "idle"
+    return element?.getAttribute("data-avatar-active-state") === "idle"
       && element.getAttribute("data-avatar-mode") === "ambient"
+      && element.getAttribute("data-avatar-transition") === "settled"
       && Number(element.getAttribute("data-avatar-sequence")) > sequence;
   }, guideSequence);
   report.avatarInteractionPriority = true;
 
+  const cooldownNode = motionPage.locator(".claim-node").nth(1);
+  const cooldownNodeId = await cooldownNode.getAttribute("data-claim-id");
+  await cooldownNode.click();
+  await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, cooldownNodeId);
+  await motionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  if (await avatar.getAttribute("data-avatar-state") === "guide") throw new Error("A node click inside the guide cooldown restarted guidance.");
+  await motionPage.waitForTimeout(5_100);
+  const expiredNode = motionPage.locator(".claim-node").nth(1);
+  const expiredNodeId = await expiredNode.getAttribute("data-claim-id");
+  await expiredNode.click();
+  await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, expiredNodeId);
+  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "guide"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
+  report.guideCooldown = true;
+
   await motionPage.setViewportSize({ width: 390, height: 844 });
-  await motionPage.waitForFunction(() => matchMedia("(max-width: 700px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked");
-  const selectedNodeId = await motionPage.locator(".claim-node").nth(1).getAttribute("data-claim-id");
-  const selectedNodeTitle = (await motionPage.locator(".claim-node strong").nth(1).textContent())?.trim();
-  await motionPage.locator(".claim-node").nth(1).click();
-  await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, selectedNodeId);
+  const guideTimeBeforeSwap = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
+  const guideSequenceBeforeSwap = Number(await avatar.getAttribute("data-avatar-sequence"));
+  await motionPage.waitForFunction(() => matchMedia("(max-width: 700px)").matches
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "guide"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
+  const selectedNodeTitle = (await motionPage.locator(".experience-focus h2").textContent())?.trim();
   const calloutTitle = (await motionPage.locator(".avatar-mobile-callout strong").textContent())?.trim();
-  if (await avatar.getAttribute("data-avatar-state") !== "guide"
+  const guideTimeAfterSwap = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
+  if (Number(await avatar.getAttribute("data-avatar-sequence")) !== guideSequenceBeforeSwap
+    || guideTimeAfterSwap < guideTimeBeforeSwap - 0.15
+    || await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "stacked"
-    || !String(await video.getAttribute("src")).endsWith("daniel-guide-stacked.mp4")
+    || !String(await activeVideo().getAttribute("src")).endsWith("daniel-guide-stacked.mp4")
     || !await motionPage.locator(".avatar-mobile-callout").isVisible()
     || !selectedNodeTitle
     || calloutTitle !== selectedNodeTitle) throw new Error("Stacked selection did not use the downward guidance clip and synchronized mobile callout.");
@@ -283,19 +374,30 @@ try {
   report.responsiveAvatar = true;
 
   await motionPage.setViewportSize({ width: 1440, height: 1024 });
-  await motionPage.waitForFunction(() => !matchMedia("(max-width: 700px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide");
+  await motionPage.waitForFunction(() => !matchMedia("(max-width: 700px)").matches
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
   await motionPage.locator(".experience-focus .button--secondary").click();
-  if (await avatar.getAttribute("data-avatar-state") !== "smile"
-    || await avatar.getAttribute("data-avatar-mode") !== "interactive"
-    || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
+  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "smile"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
+  if (!String(await activeVideo().getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
   const smileSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
-  await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+  await activeVideo().evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
   await motionPage.waitForFunction((sequence) => {
     const element = document.querySelector(".avatar-guide");
     return element?.getAttribute("data-avatar-mode") === "ambient"
+      && element.getAttribute("data-avatar-transition") === "settled"
       && Number(element.getAttribute("data-avatar-sequence")) > sequence;
   }, smileSequence);
   report.avatarPlayback = true;
+
+  await motionPage.locator(".reset-control").click();
+  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "ambient"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "idle"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
+  report.resetSkipsWelcome = await avatar.getAttribute("data-avatar-mode") === "ambient";
+  if (browserProblems.length > 0) throw new Error(`Browser errors during avatar playback: ${browserProblems.join(" | ")}`);
   await motionContext.close();
 
   const outgoingContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
@@ -328,7 +430,7 @@ try {
 
   const mobileDepthContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   const mobileDepthPage = await mobileDepthContext.newPage();
-  await mobileDepthPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await mobileDepthPage.goto(`${origin}/`, { waitUntil: "load" });
   await mobileDepthPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
   await mobileDepthPage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-on-the-fuze-backend-lead");
   const mobileReserveCount = Number(await mobileDepthPage.locator(".graph-stage").getAttribute("data-reserve-count"));
@@ -364,7 +466,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

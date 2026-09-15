@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { pickAmbientAvatarReaction, type AmbientAvatarReaction } from "../avatar-schedule.js";
+import { pickAmbientAvatarReaction, pickGuideCooldownMs, shouldStartGuide, shouldStartWelcome, type AvatarLayout, type AvatarPlayback } from "../avatar-schedule.js";
 import {
   buildLayerPlan,
   buildSuccessorLayer,
@@ -13,14 +13,12 @@ import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, s
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
 import { claimPath } from "../site.js";
+import AvatarGuide from "./AvatarGuide.js";
 
 const sessionKey = "resumilio:discovery:v1";
 const visibleNeighborhoodSize = 5;
 type Claim = ResumilioProfile["claims"][number];
-type InteractiveAvatarReaction = "nod" | "guide" | "smile";
-type AvatarReaction = AmbientAvatarReaction | InteractiveAvatarReaction;
-type AvatarPlayback = { reaction: AvatarReaction; sequence: number; mode: "ambient" | "interactive" };
-type AvatarLayout = "wide" | "stacked";
+type InteractiveAvatarReaction = "nod" | "smile";
 type TransitionPhase = "idle" | "out" | "in";
 type SelectionSignal = { kind: "search" | "more-like-this"; topics: string[]; claimId?: string };
 type SelectionIntent = { claimId: string; reaction: "guide" | "smile"; precedingSignal?: SelectionSignal };
@@ -35,17 +33,6 @@ type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
 const transitionCommitMs = 320;
 const transitionSettleMs = 700;
-
-const avatarMedia: Record<Exclude<AvatarReaction, "guide">, string> = {
-  idle: "/media/avatar/daniel-idle.mp4",
-  waiting: "/media/avatar/daniel-waiting.mp4",
-  nod: "/media/avatar/daniel-nod.mp4",
-  smile: "/media/avatar/daniel-smile.mp4",
-};
-const avatarGuideMedia: Record<AvatarLayout, string> = {
-  wide: "/media/avatar/daniel-guide-wide.mp4",
-  stacked: "/media/avatar/daniel-guide-stacked.mp4",
-};
 
 const copy = {
   en: {
@@ -112,20 +99,6 @@ function ArrowIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>;
 }
 
-function AvatarGuide({ reaction, sequence, mode, layout, selectedTitle, selectedLabel, onComplete }: {
-  reaction: AvatarReaction; sequence: number; mode: AvatarPlayback["mode"]; layout: AvatarLayout; selectedTitle: string; selectedLabel: string; onComplete: () => void;
-}) {
-  const source = reaction === "guide" ? avatarGuideMedia[layout] : avatarMedia[reaction];
-  return <figure className="avatar-guide" data-avatar-state={reaction} data-avatar-mode={mode} data-avatar-sequence={sequence} data-avatar-layout={layout} data-avatar-variant={reaction === "guide" ? layout : "shared"} aria-hidden="true">
-    <div className="avatar-node-backdrop"/>
-    <div className="avatar-media">
-      <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="eager" fetchPriority="high"/>
-      <video key={`${reaction}-${layout}-${sequence}`} className="avatar-video" src={source} poster="/media/avatar/daniel-idle-poster.webp" muted playsInline autoPlay preload="auto" onEnded={onComplete}/>
-    </div>
-    <figcaption className="avatar-mobile-callout"><span>{selectedLabel}</span><strong>{graphTitle(selectedTitle)}</strong></figcaption>
-  </figure>;
-}
-
 function ClaimDetail({ profile, claim, locale, onMoreLike }: {
   profile: ResumilioProfile; claim: Claim; locale: Locale; onMoreLike: () => void;
 }) {
@@ -151,8 +124,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [query, setQuery] = useState("");
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
   const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
-  const [avatar, setAvatar] = useState<AvatarPlayback>({ reaction: "idle", sequence: 0, mode: "ambient" });
+  const [avatar, setAvatar] = useState<AvatarPlayback>({ reaction: "idle", sequence: 0, mode: "loading" });
+  const avatarRef = useRef(avatar);
+  const guideCooldownUntil = useRef(0);
+  const welcomeHandled = useRef(false);
   const [slotByClaimId, setSlotByClaimId] = useState<Record<string, number>>({});
   const [transition, setTransition] = useState<TransitionState>({ phase: "idle" });
   const [queuedSelection, setQueuedSelection] = useState<SelectionIntent>();
@@ -184,18 +161,57 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const signal = useCallback((kind: Parameters<typeof applySignal>[1], topics: string[], claimId?: string) => {
     setDiscovery((current) => applySignal(current, kind, topics, claimId));
   }, []);
+  const commitAvatar = useCallback((reaction: AvatarPlayback["reaction"], mode: AvatarPlayback["mode"]) => {
+    const next = { reaction, mode, sequence: avatarRef.current.sequence + 1 };
+    avatarRef.current = next;
+    setAvatar(next);
+  }, []);
+  const beginGuideCooldown = useCallback(() => {
+    guideCooldownUntil.current = Date.now() + pickGuideCooldownMs();
+  }, []);
   const showReaction = useCallback((reaction: InteractiveAvatarReaction) => {
-    setAvatar((current) => ({ reaction, sequence: current.sequence + 1, mode: "interactive" }));
-  }, []);
+    if (avatarRef.current.mode === "interactive" && avatarRef.current.reaction === "guide") beginGuideCooldown();
+    commitAvatar(reaction, "interactive");
+  }, [beginGuideCooldown, commitAvatar]);
+  const showGuide = useCallback(() => {
+    if (!shouldStartGuide(avatarRef.current, Date.now(), guideCooldownUntil.current)) return false;
+    commitAvatar("guide", "interactive");
+    return true;
+  }, [commitAvatar]);
   const advanceAmbientReaction = useCallback(() => {
-    setAvatar((current) => ({ reaction: pickAmbientAvatarReaction(), sequence: current.sequence + 1, mode: "ambient" }));
-  }, []);
+    commitAvatar(pickAmbientAvatarReaction(), "ambient");
+  }, [commitAvatar]);
   const acknowledgeNode = useCallback(() => {
-    setAvatar((current) => current.mode === "ambient" ? { reaction: "nod", sequence: current.sequence + 1, mode: "interactive" } : current);
-  }, []);
+    if (avatarRef.current.mode !== "interactive") showReaction("nod");
+  }, [showReaction]);
   const resetAvatar = useCallback(() => {
-    setAvatar((current) => ({ reaction: "idle", sequence: current.sequence + 1, mode: "ambient" }));
-  }, []);
+    welcomeHandled.current = true;
+    guideCooldownUntil.current = 0;
+    commitAvatar("idle", "ambient");
+  }, [commitAvatar]);
+  const completeAvatarReaction = useCallback((sequence: number) => {
+    const current = avatarRef.current;
+    if (current.sequence !== sequence) return;
+    if (current.mode === "loading") {
+      commitAvatar("idle", "loading");
+      return;
+    }
+    if (current.mode === "interactive" && current.reaction === "guide") beginGuideCooldown();
+    advanceAmbientReaction();
+  }, [advanceAmbientReaction, beginGuideCooldown, commitAvatar]);
+  useEffect(() => {
+    let listening = true;
+    const announceReady = () => {
+      if (!listening) return;
+      setPageLoaded(true);
+      const handled = welcomeHandled.current;
+      welcomeHandled.current = true;
+      if (shouldStartWelcome(avatarRef.current, handled)) commitAvatar("smile", "welcome");
+    };
+    if (document.readyState === "complete") queueMicrotask(announceReady);
+    else window.addEventListener("load", announceReady, { once: true });
+    return () => { listening = false; window.removeEventListener("load", announceReady); };
+  }, [commitAvatar]);
 
   const selected = profile.claims.find((claim) => claim.id === selectedId) ?? profile.claims[0];
   useEffect(() => {
@@ -253,7 +269,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       layerPlan.slotByClaimId,
       claim.id,
     );
-    showReaction(intent.reaction);
+    if (intent.reaction === "guide") showGuide();
+    else showReaction(intent.reaction);
     setHasTransitioned(true);
     transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
 
@@ -289,7 +306,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         setTransition({ phase: "idle" });
       }, transitionSettleMs),
     ];
-  }, [discovery, layerPlan, neighborhoodIds, profile, selected.id, showReaction, transition.phase]);
+  }, [discovery, layerPlan, neighborhoodIds, profile, selected.id, showGuide, showReaction, transition.phase]);
   useEffect(() => { requestSelectionRef.current = requestSelection; }, [requestSelection]);
   useEffect(() => {
     if (transition.phase !== "idle" || !queuedSelection) return;
@@ -427,7 +444,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               ];
             })}
           </svg>
-          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} mode={avatar.mode} layout={avatarLayout} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={advanceAmbientReaction}/>
+          <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} selectedTitle={graphTitle(selected.title[locale])} selectedLabel={t.selected} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
             {renderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
               const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
