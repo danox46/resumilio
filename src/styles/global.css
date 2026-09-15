@@ -373,6 +373,15 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   background-size: 178px 153px;
   background-position: 28px 41px;
 }
+.constellation-depth-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  transform-origin: 60% 54%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
 .ambient-nodes { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .ambient-node {
   position: absolute;
@@ -383,40 +392,73 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   border-radius: 50%;
   background: radial-gradient(circle at 38% 34%, rgb(118 118 113 / 20%), rgb(54 55 53 / 9%) 54%, rgb(20 21 20 / 2%) 72%);
   transform: translate(-50%, -50%);
-  opacity: .62;
-  transition: transform 420ms cubic-bezier(.22,.8,.25,1), opacity 360ms ease, border-color 360ms ease;
+  opacity: .76;
+  transition: transform 567ms cubic-bezier(.22,.8,.25,1), opacity 486ms ease, border-color 486ms ease;
 }
-.ambient-node--outlined { border: 1px solid rgb(242 175 75 / 25%); }
-.ambient-node--quiet { border: 1px solid rgb(164 163 154 / 13%); }
+.ambient-node--outlined { border: 1px solid rgb(242 175 75 / 34%); }
+.ambient-node--quiet { border: 1px solid rgb(164 163 154 / 19%); }
+.background-constellation {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.background-edge {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  stroke: rgb(214 174 105 / 24%);
+  stroke-width: .72;
+  stroke-linecap: round;
+}
+.background-edge--reserve { opacity: .52; }
+.background-edge--reserve:nth-of-type(3n) { stroke: rgb(168 166 154 / 20%); opacity: .42; }
+.background-edge--perimeter { stroke: rgb(205 168 103 / 18%); opacity: .46; }
+.background-edge--avatar { stroke: rgb(228 177 91 / 31%); opacity: .7; }
 .reserve-layers, .transition-reserves { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.reserve-layers { z-index: 0; }
+.reserve-layers { z-index: 2; }
 .transition-reserves { z-index: 4; }
 .reserve-node, .retired-node, .queued-target-node {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: clamp(48px, 5vw, 88px);
+  width: clamp(58px, 6vw, 112px);
   aspect-ratio: 1;
-  border: 1px solid rgb(196 156 91 / 18%);
+  border: 1px solid rgb(208 165 91 / 31%);
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, rgb(104 103 98 / 15%), rgb(43 44 42 / 7%) 58%, rgb(18 19 18 / 2%) 76%);
-  box-shadow: inset 0 0 28px rgb(0 0 0 / 22%);
-  opacity: .1;
+  background:
+    radial-gradient(circle at 42% 38%, rgb(182 167 139 / 22%) 0 4%, transparent 15%),
+    radial-gradient(circle at 38% 34%, rgb(112 111 104 / 22%), rgb(43 44 42 / 11%) 58%, rgb(18 19 18 / 3%) 76%);
+  box-shadow: inset 0 0 34px rgb(0 0 0 / 25%), 0 0 30px rgb(220 168 78 / 4%);
+  opacity: .18;
   transform: translate(-50%, -50%) scale(var(--reserve-scale, .5));
 }
-.reserve-node:nth-child(3n + 2) { opacity: .14; border-color: rgb(242 175 75 / 21%); }
-.reserve-node:nth-child(4n) { opacity: .075; }
+.reserve-node::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(241 190 100 / 72%);
+  box-shadow: 0 0 10px rgb(242 175 75 / 45%);
+  transform: translate(-50%, -50%);
+}
+.reserve-node:nth-child(3n + 2) { opacity: .26; border-color: rgb(242 175 75 / 39%); }
+.reserve-node:nth-child(4n) { opacity: .13; }
 .retired-node {
   width: clamp(54px, 6vw, 104px);
-  opacity: .11;
-  animation: retired-node-arrival 380ms cubic-bezier(.2,.78,.22,1) both;
+  opacity: .16;
+  animation: retired-node-arrival 513ms cubic-bezier(.2,.78,.22,1) both;
 }
 .reserve-node--advancing {
   left: var(--from-x);
   top: var(--from-y);
   z-index: 4;
   border-color: rgb(242 175 75 / 44%);
-  animation: reserve-advance 420ms 160ms cubic-bezier(.18,.8,.26,1) both;
+  animation: reserve-advance 567ms 216ms cubic-bezier(.18,.8,.26,1) both;
 }
 .queued-target-node {
   left: var(--from-x);
@@ -424,7 +466,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   z-index: 5;
   width: clamp(112px, 9.2vw, 148px);
   opacity: .14;
-  animation: queued-target-advance 320ms cubic-bezier(.18,.8,.26,1) both;
+  animation: queued-target-advance 432ms cubic-bezier(.18,.8,.26,1) both;
 }
 .experience-shell .relationship-map { z-index: 1; }
 .experience-shell .relation {
@@ -450,10 +492,10 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   box-shadow: 0 0 0 5px rgb(242 175 75 / 3%), 0 12px 36px rgb(0 0 0 / 25%);
   text-align: center;
   transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px)));
-  transition: left 320ms cubic-bezier(.18,.8,.26,1), top 320ms cubic-bezier(.18,.8,.26,1), transform 320ms cubic-bezier(.18,.8,.26,1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: left 432ms cubic-bezier(.18,.8,.26,1), top 432ms cubic-bezier(.18,.8,.26,1), transform 432ms cubic-bezier(.18,.8,.26,1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 .experience-shell .claim-node--initial { animation: node-arrival 360ms both; animation-delay: calc(var(--order) * 45ms); }
-.experience-shell .claim-node strong, .experience-shell .claim-node small { animation: node-label-arrival 440ms 90ms both; }
+.experience-shell .claim-node strong, .experience-shell .claim-node small { animation: node-label-arrival 594ms 122ms both; }
 .experience-shell .claim-node:hover, .experience-shell .claim-node:focus-visible {
   transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1.055);
   border-color: var(--amber);
@@ -507,12 +549,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   z-index: 0;
   width: 200%;
   aspect-ratio: 1;
-  border: 1px solid rgb(211 158 73 / 31%);
+  border: 1px solid rgb(220 168 79 / 42%);
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 35%, rgb(42 42 39 / 32%) 0%, transparent 34%),
     radial-gradient(circle at 51% 43%, #202120 0%, #191a19 42%, #111212 72%, #090a0a 100%);
-  box-shadow: inset 0 0 108px rgb(0 0 0 / 38%), 0 0 116px rgb(0 0 0 / 20%);
+  box-shadow: inset 0 0 108px rgb(0 0 0 / 38%), 0 0 0 1px rgb(226 177 94 / 7%), 0 0 152px rgb(0 0 0 / 30%);
   transform: translate(-50%, -50%);
 }
 .experience-shell .avatar-guide::after, .experience-shell .avatar-guide::before { display: none; }
@@ -597,18 +639,38 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   to { left: var(--x); top: var(--y); opacity: 1; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1); }
 }
 @keyframes retired-node-arrival {
-  from { opacity: .18; transform: translate(-50%, -50%) scale(.75); }
-  to { opacity: .1; transform: translate(-50%, -50%) scale(.5); }
+  from { opacity: .26; transform: translate(-50%, -50%) scale(.82); }
+  to { opacity: .14; transform: translate(-50%, -50%) scale(.56); }
 }
 @keyframes relation-arrival { from { opacity: 0; } to { opacity: .85; } }
-.graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 180ms ease-in both; }
-.graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 320ms cubic-bezier(.18,.8,.26,1) both; }
-.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 320ms ease-in both; }
-.graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 180ms ease-in; }
-.graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 380ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 380ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 380ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="in"] .relationship-map { animation: relation-arrival 250ms 130ms ease-out both; }
+@keyframes constellation-field-recede {
+  from { opacity: 1; transform: translate(0, 0) scale(1); }
+  to { opacity: .58; transform: translate(var(--field-shift-x), var(--field-shift-y)) scale(.965); }
+}
+@keyframes constellation-field-align {
+  from { opacity: .58; transform: translate(var(--field-shift-x), var(--field-shift-y)) scale(.965); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes background-node-materialize {
+  from { opacity: .04; filter: blur(1.5px); }
+  to { filter: blur(0); }
+}
+@keyframes background-edge-arrival {
+  from { opacity: 0; stroke-dashoffset: 14; }
+  to { stroke-dashoffset: 0; }
+}
+.graph-stage[data-transition-phase="out"] .constellation-depth-field { animation: constellation-field-recede 432ms cubic-bezier(.3,.05,.4,1) both; }
+.graph-stage[data-transition-phase="in"] .constellation-depth-field { animation: constellation-field-align 513ms cubic-bezier(.18,.8,.26,1) both; }
+.graph-stage[data-transition-phase="in"] .reserve-layers .reserve-node { animation: background-node-materialize 594ms calc(var(--order) * 12ms) ease-out both; }
+.graph-stage[data-transition-phase="in"] .background-edge--reserve { stroke-dasharray: 14 7; animation: background-edge-arrival 513ms var(--edge-delay, 122ms) ease-out both; }
+.graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 243ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 432ms cubic-bezier(.18,.8,.26,1) both; }
+.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 432ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 243ms ease-in; }
+.graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 513ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 513ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 513ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .relationship-map { animation: relation-arrival 338ms 176ms ease-out both; }
 
 @media (min-width: 701px) {
   .experience-focus { width: clamp(410px, 35vw, 520px); aspect-ratio: 1; }

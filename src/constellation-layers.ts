@@ -150,7 +150,7 @@ export function buildSuccessorLayer(
       origin: reserveOrigin(targetId, claimId, destinationSlot, incomingIndex),
       destination: constellationSlots[destinationSlot].point,
       drift: nextDriftByClaimId[claimId],
-      scale: .38 + hashUnit(`${targetId}:${claimId}:scale`) * .18,
+      scale: .5 + hashUnit(`${targetId}:${claimId}:scale`) * .22,
     };
   });
   const retreatPointByClaimId = Object.fromEntries(outgoingIds.map((claimId, outgoingIndex) => {

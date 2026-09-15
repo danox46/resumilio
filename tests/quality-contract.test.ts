@@ -38,13 +38,18 @@ test("visual motion and focus have accessible alternatives", () => {
 });
 
 test("the constellation preloads semantic reserve layers without changing public copy", () => {
-  assert.match(component, /transitionCommitMs = 320/);
-  assert.match(component, /transitionSettleMs = 700/);
-  assert.match(component, /backgroundReserves = layerPlan\.successors\.flatMap/);
+  assert.match(component, /transitionCommitMs = 432/);
+  assert.match(component, /transitionSettleMs = 945/);
+  assert.match(component, /backgroundReserves = backgroundLayers\.flatMap/);
+  assert.match(component, /className="constellation-depth-field"/);
+  assert.match(component, /className="background-constellation"/);
+  assert.match(component, /data-background-edge-count=/);
   assert.match(component, /data-reserve-owner=\{node\.ownerId\}/);
   assert.match(component, /data-node-role=\{role\}/);
   assert.match(styles, /@keyframes reserve-advance/);
   assert.match(styles, /@keyframes previous-center-out/);
+  assert.match(styles, /constellation-field-recede 432ms/);
+  assert.match(styles, /constellation-field-align 513ms/);
   assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
   assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);
 });

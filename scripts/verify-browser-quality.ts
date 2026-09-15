@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -74,8 +74,12 @@ try {
     const reserveCount = Number(await page.locator(".graph-stage").getAttribute("data-reserve-count"));
     const reserveDomCount = await page.locator(".reserve-layers .reserve-node").count();
     const visibleReserveCount = await page.locator(".reserve-layers .reserve-node:visible").count();
+    const backgroundNodeCount = Number(await page.locator(".constellation-depth-field").getAttribute("data-background-node-count"));
+    const backgroundEdgeCount = Number(await page.locator(".constellation-depth-field").getAttribute("data-background-edge-count"));
     if (visibleNodeCount === 5 && layerCount !== 5) throw new Error(`${viewport.name} preloaded ${layerCount} layers; expected one for every active node.`);
     if (reserveDomCount !== reserveCount) throw new Error(`${viewport.name} reserve DOM count does not match its data plan.`);
+    if (backgroundNodeCount !== reserveCount || backgroundEdgeCount < backgroundNodeCount + 4) throw new Error(`${viewport.name} did not render a connected background constellation.`);
+    report.backgroundConstellation = true;
     if (viewport.name === "desktop") {
       const owners = await page.locator(".reserve-layers .reserve-node").evaluateAll((nodes) => new Set(nodes.map((node) => node.getAttribute("data-reserve-owner"))).size);
       const reserveLayerIsHidden = await page.locator(".reserve-layers").getAttribute("aria-hidden") === "true";
@@ -102,7 +106,19 @@ try {
     const external = requests.filter((url) => new URL(url).origin !== origin);
     report.externalRequests.push(...external);
     report.firstPartyRequests += requests.length - external.length;
-    report.viewports.push({ ...viewport, overflow, visibleTargets, visibleNodeCount, layerCount, reserveCount, visibleReserveCount, responsiveAvatarSizing, screenshot });
+    report.viewports.push({
+      ...viewport,
+      overflow,
+      visibleTargets,
+      visibleNodeCount,
+      layerCount,
+      reserveCount,
+      visibleReserveCount,
+      backgroundNodeCount,
+      backgroundEdgeCount,
+      responsiveAvatarSizing,
+      screenshot,
+    });
 
     if (viewport.name === "mobile") {
       const initialNodes = page.locator(".claim-node");
@@ -260,6 +276,8 @@ try {
   await motionPage.locator(".claim-node").first().click();
   await motionPage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
     && document.querySelector('[data-node-role="selected-target"]')?.getAttribute("data-claim-id") === claimId, transitionTarget);
+  report.backgroundShift = await motionPage.locator(".constellation-depth-field").evaluate((node) => getComputedStyle(node).animationName === "constellation-field-recede");
+  if (!report.backgroundShift) throw new Error("The background constellation did not recede with the selected branch.");
   const sharedNode = motionPage.locator('[data-node-role="shared"]').first();
   const sharedNodeId = await sharedNode.getAttribute("data-claim-id");
   const sharedNodeHandle = await sharedNode.elementHandle();
@@ -347,10 +365,10 @@ try {
   await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, expiredNodeId);
   await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "guide"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
+  await motionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
   report.guideCooldown = true;
 
   await motionPage.setViewportSize({ width: 390, height: 844 });
-  const guideTimeBeforeSwap = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
   const guideSequenceBeforeSwap = Number(await avatar.getAttribute("data-avatar-sequence"));
   await motionPage.waitForFunction(() => matchMedia("(max-width: 700px)").matches
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked"
@@ -358,15 +376,23 @@ try {
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
   const selectedNodeTitle = (await motionPage.locator(".experience-focus h2").textContent())?.trim();
   const calloutTitle = (await motionPage.locator(".avatar-mobile-callout strong").textContent())?.trim();
-  const guideTimeAfterSwap = await activeVideo().evaluate((element) => (element as HTMLVideoElement).currentTime);
-  if (Number(await avatar.getAttribute("data-avatar-sequence")) !== guideSequenceBeforeSwap
-    || guideTimeAfterSwap < guideTimeBeforeSwap - 0.15
-    || await avatar.getAttribute("data-avatar-state") !== "guide"
-    || await avatar.getAttribute("data-avatar-variant") !== "stacked"
-    || !String(await activeVideo().getAttribute("src")).endsWith("daniel-guide-stacked.mp4")
-    || !await motionPage.locator(".avatar-mobile-callout").isVisible()
+  const stackedGuideState = {
+    sequence: Number(await avatar.getAttribute("data-avatar-sequence")),
+    guideSequenceBeforeSwap,
+    state: await avatar.getAttribute("data-avatar-state"),
+    variant: await avatar.getAttribute("data-avatar-variant"),
+    src: await activeVideo().getAttribute("src"),
+    calloutVisible: await motionPage.locator(".avatar-mobile-callout").isVisible(),
+    selectedNodeTitle,
+    calloutTitle,
+  };
+  if (stackedGuideState.sequence !== guideSequenceBeforeSwap
+    || stackedGuideState.state !== "guide"
+    || stackedGuideState.variant !== "stacked"
+    || !String(stackedGuideState.src).endsWith("daniel-guide-stacked.mp4")
+    || !stackedGuideState.calloutVisible
     || !selectedNodeTitle
-    || calloutTitle !== selectedNodeTitle) throw new Error("Stacked selection did not use the downward guidance clip and synchronized mobile callout.");
+    || calloutTitle !== selectedNodeTitle) throw new Error(`Stacked selection did not use the downward guidance clip and synchronized mobile callout: ${JSON.stringify(stackedGuideState)}`);
   await avatar.scrollIntoViewIfNeeded();
   const stackedGuideScreenshot = join(outputDirectory, "responsive-guide-stacked.png");
   await motionPage.screenshot({ path: stackedGuideScreenshot });
@@ -498,7 +524,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

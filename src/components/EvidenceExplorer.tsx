@@ -31,8 +31,8 @@ type ActiveTransition = {
 type TransitionState = { phase: "idle" } | ActiveTransition;
 type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
-const transitionCommitMs = 320;
-const transitionSettleMs = 700;
+const transitionCommitMs = 432;
+const transitionSettleMs = 945;
 
 const copy = {
   en: {
@@ -78,6 +78,13 @@ const decorativeNodes: Array<{ point: [number, number]; size: number; tone: "qui
   { point: [4, 18], size: 144, tone: "quiet" },
   { point: [97, 18], size: 210, tone: "outlined" },
   { point: [94, 64], size: 310, tone: "quiet" },
+];
+
+const perimeterEdges: Array<{ key: string; from: ConstellationPoint; to: ConstellationPoint; avatar?: boolean }> = [
+  { key: "north-west-anchor", from: [4, 18], to: constellationSlots[1].point },
+  { key: "north-east-anchor", from: [97, 18], to: constellationSlots[2].point },
+  { key: "south-east-anchor", from: [94, 64], to: constellationSlots[4].point },
+  { key: "avatar-anchor", from: [13, 82], to: constellationSlots[3].point, avatar: true },
 ];
 
 function graphTitle(title: string) { return title.split(" — ")[0]; }
@@ -349,9 +356,25 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const visibleMessage = t.visible.replace("{visible}", String(neighborhood.length + 1)).replace("{total}", String(profile.claims.length));
   const transitionLayer = transition.phase === "idle" ? undefined : transition.layer;
-  const backgroundReserves = layerPlan.successors.flatMap((layer) => layer.reserveNodes)
-    .filter((node) => transition.phase !== "out" || node.ownerId !== transition.layer.targetId);
+  const backgroundLayers = layerPlan.successors
+    .filter((layer) => transition.phase !== "out" || layer.targetId !== transition.layer.targetId);
+  const backgroundReserves = backgroundLayers.flatMap((layer) => layer.reserveNodes);
+  const backgroundEdges = backgroundLayers.flatMap((layer, branchIndex) => {
+    const ownerSlot = constellationSlots[layerPlan.slotByClaimId[layer.targetId] ?? layer.targetSlot];
+    return layer.reserveNodes.map((node, nodeIndex) => ({
+      key: `depth:${node.key}`,
+      from: nodeIndex === 0 ? ownerSlot.point : layer.reserveNodes[nodeIndex - 1].origin,
+      to: node.origin,
+      branchIndex,
+      nodeIndex,
+    }));
+  });
   const transitioningReserves = transitionLayer?.reserveNodes ?? [];
+  const transitionTargetPoint = transitionLayer ? constellationSlots[transitionLayer.targetSlot]?.point : constellationFocus;
+  const depthFieldStyle = {
+    "--field-shift-x": `${((constellationFocus[0] - transitionTargetPoint[0]) * .16).toFixed(2)}%`,
+    "--field-shift-y": `${((constellationFocus[1] - transitionTargetPoint[1]) * .16).toFixed(2)}%`,
+  } as CSSProperties;
   const queuedTargetOrigin = transition.phase !== "idle" && !transition.fromNeighborhoodIds.includes(transition.layer.targetId)
     ? retiredNodes.find((node) => node.claimId === transition.layer.targetId)?.point ?? [43, 5] as ConstellationPoint
     : undefined;
@@ -402,21 +425,42 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
           data-queued-claim={queuedSelection?.claimId}
           aria-busy={transition.phase !== "idle"}
         >
-          <div className="ambient-nodes" aria-hidden="true">
-            {decorativeNodes.map((node, index) => <span key={index} className={`ambient-node ambient-node--${node.tone}`} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--size": `${node.size}px`, "--order": index } as CSSProperties}/>) }
-            {retiredNodes.map((node, index) => <span key={`${node.claimId}:${index}`} className="retired-node" data-claim-id={node.claimId} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--order": index } as CSSProperties}/>) }
-          </div>
-          <div className="reserve-layers" aria-hidden="true">
-            {backgroundReserves.map((node, index) => <span
-              key={node.key}
-              className="reserve-node"
-              data-reserve-owner={node.ownerId}
-              data-claim-id={node.claimId}
-              style={{
-                "--x": `${node.origin[0]}%`, "--y": `${node.origin[1]}%`,
-                "--reserve-scale": node.scale, "--order": index,
-              } as CSSProperties}
-            />)}
+          <div
+            className="constellation-depth-field"
+            data-background-node-count={backgroundReserves.length}
+            data-background-edge-count={backgroundEdges.length + perimeterEdges.length}
+            style={depthFieldStyle}
+            aria-hidden="true"
+          >
+            <div className="ambient-nodes" aria-hidden="true">
+              {decorativeNodes.map((node, index) => <span key={index} className={`ambient-node ambient-node--${node.tone}`} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--size": `${node.size}px`, "--order": index } as CSSProperties}/>) }
+              {retiredNodes.map((node, index) => <span key={`${node.claimId}:${index}`} className="retired-node" data-claim-id={node.claimId} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--order": index } as CSSProperties}/>) }
+            </div>
+            <svg className="background-constellation" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {perimeterEdges.map((edge) => <line
+                key={edge.key}
+                className={`background-edge background-edge--perimeter${edge.avatar ? " background-edge--avatar" : ""}`}
+                x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
+              />)}
+              {backgroundEdges.map((edge) => <line
+                key={edge.key}
+                className="background-edge background-edge--reserve"
+                x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
+                style={{ "--edge-delay": `${122 + edge.branchIndex * 18 + edge.nodeIndex * 12}ms` } as CSSProperties}
+              />)}
+            </svg>
+            <div className="reserve-layers" aria-hidden="true">
+              {backgroundReserves.map((node, index) => <span
+                key={node.key}
+                className="reserve-node"
+                data-reserve-owner={node.ownerId}
+                data-claim-id={node.claimId}
+                style={{
+                  "--x": `${node.origin[0]}%`, "--y": `${node.origin[1]}%`,
+                  "--reserve-scale": node.scale, "--order": index,
+                } as CSSProperties}
+              />)}
+            </div>
           </div>
           {transitionLayer && <div className="transition-reserves" aria-hidden="true">
             {transitioningReserves.map((node, index) => <span
