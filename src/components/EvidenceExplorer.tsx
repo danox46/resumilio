@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { pickAmbientAvatarReaction, type AmbientAvatarReaction } from "../avatar-schedule.js";
+import {
+  buildLayerPlan,
+  buildSuccessorLayer,
+  constellationFocus,
+  constellationSlots,
+  type ConstellationDrift,
+  type ConstellationPoint,
+  type SuccessorLayerPlan,
+} from "../constellation-layers.js";
 import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
@@ -13,7 +22,19 @@ type AvatarReaction = AmbientAvatarReaction | InteractiveAvatarReaction;
 type AvatarPlayback = { reaction: AvatarReaction; sequence: number; mode: "ambient" | "interactive" };
 type AvatarLayout = "wide" | "stacked";
 type TransitionPhase = "idle" | "out" | "in";
+type SelectionSignal = { kind: "search" | "more-like-this"; topics: string[]; claimId?: string };
+type SelectionIntent = { claimId: string; reaction: "guide" | "smile"; precedingSignal?: SelectionSignal };
+type ActiveTransition = {
+  phase: Exclude<TransitionPhase, "idle">;
+  layer: SuccessorLayerPlan;
+  fromSelectedId: string;
+  fromNeighborhoodIds: string[];
+};
+type TransitionState = { phase: "idle" } | ActiveTransition;
+type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
+const transitionCommitMs = 320;
+const transitionSettleMs = 700;
 
 const avatarMedia: Record<Exclude<AvatarReaction, "guide">, string> = {
   idle: "/media/avatar/daniel-idle.mp4",
@@ -66,22 +87,10 @@ const featuredClaimIds = [
   "claim-computer-science-studies",
 ];
 
-const graphSlots: Array<{ point: [number, number]; midPoint: [number, number]; className: string }> = [
-  { point: [54, 13], midPoint: [58, 21], className: "north" },
-  { point: [30, 34], midPoint: [20, 38], className: "west" },
-  { point: [83, 31], midPoint: [92, 35], className: "east" },
-  { point: [39, 79], midPoint: [22, 81], className: "south-west" },
-  { point: [79, 77], midPoint: [91, 79], className: "south-east" },
-];
-
-const ambientNodes: Array<{ point: [number, number]; size: number; tone: "quiet" | "outlined" }> = [
+const decorativeNodes: Array<{ point: [number, number]; size: number; tone: "quiet" | "outlined" }> = [
   { point: [4, 18], size: 144, tone: "quiet" },
-  { point: [20, 72], size: 92, tone: "outlined" },
-  { point: [43, 5], size: 74, tone: "outlined" },
-  { point: [73, 12], size: 118, tone: "quiet" },
   { point: [97, 18], size: 210, tone: "outlined" },
   { point: [94, 64], size: 310, tone: "quiet" },
-  { point: [57, 98], size: 186, tone: "outlined" },
 ];
 
 function graphTitle(title: string) { return title.split(" — ")[0]; }
@@ -144,8 +153,13 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [storageReady, setStorageReady] = useState(false);
   const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
   const [avatar, setAvatar] = useState<AvatarPlayback>({ reaction: "idle", sequence: 0, mode: "ambient" });
-  const [transition, setTransition] = useState<{ phase: TransitionPhase; targetId?: string }>({ phase: "idle" });
+  const [slotByClaimId, setSlotByClaimId] = useState<Record<string, number>>({});
+  const [transition, setTransition] = useState<TransitionState>({ phase: "idle" });
+  const [queuedSelection, setQueuedSelection] = useState<SelectionIntent>();
+  const [retiredNodes, setRetiredNodes] = useState<RetiredNode[]>([]);
+  const [hasTransitioned, setHasTransitioned] = useState(false);
   const transitionTimers = useRef<number[]>([]);
+  const requestSelectionRef = useRef<(intent: SelectionIntent) => void>(() => undefined);
   const t = copy[locale];
 
   useEffect(() => {
@@ -185,9 +199,10 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
 
   const selected = profile.claims.find((claim) => claim.id === selectedId) ?? profile.claims[0];
   useEffect(() => {
+    if (transition.phase !== "idle") return;
     const timer = window.setTimeout(() => signal("dwell", selected.tags, selected.id), 8000);
     return () => window.clearTimeout(timer);
-  }, [selected.id, selected.tags, signal]);
+  }, [selected.id, selected.tags, signal, transition.phase]);
 
   const neighborhood = useMemo(() => {
     const normalizedQuery = normalizeTerm(query);
@@ -197,30 +212,93 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     const contextualState = applySignal(discovery, "open", selected.tags, selected.id);
     return rankRecommendations(profile, contextualState, selected.id).slice(0, visibleNeighborhoodSize).map((result) => result.claim);
   }, [profile, query, selected.id, selected.tags, discovery]);
+  const neighborhoodIds = useMemo(() => neighborhood.map((claim) => claim.id), [neighborhood]);
+  const layerPlan = useMemo(
+    () => buildLayerPlan(profile, discovery, selected.id, neighborhoodIds, slotByClaimId),
+    [profile, discovery, selected.id, neighborhoodIds, slotByClaimId],
+  );
 
-  const selectClaim = (claim: Claim, reaction: "guide" | "smile" = "guide") => {
-    if (claim.id === selected.id || transition.phase !== "idle") return;
-    const commitSelection = () => {
+  const requestSelection = useCallback((intent: SelectionIntent) => {
+    const claim = profile.claims.find((candidate) => candidate.id === intent.claimId);
+    if (!claim) return;
+    if (transition.phase !== "idle") {
+      setQueuedSelection(intent);
+      return;
+    }
+
+    let discoveryBeforeOpen = discovery;
+    if (intent.precedingSignal) {
+      discoveryBeforeOpen = applySignal(
+        discoveryBeforeOpen,
+        intent.precedingSignal.kind,
+        intent.precedingSignal.topics,
+        intent.precedingSignal.claimId,
+      );
+    }
+    if (claim.id === selected.id) {
+      if (intent.precedingSignal) setDiscovery(discoveryBeforeOpen);
+      setQuery("");
+      showReaction("smile");
+      return;
+    }
+
+    const preloaded = intent.precedingSignal
+      ? undefined
+      : layerPlan.successors.find((candidate) => candidate.targetId === claim.id);
+    const layer = preloaded ?? buildSuccessorLayer(
+      profile,
+      discoveryBeforeOpen,
+      selected.id,
+      neighborhoodIds,
+      layerPlan.slotByClaimId,
+      claim.id,
+    );
+    showReaction(intent.reaction);
+    setHasTransitioned(true);
+    transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDiscovery(layer.nextDiscovery);
       setSelectedId(claim.id);
       setQuery("");
-      signal("open", claim.tags, claim.id);
-    };
-    showReaction(reaction);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      commitSelection();
+      setSlotByClaimId(layer.nextSlotByClaimId);
+      setRetiredNodes([]);
       setTransition({ phase: "idle" });
       return;
     }
-    transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
-    setTransition({ phase: "out", targetId: claim.id });
+
+    const snapshot: ActiveTransition = {
+      phase: "out",
+      layer,
+      fromSelectedId: selected.id,
+      fromNeighborhoodIds: [...neighborhoodIds],
+    };
+    setTransition(snapshot);
     transitionTimers.current = [
       window.setTimeout(() => {
-        commitSelection();
-        setTransition({ phase: "in", targetId: claim.id });
-      }, 240),
-      window.setTimeout(() => setTransition({ phase: "idle" }), 760),
+        setDiscovery(layer.nextDiscovery);
+        setSelectedId(claim.id);
+        setQuery("");
+        setSlotByClaimId(layer.nextSlotByClaimId);
+        setTransition((current) => current.phase === "idle" ? current : { ...current, phase: "in" });
+      }, transitionCommitMs),
+      window.setTimeout(() => {
+        const nextRetired = layer.outgoingIds.map((claimId) => ({ claimId, point: layer.retreatPointByClaimId[claimId] }));
+        if (!layer.previousCenterRetained) nextRetired.push({ claimId: selected.id, point: [96, 88] });
+        setRetiredNodes(nextRetired);
+        setTransition({ phase: "idle" });
+      }, transitionSettleMs),
     ];
-  };
+  }, [discovery, layerPlan, neighborhoodIds, profile, selected.id, showReaction, transition.phase]);
+  useEffect(() => { requestSelectionRef.current = requestSelection; }, [requestSelection]);
+  useEffect(() => {
+    if (transition.phase !== "idle" || !queuedSelection) return;
+    const next = queuedSelection;
+    setQueuedSelection(undefined);
+    requestSelectionRef.current(next);
+  }, [queuedSelection, transition.phase]);
+
+  const selectClaim = (claim: Claim, reaction: "guide" | "smile" = "guide") => requestSelection({ claimId: claim.id, reaction });
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
     if (!keys.includes(event.key) || neighborhood.length === 0) return;
@@ -231,23 +309,56 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const moreLike = () => {
     const nextState = applySignal(discovery, "more-like-this", selected.tags, selected.id);
-    setDiscovery(nextState);
     const recommendation = rankRecommendations(profile, nextState, selected.id)[0]?.claim;
-    if (recommendation) selectClaim(recommendation, "smile");
-    else showReaction("smile");
+    if (recommendation) requestSelection({
+      claimId: recommendation.id,
+      reaction: "smile",
+      precedingSignal: { kind: "more-like-this", topics: selected.tags, claimId: selected.id },
+    });
+    else { setDiscovery(nextState); showReaction("smile"); }
   };
   const submitSearch = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     const firstMatch = searchClaims(profile, query)[0]?.claim;
-    signal("search", normalizeTerm(query).split(" ").filter(Boolean));
-    if (firstMatch && firstMatch.id !== selected.id) selectClaim(firstMatch, "smile");
-    else showReaction("smile");
+    const topics = normalizeTerm(query).split(" ").filter(Boolean);
+    if (firstMatch) requestSelection({ claimId: firstMatch.id, reaction: "smile", precedingSignal: { kind: "search", topics } });
+    else { setDiscovery((current) => applySignal(current, "search", topics)); showReaction("smile"); }
   };
   const reset = () => {
-    setDiscovery(emptyDiscoveryState()); setQuery(""); setSelectedId(defaultClaimId); resetAvatar();
+    transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
+    setDiscovery(emptyDiscoveryState()); setQuery(""); setSelectedId(defaultClaimId); setSlotByClaimId({});
+    setTransition({ phase: "idle" }); setQueuedSelection(undefined); setRetiredNodes([]); setHasTransitioned(false); resetAvatar();
     try { sessionStorage.removeItem(sessionKey); } catch { /* Nothing else to reset. */ }
   };
   const visibleMessage = t.visible.replace("{visible}", String(neighborhood.length + 1)).replace("{total}", String(profile.claims.length));
+  const transitionLayer = transition.phase === "idle" ? undefined : transition.layer;
+  const backgroundReserves = layerPlan.successors.flatMap((layer) => layer.reserveNodes)
+    .filter((node) => transition.phase !== "out" || node.ownerId !== transition.layer.targetId);
+  const transitioningReserves = transitionLayer?.reserveNodes ?? [];
+  const queuedTargetOrigin = transition.phase !== "idle" && !transition.fromNeighborhoodIds.includes(transition.layer.targetId)
+    ? retiredNodes.find((node) => node.claimId === transition.layer.targetId)?.point ?? [43, 5] as ConstellationPoint
+    : undefined;
+  const renderedNodes = neighborhood.map((claim, index) => {
+    let slotIndex = layerPlan.slotByClaimId[claim.id] ?? index;
+    let drift: ConstellationDrift = layerPlan.driftByClaimId[claim.id] ?? [0, 0];
+    let role = hasTransitioned ? "settled" : "initial";
+    if (transition.phase === "out") {
+      if (transition.layer.targetId === claim.id) role = "selected-target";
+      else if (transition.layer.outgoingIds.includes(claim.id)) role = "outgoing";
+      else if (transition.layer.sharedIds.includes(claim.id)) {
+        role = "shared";
+        slotIndex = transition.layer.nextSlotByClaimId[claim.id];
+        drift = transition.layer.nextDriftByClaimId[claim.id];
+      }
+    } else if (transition.phase === "in") {
+      if (transition.layer.previousCenterRetained && claim.id === transition.fromSelectedId) role = "previous-center";
+      else if (transition.layer.incomingIds.includes(claim.id)) role = "incoming";
+      else if (transition.layer.sharedIds.includes(claim.id)) role = "shared";
+    }
+    const slot = constellationSlots[slotIndex] ?? constellationSlots[index];
+    const reserveSource = transitionLayer?.reserveNodes.find((node) => node.claimId === claim.id);
+    return { claim, slot, drift, role, reserveSource };
+  });
 
   return <div className="experience-shell">
     <header className="constellation-header">
@@ -265,26 +376,83 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       <section className="constellation" aria-label={t.eyebrow} aria-describedby="graph-help">
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="constellation-intro"><p>{t.eyebrow}</p><span>{visibleMessage}</span></div>
-        <div className="graph-stage" data-transition-phase={transition.phase}>
+        <div
+          className="graph-stage"
+          data-transition-phase={transition.phase}
+          data-transition-target={transitionLayer?.targetId}
+          data-layer-count={layerPlan.successors.length}
+          data-reserve-count={layerPlan.reserveCount}
+          data-queued-claim={queuedSelection?.claimId}
+          aria-busy={transition.phase !== "idle"}
+        >
           <div className="ambient-nodes" aria-hidden="true">
-            {ambientNodes.map((node, index) => <span key={index} className={`ambient-node ambient-node--${node.tone}`} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--size": `${node.size}px`, "--order": index } as CSSProperties}/>) }
+            {decorativeNodes.map((node, index) => <span key={index} className={`ambient-node ambient-node--${node.tone}`} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--size": `${node.size}px`, "--order": index } as CSSProperties}/>) }
+            {retiredNodes.map((node, index) => <span key={`${node.claimId}:${index}`} className="retired-node" data-claim-id={node.claimId} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--order": index } as CSSProperties}/>) }
           </div>
+          <div className="reserve-layers" aria-hidden="true">
+            {backgroundReserves.map((node, index) => <span
+              key={node.key}
+              className="reserve-node"
+              data-reserve-owner={node.ownerId}
+              data-claim-id={node.claimId}
+              style={{
+                "--x": `${node.origin[0]}%`, "--y": `${node.origin[1]}%`,
+                "--reserve-scale": node.scale, "--order": index,
+              } as CSSProperties}
+            />)}
+          </div>
+          {transitionLayer && <div className="transition-reserves" aria-hidden="true">
+            {transitioningReserves.map((node, index) => <span
+              key={`transition:${node.key}`}
+              className="reserve-node reserve-node--advancing"
+              data-reserve-owner={node.ownerId}
+              data-claim-id={node.claimId}
+              style={{
+                "--from-x": `${node.origin[0]}%`, "--from-y": `${node.origin[1]}%`,
+                "--to-x": `${node.destination[0]}%`, "--to-y": `${node.destination[1]}%`,
+                "--drift-x": `${node.drift[0]}px`, "--drift-y": `${node.drift[1]}px`,
+                "--reserve-scale": node.scale, "--order": index,
+              } as CSSProperties}
+            />)}
+            {queuedTargetOrigin && <span className="queued-target-node" data-claim-id={transitionLayer.targetId} style={{
+              "--from-x": `${queuedTargetOrigin[0]}%`, "--from-y": `${queuedTargetOrigin[1]}%`,
+              "--to-x": `${constellationFocus[0]}%`, "--to-y": `${constellationFocus[1]}%`,
+            } as CSSProperties}/>}
+          </div>}
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {neighborhood.flatMap((claim, index) => {
-              const slot = graphSlots[index];
+            {renderedNodes.flatMap(({ claim, slot }) => {
               return [
-                <line key={`${claim.id}-wide`} x1="60" y1="54" x2={slot.point[0]} y2={slot.point[1]} className="relation relation--claim relation--wide"/>,
-                <line key={`${claim.id}-mid`} x1="59" y1="54" x2={slot.midPoint[0]} y2={slot.midPoint[1]} className="relation relation--claim relation--mid"/>,
+                <line key={`${claim.id}-wide`} x1={constellationFocus[0]} y1={constellationFocus[1]} x2={slot.point[0]} y2={slot.point[1]} className="relation relation--claim relation--wide"/>,
+                <line key={`${claim.id}-mid`} x1="59" y1={constellationFocus[1]} x2={slot.midPoint[0]} y2={slot.midPoint[1]} className="relation relation--claim relation--mid"/>,
               ];
             })}
           </svg>
           <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} mode={avatar.mode} layout={avatarLayout} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={advanceAmbientReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
-            {neighborhood.map((claim, index) => {
-              const slot = graphSlots[index];
-              const claimStyle = { "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index } as CSSProperties;
-              const promoting = transition.targetId === claim.id && transition.phase === "out";
-              return <button key={claim.id} className={`claim-node claim-node--${slot.className}${promoting ? " claim-node--promoting" : ""}`} id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" disabled={transition.phase !== "idle"} onFocus={acknowledgeNode} onMouseEnter={acknowledgeNode} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><strong>{nodeTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}</small></button>;
+            {renderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
+              const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
+              const claimStyle = {
+                "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index,
+                "--drift-x": `${drift[0]}px`, "--drift-y": `${drift[1]}px`,
+                ...(retreat ? { "--retreat-x": `${retreat[0]}%`, "--retreat-y": `${retreat[1]}%` } : {}),
+                ...(reserveSource ? {
+                  "--from-x": `${reserveSource.origin[0]}%`, "--from-y": `${reserveSource.origin[1]}%`,
+                  "--reserve-scale": reserveSource.scale,
+                } : {}),
+              } as CSSProperties;
+              return <button
+                key={claim.id}
+                className={`claim-node claim-node--${slot.className} claim-node--${role}`}
+                id={`claim-node-${claim.id}`}
+                data-claim-id={claim.id}
+                data-node-role={role}
+                style={claimStyle}
+                type="button"
+                onFocus={acknowledgeNode}
+                onMouseEnter={acknowledgeNode}
+                onKeyDown={(event) => moveClaimFocus(event, claim)}
+                onClick={() => selectClaim(claim)}
+              ><strong>{nodeTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}</small></button>;
             })}
           </div>
           <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike}/></div>

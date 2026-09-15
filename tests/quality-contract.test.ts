@@ -17,7 +17,12 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(component, /slice\(0, visibleNeighborhoodSize\)/);
   assert.doesNotMatch(component, /evidence-table|allTypes|allStatuses|allSkills/);
   assert.match(component, /data-transition-phase=\{transition\.phase\}/);
-  assert.match(component, /claim-node--promoting/);
+  assert.match(component, /data-node-role=\{role\}/);
+  assert.match(component, /data-layer-count=\{layerPlan\.successors\.length\}/);
+  assert.match(component, /data-reserve-count=\{layerPlan\.reserveCount\}/);
+  assert.match(component, /className="reserve-layers" aria-hidden="true"/);
+  assert.match(component, /className="transition-reserves" aria-hidden="true"/);
+  assert.match(component, /setQueuedSelection\(intent\)/);
   assert.match(component, /className="ambient-nodes" aria-hidden="true"/);
   assert.match(component, /href=\{claimPath\(claim\.id, locale\)\} target="_blank" rel="noopener noreferrer"/);
   assert.match(entryPages, /client:load/);
@@ -29,6 +34,18 @@ test("visual motion and focus have accessible alternatives", () => {
   assert.match(styles, /\.avatar-video \{ display: none; \}/);
   assert.match(component, /aria-describedby="graph-help"/);
   assert.match(component, /className="sr-only" id="graph-help"/);
+});
+
+test("the constellation preloads semantic reserve layers without changing public copy", () => {
+  assert.match(component, /transitionCommitMs = 320/);
+  assert.match(component, /transitionSettleMs = 700/);
+  assert.match(component, /backgroundReserves = layerPlan\.successors\.flatMap/);
+  assert.match(component, /data-reserve-owner=\{node\.ownerId\}/);
+  assert.match(component, /data-node-role=\{role\}/);
+  assert.match(styles, /@keyframes reserve-advance/);
+  assert.match(styles, /@keyframes previous-center-out/);
+  assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
+  assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);
 });
 
 test("the avatar uses bounded local media for shared and responsive reactions", () => {
@@ -43,7 +60,7 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(component, /onMouseEnter=\{acknowledgeNode\}/);
   assert.match(component, /current\.mode === "ambient" \? \{ reaction: "nod"/);
   assert.match(component, /const selectClaim = \(claim: Claim, reaction: "guide" \| "smile" = "guide"\)/);
-  assert.match(component, /showReaction\(reaction\)/);
+  assert.match(component, /showReaction\(intent\.reaction\)/);
   assert.match(component, /stackedAvatarQuery = "\(max-width: 700px\)"/);
   assert.match(component, /media\.addEventListener\("change", syncLayout\)/);
   assert.match(component, /data-avatar-variant=\{reaction === "guide" \? layout : "shared"\}/);
@@ -53,7 +70,7 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
   assert.match(styles, /\.avatar-media \{[\s\S]*?-webkit-mask-image:[\s\S]*?linear-gradient[\s\S]*?radial-gradient/);
   assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);
-  assert.match(component, /x1="60" y1="54"/);
+  assert.match(component, /x1=\{constellationFocus\[0\]\} y1=\{constellationFocus\[1\]\}/);
   assert.match(component, /showReaction\("smile"\)/);
   assert.match(avatarSchedule, /reaction: "idle", weight: 0\.6/);
   assert.match(avatarSchedule, /reaction: "waiting", weight: 0\.2/);

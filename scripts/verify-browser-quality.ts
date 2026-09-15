@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, ambientAvatarMix: false, avatarInteractionPriority: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, ambientAvatarMix: false, avatarInteractionPriority: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -70,6 +70,20 @@ try {
     if (visibleTargets === 0) throw new Error(`${viewport.name} exposes no interactive targets.`);
     const visibleNodeCount = await page.locator(".claim-node:visible").count();
     if (["tablet", "desktop", "full-hd", "wide-short", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
+    const layerCount = Number(await page.locator(".graph-stage").getAttribute("data-layer-count"));
+    const reserveCount = Number(await page.locator(".graph-stage").getAttribute("data-reserve-count"));
+    const reserveDomCount = await page.locator(".reserve-layers .reserve-node").count();
+    const visibleReserveCount = await page.locator(".reserve-layers .reserve-node:visible").count();
+    if (visibleNodeCount === 5 && layerCount !== 5) throw new Error(`${viewport.name} preloaded ${layerCount} layers; expected one for every active node.`);
+    if (reserveDomCount !== reserveCount) throw new Error(`${viewport.name} reserve DOM count does not match its data plan.`);
+    if (viewport.name === "desktop") {
+      const owners = await page.locator(".reserve-layers .reserve-node").evaluateAll((nodes) => new Set(nodes.map((node) => node.getAttribute("data-reserve-owner"))).size);
+      const reserveLayerIsHidden = await page.locator(".reserve-layers").getAttribute("aria-hidden") === "true";
+      const focusableReserves = await page.locator('.reserve-layers button, .reserve-layers a, .reserve-layers input, .reserve-layers [tabindex]').count();
+      report.layerPreload = layerCount === 5 && reserveCount > 0 && owners === 5 && reserveLayerIsHidden && focusableReserves === 0;
+    }
+    if (["watch", "small-mobile", "mobile"].includes(viewport.name) && visibleReserveCount > 8) throw new Error(`${viewport.name} exposes ${visibleReserveCount} reserve ghosts; expected at most 8.`);
+    if (viewport.name === "mobile") report.mobileReserveCap = visibleReserveCount <= 8;
     let responsiveAvatarSizing: Record<string, unknown> | undefined;
     if (viewport.name === "wide-short") {
       const avatarBox = await page.locator(".avatar-guide").boundingBox();
@@ -88,7 +102,7 @@ try {
     const external = requests.filter((url) => new URL(url).origin !== origin);
     report.externalRequests.push(...external);
     report.firstPartyRequests += requests.length - external.length;
-    report.viewports.push({ ...viewport, overflow, visibleTargets, visibleNodeCount, responsiveAvatarSizing, screenshot });
+    report.viewports.push({ ...viewport, overflow, visibleTargets, visibleNodeCount, layerCount, reserveCount, visibleReserveCount, responsiveAvatarSizing, screenshot });
 
     if (viewport.name === "mobile") {
       const initialNodes = page.locator(".claim-node");
@@ -186,17 +200,50 @@ try {
     && avatarBox.x < graphBox.x + graphBox.width * .2
     && avatarBox.y > graphBox.y + graphBox.height * .35);
   if (!report.wideAvatarPlacement) throw new Error("Wide avatar is not anchored in the lower-left supporting position.");
+  const previousCenterId = await motionPage.locator(".experience-focus").getAttribute("data-selected-id");
   const transitionTarget = await motionPage.locator(".claim-node").first().getAttribute("data-claim-id");
   await motionPage.locator(".claim-node").first().hover();
   await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-state") === "nod"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive");
   await motionPage.locator(".claim-node").first().click();
   await motionPage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
-    && document.querySelector(".claim-node--promoting")?.getAttribute("data-claim-id") === claimId, transitionTarget);
+    && document.querySelector('[data-node-role="selected-target"]')?.getAttribute("data-claim-id") === claimId, transitionTarget);
+  const sharedNode = motionPage.locator('[data-node-role="shared"]').first();
+  const sharedNodeId = await sharedNode.getAttribute("data-claim-id");
+  const sharedNodeHandle = await sharedNode.elementHandle();
+  const advancingReserve = motionPage.locator(".transition-reserves .reserve-node--advancing").first();
+  const reserveMotion = await advancingReserve.evaluate((node) => {
+    const style = getComputedStyle(node);
+    return {
+      animationName: style.animationName,
+      fromX: style.getPropertyValue("--from-x"),
+      fromY: style.getPropertyValue("--from-y"),
+      toX: style.getPropertyValue("--to-x"),
+      toY: style.getPropertyValue("--to-y"),
+    };
+  });
+  report.incomingReserveMotion = reserveMotion.animationName === "reserve-advance"
+    && `${reserveMotion.fromX}|${reserveMotion.fromY}` !== `${reserveMotion.toX}|${reserveMotion.toY}`;
+  if (!report.incomingReserveMotion) throw new Error("The chosen reserve layer did not animate from its preloaded coordinates.");
   const nodeTransitionScreenshot = join(outputDirectory, "node-transition-out.png");
   await motionPage.screenshot({ path: nodeTransitionScreenshot });
   report.nodeTransitionScreenshot = nodeTransitionScreenshot;
+  report.layerTransitionScreenshots.push(nodeTransitionScreenshot);
   await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, transitionTarget);
+  const previousCenter = motionPage.locator('[data-node-role="previous-center"]');
+  report.previousCenterHandoff = await previousCenter.getAttribute("data-claim-id") === previousCenterId
+    && await previousCenter.evaluate((node) => getComputedStyle(node).animationName) === "previous-center-out";
+  if (!report.previousCenterHandoff) throw new Error("The previous center did not move outward into the selected node's vacated slot.");
+  if (!sharedNodeId || !sharedNodeHandle) throw new Error("The transition did not expose a shared node for identity verification.");
+  report.sharedNodeIdentity = await motionPage.locator(`.claim-node[data-claim-id="${sharedNodeId}"]`).evaluate((node, previous) => node === previous, sharedNodeHandle);
+  if (!report.sharedNodeIdentity) throw new Error("A shared active node was remounted instead of remaining spatially continuous.");
+  const layerArrivalScreenshot = join(outputDirectory, "node-transition-in.png");
+  await motionPage.screenshot({ path: layerArrivalScreenshot });
+  report.layerTransitionScreenshots.push(layerArrivalScreenshot);
+  await motionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  const layerSettledScreenshot = join(outputDirectory, "node-transition-settled.png");
+  await motionPage.screenshot({ path: layerSettledScreenshot });
+  report.layerTransitionScreenshots.push(layerSettledScreenshot);
   report.nodeTransition = true;
   if (await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "wide"
@@ -251,8 +298,73 @@ try {
   report.avatarPlayback = true;
   await motionContext.close();
 
+  const outgoingContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
+  const outgoingPage = await outgoingContext.newPage();
+  await outgoingPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await outgoingPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
+  await outgoingPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
+    && document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-on-the-fuze-backend-lead");
+  await outgoingPage.locator('[data-claim-id="claim-alphahub-hubspot-specialist"].claim-node').click();
+  await outgoingPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out");
+  const outgoingNodes = outgoingPage.locator('[data-node-role="outgoing"]');
+  report.outgoingRetreat = await outgoingNodes.count() > 0
+    && await outgoingNodes.first().evaluate((node) => getComputedStyle(node).animationName) === "node-depart";
+  if (!report.outgoingRetreat) throw new Error("A low-overlap branch did not send obsolete nodes into the background.");
+  await outgoingContext.close();
+
+  const queueContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
+  const queuePage = await queueContext.newPage();
+  await queuePage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  const firstQueuedTarget = await queuePage.locator(".claim-node").nth(0).getAttribute("data-claim-id");
+  const latestQueuedTarget = await queuePage.locator(".claim-node").nth(1).getAttribute("data-claim-id");
+  await queuePage.locator(".claim-node").nth(0).click();
+  await queuePage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out");
+  await queuePage.locator(".claim-node").nth(1).click();
+  await queuePage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-queued-claim") === claimId, latestQueuedTarget);
+  await queuePage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle", latestQueuedTarget, { timeout: 3000 });
+  report.latestSelectionQueue = Boolean(firstQueuedTarget && latestQueuedTarget && firstQueuedTarget !== latestQueuedTarget);
+  await queueContext.close();
+
+  const mobileDepthContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+  const mobileDepthPage = await mobileDepthContext.newPage();
+  await mobileDepthPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await mobileDepthPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
+  await mobileDepthPage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-on-the-fuze-backend-lead");
+  const mobileReserveCount = Number(await mobileDepthPage.locator(".graph-stage").getAttribute("data-reserve-count"));
+  const mobileVisibleReserves = await mobileDepthPage.locator(".reserve-layers .reserve-node:visible").count();
+  report.mobileReserveCap = mobileReserveCount > 8 && mobileVisibleReserves === 8;
+  if (!report.mobileReserveCap) throw new Error(`Mobile reserve stress state exposed ${mobileVisibleReserves} of ${mobileReserveCount} ghosts; expected exactly 8 visible.`);
+  await mobileDepthContext.close();
+
+  const searchContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
+  const searchPage = await searchContext.newPage();
+  await searchPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await searchPage.waitForFunction(() => Boolean(sessionStorage.getItem("resumilio:discovery:v1")));
+  const signalCountBeforeTyping = await searchPage.evaluate(() => JSON.parse(sessionStorage.getItem("resumilio:discovery:v1") ?? "{}").signalCount ?? 0);
+  await searchPage.locator(".search-field input").fill("Backend Technical Lead");
+  const searchTarget = await searchPage.locator(".claim-node").first().getAttribute("data-claim-id");
+  const signalCountAfterTyping = await searchPage.evaluate(() => JSON.parse(sessionStorage.getItem("resumilio:discovery:v1") ?? "{}").signalCount ?? 0);
+  const visibleSearchNodes = await searchPage.locator(".claim-node").count();
+  const searchLayerCount = Number(await searchPage.locator(".graph-stage").getAttribute("data-layer-count"));
+  if (signalCountBeforeTyping !== signalCountAfterTyping || visibleSearchNodes !== searchLayerCount) throw new Error("Typing a search changed discovery state or failed to preload its visible result layers.");
+  await searchPage.locator(".search-controls").press("Enter");
+  await searchPage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-target") === claimId, searchTarget);
+  report.searchLayerTransition = true;
+  await searchContext.close();
+
+  const similarContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
+  const similarPage = await similarContext.newPage();
+  await similarPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await similarPage.locator(".experience-focus .button--secondary").click();
+  await similarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
+    && Boolean(document.querySelector(".graph-stage")?.getAttribute("data-transition-target")));
+  report.similarWorkLayerTransition = true;
+  await similarContext.close();
+
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

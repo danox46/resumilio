@@ -388,11 +388,43 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 }
 .ambient-node--outlined { border: 1px solid rgb(242 175 75 / 25%); }
 .ambient-node--quiet { border: 1px solid rgb(164 163 154 / 13%); }
-.graph-stage[data-transition-phase="out"] .ambient-node:nth-child(2n),
-.graph-stage[data-transition-phase="in"] .ambient-node:nth-child(2n + 1) {
-  border-color: rgb(242 175 75 / 43%);
-  transform: translate(-50%, -50%) scale(1.28);
-  opacity: .88;
+.reserve-layers, .transition-reserves { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.reserve-layers { z-index: 0; }
+.transition-reserves { z-index: 4; }
+.reserve-node, .retired-node, .queued-target-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: clamp(48px, 5vw, 88px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(196 156 91 / 18%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, rgb(104 103 98 / 15%), rgb(43 44 42 / 7%) 58%, rgb(18 19 18 / 2%) 76%);
+  box-shadow: inset 0 0 28px rgb(0 0 0 / 22%);
+  opacity: .1;
+  transform: translate(-50%, -50%) scale(var(--reserve-scale, .5));
+}
+.reserve-node:nth-child(3n + 2) { opacity: .14; border-color: rgb(242 175 75 / 21%); }
+.reserve-node:nth-child(4n) { opacity: .075; }
+.retired-node {
+  width: clamp(54px, 6vw, 104px);
+  opacity: .11;
+  animation: retired-node-arrival 380ms cubic-bezier(.2,.78,.22,1) both;
+}
+.reserve-node--advancing {
+  left: var(--from-x);
+  top: var(--from-y);
+  z-index: 4;
+  border-color: rgb(242 175 75 / 44%);
+  animation: reserve-advance 420ms 160ms cubic-bezier(.18,.8,.26,1) both;
+}
+.queued-target-node {
+  left: var(--from-x);
+  top: var(--from-y);
+  z-index: 5;
+  width: clamp(112px, 9.2vw, 148px);
+  opacity: .14;
+  animation: queued-target-advance 320ms cubic-bezier(.18,.8,.26,1) both;
 }
 .experience-shell .relationship-map { z-index: 1; }
 .experience-shell .relation {
@@ -417,14 +449,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   background: rgb(13 15 15 / 90%);
   box-shadow: 0 0 0 5px rgb(242 175 75 / 3%), 0 12px 36px rgb(0 0 0 / 25%);
   text-align: center;
-  transform: translate(-50%, -50%);
-  animation: node-arrival 360ms both;
-  animation-delay: calc(var(--order) * 45ms);
+  transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px)));
+  transition: left 320ms cubic-bezier(.18,.8,.26,1), top 320ms cubic-bezier(.18,.8,.26,1), transform 320ms cubic-bezier(.18,.8,.26,1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
-.experience-shell .claim-node:disabled { cursor: wait; }
+.experience-shell .claim-node--initial { animation: node-arrival 360ms both; animation-delay: calc(var(--order) * 45ms); }
 .experience-shell .claim-node strong, .experience-shell .claim-node small { animation: node-label-arrival 440ms 90ms both; }
 .experience-shell .claim-node:hover, .experience-shell .claim-node:focus-visible {
-  transform: translate(-50%, -50%) scale(1.055);
+  transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1.055);
   border-color: var(--amber);
   background: #1c1c1a;
   box-shadow: 0 0 0 7px rgb(242 175 75 / 8%), 0 14px 38px rgb(0 0 0 / 34%);
@@ -520,18 +551,18 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   text-align: center;
 }
 @keyframes node-arrival {
-  from { opacity: .18; transform: translate(-50%, -50%) scale(.42); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from { opacity: .18; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(.42); }
+  to { opacity: 1; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1); }
 }
 @keyframes node-label-arrival {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 @keyframes node-depart {
-  to { opacity: .08; transform: translate(-50%, -50%) scale(.4); }
+  to { left: var(--retreat-x); top: var(--retreat-y); opacity: .08; transform: translate(-50%, -50%) scale(.4); filter: blur(1.2px); }
 }
 @keyframes node-promote {
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1.5); background: #2c2b27; box-shadow: 0 0 0 16px rgb(242 175 75 / 9%), 0 22px 58px rgb(0 0 0 / 44%); }
+  to { left: 60%; top: 54%; opacity: 1; transform: translate(-50%, -50%) scale(2.55); background: #2c2b27; box-shadow: 0 0 0 16px rgb(242 175 75 / 9%), 0 22px 58px rgb(0 0 0 / 44%); }
 }
 @keyframes feature-depart {
   to { opacity: .08; transform: translate(-50%, -50%) scale(.72); }
@@ -540,10 +571,35 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   from { opacity: .12; transform: translate(-50%, -50%) scale(.68); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
-.graph-stage[data-transition-phase="out"] .claim-node:not(.claim-node--promoting) { animation: node-depart 220ms ease-in both; }
-.graph-stage[data-transition-phase="out"] .claim-node--promoting { z-index: 9; animation: node-promote 240ms cubic-bezier(.18,.8,.26,1) both; }
-.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 220ms ease-in both; }
-.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 500ms cubic-bezier(.2,.78,.22,1) both; }
+@keyframes reserve-advance {
+  from { left: var(--from-x); top: var(--from-y); opacity: .1; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
+  to { left: var(--to-x); top: var(--to-y); opacity: .62; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1.36); }
+}
+@keyframes queued-target-advance {
+  from { left: var(--from-x); top: var(--from-y); opacity: .12; transform: translate(-50%, -50%) scale(.42); }
+  to { left: var(--to-x); top: var(--to-y); opacity: 1; transform: translate(-50%, -50%) scale(2.55); }
+}
+@keyframes previous-center-out {
+  from { left: 60%; top: 54%; opacity: .18; transform: translate(-50%, -50%) scale(2.55); }
+  to { left: var(--x); top: var(--y); opacity: 1; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1); }
+}
+@keyframes incoming-node-arrival {
+  from { left: var(--from-x); top: var(--from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
+  to { left: var(--x); top: var(--y); opacity: 1; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1); }
+}
+@keyframes retired-node-arrival {
+  from { opacity: .18; transform: translate(-50%, -50%) scale(.75); }
+  to { opacity: .1; transform: translate(-50%, -50%) scale(.5); }
+}
+@keyframes relation-arrival { from { opacity: 0; } to { opacity: .85; } }
+.graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 180ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 320ms cubic-bezier(.18,.8,.26,1) both; }
+.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 320ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 180ms ease-in; }
+.graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 380ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 380ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 380ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .relationship-map { animation: relation-arrival 250ms 130ms ease-out both; }
 
 @media (min-width: 701px) {
   .experience-focus { width: clamp(410px, 35vw, 520px); aspect-ratio: 1; }
@@ -645,8 +701,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     justify-self: center;
     width: min(38vw, 145px);
     transform: none;
-    animation-name: mobile-node-arrival;
   }
+  .experience-shell .claim-node--initial { animation-name: mobile-node-arrival; }
   .experience-shell .claim-node:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .experience-shell .claim-node::after { content: none; }
   .experience-shell .claim-node::before {
@@ -659,8 +715,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     background: var(--constellation-line);
   }
   .experience-shell .empty-state { top: auto; bottom: 80px; }
-  .graph-stage[data-transition-phase="out"] .claim-node:not(.claim-node--promoting) { animation-name: mobile-node-depart; }
-  .graph-stage[data-transition-phase="out"] .claim-node--promoting { animation-name: mobile-node-promote; }
+  .reserve-layers .reserve-node:nth-child(n + 9) { display: none; }
+  .reserve-node { width: clamp(42px, 17vw, 68px); }
+  .graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation-name: mobile-node-depart; }
+  .graph-stage[data-transition-phase="out"] .claim-node--selected-target { animation-name: mobile-node-promote; }
+  .graph-stage[data-transition-phase="in"] .claim-node--previous-center,
+  .graph-stage[data-transition-phase="in"] .claim-node--incoming { animation-name: mobile-node-arrival; }
   .graph-stage[data-transition-phase="out"] .experience-focus { animation-name: mobile-feature-depart; }
   .graph-stage[data-transition-phase="in"] .experience-focus { animation-name: mobile-feature-arrival; }
 }
