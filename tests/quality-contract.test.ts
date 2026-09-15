@@ -11,7 +11,9 @@ test("claim controls expose directional keyboard navigation", () => {
     assert.match(component, new RegExp(`\\\"${key}\\\"`));
   }
   assert.match(component, /onKeyDown=\{\(event\) => moveClaimFocus\(event, claim\)\}/);
-  assert.match(component, /disabled=\{hidden\}/);
+  assert.match(component, /visibleNeighborhoodSize = 5/);
+  assert.match(component, /slice\(0, visibleNeighborhoodSize\)/);
+  assert.doesNotMatch(component, /evidence-table|allTypes|allStatuses|allSkills/);
 });
 
 test("visual motion and focus have accessible alternatives", () => {
@@ -29,17 +31,18 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
     assert.ok(statSync(path).size > 0, `${path} is empty`);
   }
   assert.match(component, /data-avatar-state=\{reaction\}/);
-  assert.match(component, /onFocus=\{\(\) => showReaction\("nod"\)\}/);
-  assert.match(component, /onMouseEnter=\{\(\) => showReaction\("nod"\)\}/);
+  assert.match(component, /onFocus=\{acknowledgeNode\}/);
+  assert.match(component, /onMouseEnter=\{acknowledgeNode\}/);
+  assert.match(component, /current\.reaction === "idle" \? \{ reaction: "nod"/);
   assert.match(component, /showReaction\("guide"\)/);
   assert.match(component, /stackedAvatarQuery = "\(max-width: 820px\)"/);
   assert.match(component, /media\.addEventListener\("change", syncLayout\)/);
   assert.match(component, /data-avatar-variant=\{reaction === "guide" \? layout : "shared"\}/);
-  assert.match(styles, /\.avatar-mobile-callout \{ position: absolute;/);
-  assert.match(styles, /\.avatar-guide \{ position: absolute; left: 13%; bottom: -4%;/);
-  assert.match(styles, /\.avatar-guide\[data-avatar-layout="wide"\] \.avatar-orbit \{ display: none; \}/);
-  assert.match(styles, /\.avatar-guide \{ left: 50%; top: 51%; bottom: auto;/);
-  assert.match(component, /x1="62" y1="51"/);
+  assert.match(styles, /\.experience-shell \.avatar-mobile-callout \{\s*position: absolute;/);
+  assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
+  assert.match(styles, /@media \(max-width: 820px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
+  assert.match(styles, /mask-image: radial-gradient/);
+  assert.match(component, /x1="60" y1="54"/);
   assert.match(component, /showReaction\("smile"\)/);
   assert.match(component, /showReaction\("waiting"\)/);
   assert.match(component, /waitingReactionDelayMs = 24_000/);
@@ -56,7 +59,7 @@ test("personalization remains session-local and network-independent", () => {
 });
 
 test("public labels use job-market language while internal contracts stay unchanged", () => {
-  for (const label of ["Career highlights", "Professional experience", "Career status", "How it's documented", "More about it", "Related work"]) {
+  for (const label of ["Constellation of experience", "career records", "Related experience", "View experience", "Show similar work"]) {
     assert.match(component + readFileSync("src/presentation.ts", "utf8"), new RegExp(label));
   }
   for (const internalLabel of ["Selected claim", "Evidence strength", "Source visibility", "Evidence / source"]) {

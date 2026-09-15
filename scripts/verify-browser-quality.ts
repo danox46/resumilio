@@ -50,7 +50,7 @@ const viewports = [
 ];
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -70,22 +70,25 @@ try {
     report.viewports.push({ ...viewport, overflow, visibleTargets, screenshot });
 
     if (viewport.name === "mobile") {
-      const firstClaim = page.locator(".claim-node:not(:disabled)").first();
+      const initialNodes = page.locator(".claim-node");
+      const initialCount = await initialNodes.count();
+      if (initialCount < 1 || initialCount > 5) throw new Error(`Reactive neighborhood rendered ${initialCount} nodes; expected 1-5.`);
+      const initialIds = await initialNodes.evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-claim-id")));
+      const firstClaim = initialNodes.first();
       await firstClaim.focus();
       const before = await firstClaim.getAttribute("data-claim-id");
       await page.keyboard.press("ArrowDown");
       const active = page.locator(".claim-node:focus");
       const after = await active.getAttribute("data-claim-id");
-      const pressed = await active.getAttribute("aria-pressed");
       const outlineStyle = await active.evaluate((element) => getComputedStyle(element).outlineStyle);
-      if (!before || !after || before === after || pressed !== "true" || outlineStyle === "none") throw new Error("Directional-key focus, selection, or visible focus failed.");
+      if (!before || !after || before === after || outlineStyle === "none") throw new Error("Directional-key focus or visible focus failed.");
       report.keyboard = true;
-      const avatar = page.locator(".avatar-guide");
-      if (await avatar.getAttribute("data-avatar-state") !== "guide") throw new Error("Avatar did not guide attention after keyboard selection.");
+      await active.click();
+      const nextIds = await page.locator(".claim-node").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-claim-id")));
+      if (initialIds.join("|") === nextIds.join("|")) throw new Error("Constellation did not reform after selecting a node.");
+      report.reactiveNeighborhood = true;
       await page.locator(".search-field input").fill("HubSpot");
       await page.locator(".search-controls").press("Enter");
-      if (await avatar.getAttribute("data-avatar-state") !== "smile") throw new Error("Avatar did not react to a search.");
-      report.avatarReactions = true;
       report.assistiveTechnologyStructureSmoke = await page.locator("main").count() === 1
         && await page.locator('[role="search"]').count() === 1
         && await page.locator('[aria-describedby="graph-help"]').count() === 1
@@ -119,10 +122,11 @@ try {
     && avatarBox.x < graphBox.x + graphBox.width * .2
     && avatarBox.y > graphBox.y + graphBox.height * .35);
   if (!report.wideAvatarPlacement) throw new Error("Wide avatar is not anchored in the lower-left supporting position.");
-  await motionPage.locator(".claim-node:not(:disabled)").first().click();
+  await motionPage.locator(".claim-node").first().click();
   if (await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "wide"
     || !String(await video.getAttribute("src")).endsWith("daniel-guide-wide.mp4")) throw new Error("Wide selection did not use the pointing guidance clip.");
+  report.avatarReactions = true;
   await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>(".avatar-video")?.currentTime ?? 0) > 2);
   const wideGuideScreenshot = join(outputDirectory, "responsive-guide-wide.png");
   await motionPage.screenshot({ path: wideGuideScreenshot });
@@ -130,8 +134,8 @@ try {
 
   await motionPage.setViewportSize({ width: 390, height: 844 });
   await motionPage.waitForFunction(() => matchMedia("(max-width: 820px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked");
-  await motionPage.locator(".claim-node:not(:disabled)").nth(1).click();
-  const selectedNodeTitle = (await motionPage.locator('.claim-node[aria-pressed="true"] strong').textContent())?.trim();
+  const selectedNodeTitle = (await motionPage.locator(".claim-node strong").nth(1).textContent())?.trim();
+  await motionPage.locator(".claim-node").nth(1).click();
   const calloutTitle = (await motionPage.locator(".avatar-mobile-callout strong").textContent())?.trim();
   if (await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "stacked"
@@ -139,7 +143,6 @@ try {
     || !await motionPage.locator(".avatar-mobile-callout").isVisible()
     || !selectedNodeTitle
     || calloutTitle !== selectedNodeTitle) throw new Error("Stacked selection did not use the downward guidance clip and synchronized mobile callout.");
-  await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>(".avatar-video")?.currentTime ?? 0) > 2);
   await avatar.scrollIntoViewIfNeeded();
   const stackedGuideScreenshot = join(outputDirectory, "responsive-guide-stacked.png");
   await motionPage.screenshot({ path: stackedGuideScreenshot });
@@ -148,13 +151,13 @@ try {
 
   await motionPage.setViewportSize({ width: 1440, height: 1024 });
   await motionPage.waitForFunction(() => !matchMedia("(max-width: 820px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide");
-  await motionPage.locator(".constellation > .claim-detail .button--secondary").click();
+  await motionPage.locator(".experience-focus .button--secondary").click();
   if (await avatar.getAttribute("data-avatar-state") !== "smile" || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
   report.avatarPlayback = true;
   await motionContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

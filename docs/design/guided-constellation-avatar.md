@@ -1,64 +1,73 @@
-# Guided constellation avatar
+# Reactive constellation avatar
 
-This document defines the 0.8 design candidate that deliberately evolves the Phase 3 Evidence Constellation while preserving its validated profile, search, selection, recommendation, keyboard, bilingual, and responsive behavior.
+This document defines the immersive Resumilio candidate that replaces the mixed constellation-and-classic landing page. The previous implementation remains recoverable at the annotated Git tag `archive/constellation-reference-2026-09-15`.
 
-Rendered reference captures:
+Rendered design references:
 
-- `guided-constellation-avatar-desktop.png` — 1440 × 1024 desktop candidate.
-- `guided-constellation-avatar-mobile.png` — 390 × 844 mobile candidate.
+- `immersive-constellation-concept-desktop.png`
+- `immersive-constellation-concept-mobile.png`
+
+The concepts establish hierarchy and mood. The implementation deliberately uses circular nodes, ordinary straight SVG lines, semantic HTML controls, and React state rather than reproducing ornamental details from generated imagery.
 
 ## Experience model
 
-- The public career map is a focused dark universe inside the otherwise white-first Resumilio experience.
-- Career information is the visual center. On wide layouts, Daniel occupies the lower-left corner as a supporting guide while the career-map hub, highlights, and selected detail own the center and right side.
-- On stacked layouts, the portrait returns to the horizontal center because the selected information moves below it; at phone widths the short selected-title callout sits over the lower portrait.
-- The detail rail and career list stay conventional and readable. The immersive treatment is limited to the map.
-- Public language remains job-market language; internal profile and provenance contracts are unchanged.
+The landing page is one constellation of experience. It has no classic resume list, table, sidebar, full filter bank, or repeated metadata panel. Classic record pages remain available through **View experience**.
 
-## Reactions
+The constellation is reactive rather than exhaustive:
 
-The runtime uses only pre-rendered, first-party media:
+1. One career record owns the focused detail card.
+2. At most five related records appear as circular nodes.
+3. Selecting a node makes it the focus and rebuilds the visible neighborhood from its topics plus the visitor's session signals.
+4. Search temporarily replaces the neighborhood with the strongest matching records and promotes the first result when submitted.
+5. **Show similar work** increases the selected topics' weight and advances to the strongest novel recommendation.
 
-- `daniel-idle.mp4`: quiet baseline loop.
-- `daniel-waiting.mp4`: a one-shot shift after 24 seconds without another reaction.
-- `daniel-nod.mp4`: acknowledgment when a visitor hovers, focuses, or selects a career highlight.
-- `daniel-guide-wide.mp4`: wide-layout selection guidance; Daniel gestures toward the detail rail.
-- `daniel-guide-stacked.mp4`: stacked-layout selection guidance; Daniel looks toward the selected information below him.
-- `daniel-smile.mp4`: positive response to a search, filter, or “Show similar work” recommendation.
+All profile records remain discoverable through repeated selection and search, but they are never rendered together as visual noise. The status line states the visible and total counts so progressive disclosure is explicit rather than mysterious.
 
-The standing-still idle video loads and plays immediately. The waiting, nod, guidance, and smile clips play once and return to that idle. They are muted, inline, and have no dependency on Flow or any model at runtime. The idle poster remains visible only while video loads, if playback fails, or when motion is reduced.
+Personalization is deterministic and session-local. There is no model call, tracking request, cookie, account, or server-side visitor profile.
 
-## Responsive reaction contract
+## Composition
 
-`selection-guidance` is one semantic event with layout-aware choreography. It fires when a visitor selects a career highlight, including directional-key selection. The event always updates the same selected claim and accessible detail content; only its decorative animation changes:
+- The selected experience is the visual center.
+- On wide layouts, Daniel is anchored in the lower-left as a supporting presence. He is never the graph hub.
+- On layouts at 820px and below, Daniel is centered above the selected detail and the selected title appears on his chest during the visual sequence.
+- Circular nodes are intentionally simple CSS buttons. Their straight connectors are one inline SVG on wide screens and short CSS line segments in the stacked representation.
+- The neutral background follows the source video rather than introducing a separate blue universe: roughly `#202121` at the top, `#151616` through the middle, and `#080909` at the base.
+- A mask and edge overlays soften the portrait's rectangular media boundary. The video remains first-party and plays directly; the poster is the reduced-motion and playback-failure fallback.
 
-- `wide` at 821px and above uses `daniel-guide-wide.mp4`, because the selected detail is in the rail to Daniel's right.
-- `stacked` at 820px and below uses `daniel-guide-stacked.mp4`, because the selected detail is below the portrait. At phone widths, a short, decorative selected-title callout sits over the lower portrait to give the downward gaze an immediate visual target; the complete semantic detail remains in the career trail.
+## Avatar reactions
 
-The breakpoint is owned by the representation, not by device detection. It matches the CSS transition where `.constellation` changes from a side-by-side grid to a stacked layout. `matchMedia("(max-width: 820px)")` is observed at runtime, so resizing or rotating before another selection changes the next guidance clip without changing the event name or selected record.
+The runtime uses only the approved local media:
 
-Wide composition deliberately avoids making the avatar the graph hub: the portrait is anchored at `left: 13%` and below the visual midpoint, its orbit rings are suppressed, and relationship lines originate from the information field at 62%. The stacked representation restores the centered portrait, original node coordinates, and orbit treatment. Agents reproducing this pattern should bind avatar placement and choreography to the same representation breakpoint so pose and information hierarchy cannot drift apart.
+- `daniel-idle.mp4`: quiet baseline loop, autoplayed immediately.
+- `daniel-waiting.mp4`: one-shot shift after 24 seconds at idle.
+- `daniel-nod.mp4`: acknowledgement when an idle avatar receives node focus or hover.
+- `daniel-guide-wide.mp4`: selection on wide screens; Daniel points toward the information field.
+- `daniel-guide-stacked.mp4`: the same selection event on small screens; Daniel looks toward the chest callout and detail below.
+- `daniel-smile.mp4`: positive response to search and **Show similar work**.
 
-To add another responsive reaction, keep one semantic reaction name, provide an asset per layout only when the choreography must change, and select the asset through the same `AvatarLayout` mapping. Do not fork analytics or business behavior by viewport.
+Hover/focus acknowledgement is allowed only while the avatar is idle. This prevents a newly rendered node under the pointer from interrupting the more important selection-guidance clip when the neighborhood reforms.
 
-### Media preparation
+## Responsive event contract
 
-Source clips are normalized to silent, fast-start H.264 at 720 × 1280, 24fps, `yuv420p`:
+`selection-guidance` is one semantic event with two visual representations. `matchMedia("(max-width: 820px)")` selects the video asset at the same breakpoint where the information layout changes. The selected record, session signal, destination link, and accessible announcement are identical in both representations.
+
+Agents extending the system should keep event meaning independent from the viewport. Add a layout-specific clip only when choreography must change, then bind it to the representation breakpoint rather than device detection.
+
+## Accessibility and resilience
+
+- The avatar is decorative. The selected record and every suggestion remain semantic text and controls.
+- Arrow keys, Home, and End move focus within the currently visible neighborhood; Enter or Space selects through native button behavior.
+- Focus remains visible, the changing detail is announced politely, and the neighborhood has an accessible group label and instruction.
+- `prefers-reduced-motion` hides moving video and retains the poster.
+- A missing video never blocks search, selection, recommendations, or classic record routes.
+- Browser QA covers 240px, 320px, 390px, 768px, 1440px, 1920px, and 3840px without horizontal overflow.
+
+## Media preparation
+
+Source clips are normalized to silent, fast-start H.264 at 720 x 1280, 24fps, `yuv420p`:
 
 ```powershell
 ffmpeg -i <source.mp4> -map_metadata -1 -an -vf "scale=720:1280:flags=lanczos" -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -r 24 -movflags +faststart <public-output.mp4>
 ```
 
-Verify each result with `ffprobe`, then run `npm run phase6`. Browser QA must select a different career highlight once at 1440px and once at 390px and confirm that both runs expose `data-avatar-state="guide"` while the chosen sources and `data-avatar-variant` differ.
-
-## Accessibility and resilience
-
-- The avatar is decorative; all meaning remains present in semantic controls and text.
-- `prefers-reduced-motion` replaces moving video with the idle poster.
-- Keyboard movement still selects and focuses the next visible highlight.
-- Mobile turns the orbit into a dark connected career trail below a compact guide portrait.
-- Failure to load or autoplay media does not block search, filtering, selection, recommendations, detail links, or static profile routes.
-
-## Public asset boundary
-
-Only the selected, optimized animations and their derived poster are published. Portrait references, generation scripts, provider records, and discarded iterations remain outside the repository and public build.
+Only the selected animations and derived poster are public. Portrait references, provider sessions, generation records, source downloads, and discarded iterations stay outside the repository and public build.
