@@ -4,6 +4,7 @@ import test from "node:test";
 
 const component = readFileSync("src/components/EvidenceExplorer.tsx", "utf8");
 const styles = readFileSync("src/styles/global.css", "utf8");
+const siteSource = readFileSync("src/site.ts", "utf8");
 const entryPages = readFileSync("src/pages/index.astro", "utf8") + readFileSync("src/pages/es/index.astro", "utf8");
 
 test("claim controls expose directional keyboard navigation", () => {
@@ -62,6 +63,8 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
 test("personalization remains session-local and network-independent", () => {
   assert.match(component, /sessionStorage/);
   assert.doesNotMatch(component, /fetch\(|XMLHttpRequest|WebSocket|sendBeacon|localStorage|indexedDB|document\.cookie/);
+  assert.doesNotMatch(siteSource, /\bprocess\.env\b/);
+  assert.match(siteSource, /viteEnvironment\?\.PUBLIC_SITE_ORIGIN \?\? nodeEnvironment\?\.PUBLIC_SITE_ORIGIN/);
 });
 
 test("public labels use job-market language while internal contracts stay unchanged", () => {
