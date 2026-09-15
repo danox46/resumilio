@@ -13,7 +13,7 @@ for (const api of forbiddenRuntimeApis) {
 }
 
 for (const [label, page] of [["English", englishPage], ["Spanish", spanishPage]] as const) {
-  if (!page.includes("client:idle")) throw new Error(`${label} experience must defer hydration with client:idle.`);
+  if (!page.includes("client:load")) throw new Error(`${label} experience must hydrate on load so the primary constellation interaction is immediately available.`);
 }
 
 const requiredAccessibilitySignals = [

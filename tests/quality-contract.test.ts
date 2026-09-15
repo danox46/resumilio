@@ -14,6 +14,10 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(component, /visibleNeighborhoodSize = 5/);
   assert.match(component, /slice\(0, visibleNeighborhoodSize\)/);
   assert.doesNotMatch(component, /evidence-table|allTypes|allStatuses|allSkills/);
+  assert.match(component, /data-transition-phase=\{transition\.phase\}/);
+  assert.match(component, /claim-node--promoting/);
+  assert.match(component, /className="ambient-nodes" aria-hidden="true"/);
+  assert.match(entryPages, /client:load/);
 });
 
 test("visual motion and focus have accessible alternatives", () => {
@@ -34,14 +38,16 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(component, /onFocus=\{acknowledgeNode\}/);
   assert.match(component, /onMouseEnter=\{acknowledgeNode\}/);
   assert.match(component, /current\.reaction === "idle" \? \{ reaction: "nod"/);
-  assert.match(component, /showReaction\("guide"\)/);
-  assert.match(component, /stackedAvatarQuery = "\(max-width: 820px\)"/);
+  assert.match(component, /const selectClaim = \(claim: Claim, reaction: "guide" \| "smile" = "guide"\)/);
+  assert.match(component, /showReaction\(reaction\)/);
+  assert.match(component, /stackedAvatarQuery = "\(max-width: 700px\)"/);
   assert.match(component, /media\.addEventListener\("change", syncLayout\)/);
   assert.match(component, /data-avatar-variant=\{reaction === "guide" \? layout : "shared"\}/);
   assert.match(styles, /\.experience-shell \.avatar-mobile-callout \{\s*position: absolute;/);
   assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
-  assert.match(styles, /@media \(max-width: 820px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
-  assert.match(styles, /mask-image: radial-gradient/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
+  assert.match(styles, /\.avatar-media \{[\s\S]*?-webkit-mask-image:[\s\S]*?linear-gradient[\s\S]*?radial-gradient/);
+  assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);
   assert.match(component, /x1="60" y1="54"/);
   assert.match(component, /showReaction\("smile"\)/);
   assert.match(component, /showReaction\("waiting"\)/);

@@ -17,11 +17,13 @@ The constellation is reactive rather than exhaustive:
 
 1. One career record owns the focused detail card.
 2. At most five related records appear as circular nodes.
-3. Selecting a node makes it the focus and rebuilds the visible neighborhood from its topics plus the visitor's session signals.
+3. Selecting a node first enlarges that populated node while the other populated nodes recede, then makes it the focus and rebuilds the visible neighborhood from its topics plus the visitor's session signals.
 4. Search temporarily replaces the neighborhood with the strongest matching records and promotes the first result when submitted.
 5. **Show similar work** increases the selected topics' weight and advances to the strongest novel recommendation.
 
 All profile records remain discoverable through repeated selection and search, but they are never rendered together as visual noise. The status line states the visible and total counts so progressive disclosure is explicit rather than mysterious.
+
+The visual reservoir and the record model are deliberately separate. Seven fixed ambient circles provide depth and gently expand during a transition, but they never own IDs, text, links, or empty record slots. The five active slots are the only populated controls. React replaces their records after selection, so a quiet ambient circle can appear to become part of the new constellation without encoding a fake record or pre-rendering every possible node.
 
 Personalization is deterministic and session-local. There is no model call, tracking request, cookie, account, or server-side visitor profile.
 
@@ -29,10 +31,10 @@ Personalization is deterministic and session-local. There is no model call, trac
 
 - The selected experience is the visual center.
 - On wide layouts, Daniel is anchored in the lower-left as a supporting presence. He is never the graph hub.
-- On layouts at 820px and below, Daniel is centered above the selected detail and the selected title appears on his chest during the visual sequence.
+- On layouts at 700px and below, Daniel is centered above the selected detail and the selected title appears on his chest during the visual sequence. The 701-1100px composition keeps all five active nodes visible around the circular focus.
 - Circular nodes are intentionally simple CSS buttons. Their straight connectors are one inline SVG on wide screens and short CSS line segments in the stacked representation.
 - The neutral background follows the source video rather than introducing a separate blue universe: roughly `#202121` at the top, `#151616` through the middle, and `#080909` at the base.
-- A mask and edge overlays soften the portrait's rectangular media boundary. The video remains first-party and plays directly; the poster is the reduced-motion and playback-failure fallback.
+- A large graphite circle sits behind the unchanged lower-left video position. Its warmer center follows the portrait background while a four-edge plus elliptical mask dissolves the media rectangle into it. The thin amber outline connects it to the active node language without turning the avatar into the graph hub. The video remains first-party and plays directly; the poster is the reduced-motion and playback-failure fallback.
 
 ## Avatar reactions
 
@@ -49,7 +51,9 @@ Hover/focus acknowledgement is allowed only while the avatar is idle. This preve
 
 ## Responsive event contract
 
-`selection-guidance` is one semantic event with two visual representations. `matchMedia("(max-width: 820px)")` selects the video asset at the same breakpoint where the information layout changes. The selected record, session signal, destination link, and accessible announcement are identical in both representations.
+`selection-guidance` is one semantic event with two visual representations. `matchMedia("(max-width: 700px)")` selects the video asset at the same breakpoint where the information layout changes. The selected record, session signal, destination link, and accessible announcement are identical in both representations.
+
+The interactive island hydrates on page load because direct node selection and immediate avatar playback are the page's primary experience, not a deferred enhancement. On ordinary motion settings, the outgoing phase lasts 240ms and the incoming focus and neighborhood settle by 760ms. Reduced-motion visitors receive the same record change immediately, without the transition choreography.
 
 Agents extending the system should keep event meaning independent from the viewport. Add a layout-specific clip only when choreography must change, then bind it to the representation breakpoint rather than device detection.
 

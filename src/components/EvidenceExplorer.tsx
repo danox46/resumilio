@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
@@ -9,8 +9,9 @@ const visibleNeighborhoodSize = 5;
 type Claim = ResumilioProfile["claims"][number];
 type AvatarReaction = "idle" | "waiting" | "nod" | "guide" | "smile";
 type AvatarLayout = "wide" | "stacked";
+type TransitionPhase = "idle" | "out" | "in";
 const waitingReactionDelayMs = 24_000;
-const stackedAvatarQuery = "(max-width: 820px)";
+const stackedAvatarQuery = "(max-width: 700px)";
 
 const avatarMedia: Record<Exclude<AvatarReaction, "guide">, string> = {
   idle: "/media/avatar/daniel-idle.mp4",
@@ -63,12 +64,22 @@ const featuredClaimIds = [
   "claim-computer-science-studies",
 ];
 
-const graphSlots: Array<{ point: [number, number]; className: string }> = [
-  { point: [54, 13], className: "north" },
-  { point: [30, 34], className: "west" },
-  { point: [83, 31], className: "east" },
-  { point: [39, 79], className: "south-west" },
-  { point: [79, 77], className: "south-east" },
+const graphSlots: Array<{ point: [number, number]; midPoint: [number, number]; className: string }> = [
+  { point: [54, 13], midPoint: [58, 21], className: "north" },
+  { point: [30, 34], midPoint: [20, 38], className: "west" },
+  { point: [83, 31], midPoint: [92, 35], className: "east" },
+  { point: [39, 79], midPoint: [22, 81], className: "south-west" },
+  { point: [79, 77], midPoint: [91, 79], className: "south-east" },
+];
+
+const ambientNodes: Array<{ point: [number, number]; size: number; tone: "quiet" | "outlined" }> = [
+  { point: [4, 18], size: 144, tone: "quiet" },
+  { point: [20, 72], size: 92, tone: "outlined" },
+  { point: [43, 5], size: 74, tone: "outlined" },
+  { point: [73, 12], size: 118, tone: "quiet" },
+  { point: [97, 18], size: 210, tone: "outlined" },
+  { point: [94, 64], size: 310, tone: "quiet" },
+  { point: [57, 98], size: 186, tone: "outlined" },
 ];
 
 function graphTitle(title: string) { return title.split(" — ")[0]; }
@@ -95,8 +106,11 @@ function AvatarGuide({ reaction, sequence, layout, selectedTitle, selectedLabel,
 }) {
   const source = reaction === "guide" ? avatarGuideMedia[layout] : avatarMedia[reaction];
   return <figure className="avatar-guide" data-avatar-state={reaction} data-avatar-layout={layout} data-avatar-variant={reaction === "guide" ? layout : "shared"} aria-hidden="true">
-    <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="eager" fetchPriority="high"/>
-    <video key={`${reaction}-${layout}-${sequence}`} className="avatar-video" src={source} poster="/media/avatar/daniel-idle-poster.webp" muted playsInline autoPlay loop={reaction === "idle"} preload="auto" onEnded={reaction === "idle" ? undefined : onComplete}/>
+    <div className="avatar-node-backdrop"/>
+    <div className="avatar-media">
+      <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="eager" fetchPriority="high"/>
+      <video key={`${reaction}-${layout}-${sequence}`} className="avatar-video" src={source} poster="/media/avatar/daniel-idle-poster.webp" muted playsInline autoPlay loop={reaction === "idle"} preload="auto" onEnded={reaction === "idle" ? undefined : onComplete}/>
+    </div>
     <figcaption className="avatar-mobile-callout"><span>{selectedLabel}</span><strong>{graphTitle(selectedTitle)}</strong></figcaption>
   </figure>;
 }
@@ -128,6 +142,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [storageReady, setStorageReady] = useState(false);
   const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
   const [avatar, setAvatar] = useState<{ reaction: AvatarReaction; sequence: number }>({ reaction: "idle", sequence: 0 });
+  const [transition, setTransition] = useState<{ phase: TransitionPhase; targetId?: string }>({ phase: "idle" });
+  const transitionTimers = useRef<number[]>([]);
   const t = copy[locale];
 
   useEffect(() => {
@@ -140,6 +156,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     try { sessionStorage.setItem(sessionKey, JSON.stringify(discovery)); } catch { /* Keep the public experience usable. */ }
   }, [discovery, storageReady]);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
+  useEffect(() => () => transitionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
   useEffect(() => {
     const media = window.matchMedia(stackedAvatarQuery);
     const syncLayout = () => setAvatarLayout(media.matches ? "stacked" : "wide");
@@ -181,11 +198,28 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     return rankRecommendations(profile, contextualState, selected.id).slice(0, visibleNeighborhoodSize).map((result) => result.claim);
   }, [profile, query, selected.id, selected.tags, discovery]);
 
-  const selectClaim = (claim: Claim) => {
-    setSelectedId(claim.id);
-    setQuery("");
-    signal("open", claim.tags, claim.id);
-    showReaction("guide");
+  const selectClaim = (claim: Claim, reaction: "guide" | "smile" = "guide") => {
+    if (claim.id === selected.id || transition.phase !== "idle") return;
+    const commitSelection = () => {
+      setSelectedId(claim.id);
+      setQuery("");
+      signal("open", claim.tags, claim.id);
+    };
+    showReaction(reaction);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      commitSelection();
+      setTransition({ phase: "idle" });
+      return;
+    }
+    transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
+    setTransition({ phase: "out", targetId: claim.id });
+    transitionTimers.current = [
+      window.setTimeout(() => {
+        commitSelection();
+        setTransition({ phase: "in", targetId: claim.id });
+      }, 240),
+      window.setTimeout(() => setTransition({ phase: "idle" }), 760),
+    ];
   };
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
@@ -199,15 +233,15 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     const nextState = applySignal(discovery, "more-like-this", selected.tags, selected.id);
     setDiscovery(nextState);
     const recommendation = rankRecommendations(profile, nextState, selected.id)[0]?.claim;
-    if (recommendation) setSelectedId(recommendation.id);
-    showReaction("smile");
+    if (recommendation) selectClaim(recommendation, "smile");
+    else showReaction("smile");
   };
   const submitSearch = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     const firstMatch = searchClaims(profile, query)[0]?.claim;
     signal("search", normalizeTerm(query).split(" ").filter(Boolean));
-    if (firstMatch) setSelectedId(firstMatch.id);
-    showReaction("smile");
+    if (firstMatch && firstMatch.id !== selected.id) selectClaim(firstMatch, "smile");
+    else showReaction("smile");
   };
   const reset = () => {
     setDiscovery(emptyDiscoveryState()); setQuery(""); setSelectedId(defaultClaimId); returnToIdle();
@@ -231,19 +265,29 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       <section className="constellation" aria-label={t.eyebrow} aria-describedby="graph-help">
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="constellation-intro"><p>{t.eyebrow}</p><span>{visibleMessage}</span></div>
-        <div className="graph-stage">
+        <div className="graph-stage" data-transition-phase={transition.phase}>
+          <div className="ambient-nodes" aria-hidden="true">
+            {ambientNodes.map((node, index) => <span key={index} className={`ambient-node ambient-node--${node.tone}`} style={{ "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`, "--size": `${node.size}px`, "--order": index } as CSSProperties}/>) }
+          </div>
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {neighborhood.map((claim, index) => { const point = graphSlots[index].point; return <line key={claim.id} x1="60" y1="54" x2={point[0]} y2={point[1]} className="relation relation--claim"/>; })}
+            {neighborhood.flatMap((claim, index) => {
+              const slot = graphSlots[index];
+              return [
+                <line key={`${claim.id}-wide`} x1="60" y1="54" x2={slot.point[0]} y2={slot.point[1]} className="relation relation--claim relation--wide"/>,
+                <line key={`${claim.id}-mid`} x1="59" y1="54" x2={slot.midPoint[0]} y2={slot.midPoint[1]} className="relation relation--claim relation--mid"/>,
+              ];
+            })}
           </svg>
           <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} layout={avatarLayout} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={returnToIdle}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
             {neighborhood.map((claim, index) => {
               const slot = graphSlots[index];
               const claimStyle = { "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index } as CSSProperties;
-              return <button key={claim.id} className={`claim-node claim-node--${slot.className}`} id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" onFocus={acknowledgeNode} onMouseEnter={acknowledgeNode} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><strong>{nodeTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}</small></button>;
+              const promoting = transition.targetId === claim.id && transition.phase === "out";
+              return <button key={claim.id} className={`claim-node claim-node--${slot.className}${promoting ? " claim-node--promoting" : ""}`} id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" disabled={transition.phase !== "idle"} onFocus={acknowledgeNode} onMouseEnter={acknowledgeNode} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><strong>{nodeTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}</small></button>;
             })}
           </div>
-          <div className="experience-focus"><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike}/></div>
+          <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike}/></div>
           {query && neighborhood.length === 0 && <p className="empty-state" aria-live="polite">{t.empty}</p>}
         </div>
       </section>
