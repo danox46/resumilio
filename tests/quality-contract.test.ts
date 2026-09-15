@@ -53,8 +53,11 @@ test("the constellation preloads semantic reserve layers without changing public
   assert.match(styles, /constellation-field-recede 432ms/);
   assert.match(styles, /constellation-field-align 513ms/);
   assert.match(component, /claim-node--text-\$\{textDensity\}/);
+  assert.match(component, /previewText\(title, 44\)/);
+  assert.match(component, /previewText\(summary, 126\)/);
   assert.match(styles, /container-type: inline-size/);
   assert.match(styles, /-webkit-line-clamp: 3/);
+  assert.match(styles, /claim-detail h2 \{ -webkit-line-clamp: 2/);
   assert.match(styles, /claim-detail--dense/);
   assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
   assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);

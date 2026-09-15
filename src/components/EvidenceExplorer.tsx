@@ -113,6 +113,12 @@ function stableIndex(value: string, length: number) {
 }
 
 function graphTitle(title: string) { return title.split(" — ")[0]; }
+function previewText(value: string, maxLength: number) {
+  if (value.length <= maxLength) return value;
+  const slice = value.slice(0, maxLength).trimEnd();
+  const bounded = /\s/.test(value[maxLength] ?? "") ? slice : slice.replace(/\s+\S*$/, "");
+  return `${bounded || slice}…`;
+}
 function nodeTitle(title: string) {
   const clean = graphTitle(title);
   if (clean.length <= 42) return clean;
@@ -138,13 +144,15 @@ function ClaimDetail({ profile, claim, locale, onMoreLike }: {
   const organization = organizationFor(profile, claim);
   const title = graphTitle(claim.title[locale]);
   const summary = marketClaimSummary(claim, locale);
+  const previewTitle = previewText(title, 44);
+  const previewSummary = previewText(summary, 126);
   const detailDensity = title.length > 28 || summary.length > 190 ? " claim-detail--dense" : "";
   return <section className={`claim-detail${detailDensity}`} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
     <p className="detail-label">{t.selected}</p>
-    <h2>{title}</h2>
+    <h2 aria-label={title} title={title}>{previewTitle}</h2>
     {organization && <p className="detail-organization">{organization.name[locale]}</p>}
     <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
-    <p className="detail-summary">{summary}</p>
+    <p className="detail-summary" aria-label={summary} title={summary}>{previewSummary}</p>
     <div className="detail-actions">
       <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}<ArrowIcon/></a>
       <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>

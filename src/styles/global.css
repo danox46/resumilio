@@ -573,10 +573,16 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .experience-shell .detail-status,
 .experience-shell .detail-summary { min-width: 0; max-width: 100%; overflow-wrap: anywhere; hyphens: auto; }
 .experience-shell .detail-label { margin-bottom: 10px; color: var(--amber); font-size: 11px; font-weight: 760; letter-spacing: .13em; text-transform: uppercase; }
-.experience-shell .claim-detail h2 { color: var(--constellation-ink); font-size: clamp(25px, 2.3vw, 38px); }
+.experience-shell .claim-detail h2,
+.experience-shell .detail-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.experience-shell .claim-detail h2 { -webkit-line-clamp: 2; color: var(--constellation-ink); font-size: clamp(25px, 2.3vw, 38px); }
 .experience-shell .detail-organization { margin-top: 9px; color: var(--constellation-muted); font-size: 14px; }
 .experience-shell .detail-status { display: inline-block; margin: 9px 0 16px; color: var(--amber); font-size: 12px; }
-.experience-shell .detail-summary { color: #ccc7bd; font-size: clamp(13px, 1vw, 15px); line-height: 1.55; }
+.experience-shell .detail-summary { -webkit-line-clamp: 3; color: #ccc7bd; font-size: clamp(13px, 1vw, 15px); line-height: 1.55; }
 .experience-shell .detail-actions { margin-top: 22px; }
 .experience-shell .button { min-height: 46px; border-radius: 9px; }
 .experience-shell .button--primary { display: flex; gap: 9px; border-color: var(--amber); background: var(--amber); color: #17140e; }
