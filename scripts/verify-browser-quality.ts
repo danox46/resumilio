@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, ambientAvatarMix: false, avatarInteractionPriority: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -149,8 +149,37 @@ try {
     const element = document.querySelector<HTMLVideoElement>(".avatar-video");
     return Boolean(element && !element.paused && element.currentTime > 0.1 && element.currentSrc.endsWith("daniel-idle.mp4"));
   });
+  const playbackConfiguration = await video.evaluate((element) => {
+    const media = element as HTMLVideoElement;
+    return {
+      autoPlay: media.autoplay,
+      loop: media.loop,
+      muted: media.muted,
+      playsInline: media.playsInline,
+      preload: media.preload,
+    };
+  });
+  if (!playbackConfiguration.autoPlay || playbackConfiguration.loop || !playbackConfiguration.muted || !playbackConfiguration.playsInline || playbackConfiguration.preload !== "auto") {
+    throw new Error("Ambient avatar playback configuration does not support natural clip handoffs.");
+  }
   report.immediateIdlePlayback = true;
   const avatar = motionPage.locator(".avatar-guide");
+  await motionPage.evaluate(() => {
+    const values = [0.1, 0.7, 0.9];
+    let index = 0;
+    Math.random = () => values[index++] ?? 0.1;
+  });
+  for (const expected of ["idle", "waiting", "smile"]) {
+    const previousSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
+    await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+    await motionPage.waitForFunction(({ reaction, sequence }) => {
+      const element = document.querySelector(".avatar-guide");
+      return element?.getAttribute("data-avatar-state") === reaction
+        && element.getAttribute("data-avatar-mode") === "ambient"
+        && Number(element.getAttribute("data-avatar-sequence")) > sequence;
+    }, { reaction: expected, sequence: previousSequence });
+  }
+  report.ambientAvatarMix = true;
   const graphBox = await motionPage.locator(".graph-stage").boundingBox();
   const avatarBox = await avatar.boundingBox();
   report.wideAvatarPlacement = Boolean(graphBox && avatarBox
@@ -158,6 +187,9 @@ try {
     && avatarBox.y > graphBox.y + graphBox.height * .35);
   if (!report.wideAvatarPlacement) throw new Error("Wide avatar is not anchored in the lower-left supporting position.");
   const transitionTarget = await motionPage.locator(".claim-node").first().getAttribute("data-claim-id");
+  await motionPage.locator(".claim-node").first().hover();
+  await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-state") === "nod"
+    && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive");
   await motionPage.locator(".claim-node").first().click();
   await motionPage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
     && document.querySelector(".claim-node--promoting")?.getAttribute("data-claim-id") === claimId, transitionTarget);
@@ -174,6 +206,15 @@ try {
   const wideGuideScreenshot = join(outputDirectory, "responsive-guide-wide.png");
   await motionPage.screenshot({ path: wideGuideScreenshot });
   report.responsiveAvatarScreenshots.push(wideGuideScreenshot);
+  const guideSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
+  await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+  await motionPage.waitForFunction((sequence) => {
+    const element = document.querySelector(".avatar-guide");
+    return element?.getAttribute("data-avatar-state") === "idle"
+      && element.getAttribute("data-avatar-mode") === "ambient"
+      && Number(element.getAttribute("data-avatar-sequence")) > sequence;
+  }, guideSequence);
+  report.avatarInteractionPriority = true;
 
   await motionPage.setViewportSize({ width: 390, height: 844 });
   await motionPage.waitForFunction(() => matchMedia("(max-width: 700px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked");
@@ -197,12 +238,21 @@ try {
   await motionPage.setViewportSize({ width: 1440, height: 1024 });
   await motionPage.waitForFunction(() => !matchMedia("(max-width: 700px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide");
   await motionPage.locator(".experience-focus .button--secondary").click();
-  if (await avatar.getAttribute("data-avatar-state") !== "smile" || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
+  if (await avatar.getAttribute("data-avatar-state") !== "smile"
+    || await avatar.getAttribute("data-avatar-mode") !== "interactive"
+    || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
+  const smileSequence = Number(await avatar.getAttribute("data-avatar-sequence"));
+  await video.evaluate((element) => element.dispatchEvent(new Event("ended", { bubbles: true })));
+  await motionPage.waitForFunction((sequence) => {
+    const element = document.querySelector(".avatar-guide");
+    return element?.getAttribute("data-avatar-mode") === "ambient"
+      && Number(element.getAttribute("data-avatar-sequence")) > sequence;
+  }, smileSequence);
   report.avatarPlayback = true;
   await motionContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

@@ -3,6 +3,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
 const component = readFileSync("src/components/EvidenceExplorer.tsx", "utf8");
+const avatarSchedule = readFileSync("src/avatar-schedule.ts", "utf8");
 const styles = readFileSync("src/styles/global.css", "utf8");
 const siteSource = readFileSync("src/site.ts", "utf8");
 const entryPages = readFileSync("src/pages/index.astro", "utf8") + readFileSync("src/pages/es/index.astro", "utf8");
@@ -37,9 +38,10 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
     assert.ok(statSync(path).size > 0, `${path} is empty`);
   }
   assert.match(component, /data-avatar-state=\{reaction\}/);
+  assert.match(component, /data-avatar-mode=\{mode\}/);
   assert.match(component, /onFocus=\{acknowledgeNode\}/);
   assert.match(component, /onMouseEnter=\{acknowledgeNode\}/);
-  assert.match(component, /current\.reaction === "idle" \? \{ reaction: "nod"/);
+  assert.match(component, /current\.mode === "ambient" \? \{ reaction: "nod"/);
   assert.match(component, /const selectClaim = \(claim: Claim, reaction: "guide" \| "smile" = "guide"\)/);
   assert.match(component, /showReaction\(reaction\)/);
   assert.match(component, /stackedAvatarQuery = "\(max-width: 700px\)"/);
@@ -53,8 +55,11 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);
   assert.match(component, /x1="60" y1="54"/);
   assert.match(component, /showReaction\("smile"\)/);
-  assert.match(component, /showReaction\("waiting"\)/);
-  assert.match(component, /waitingReactionDelayMs = 24_000/);
+  assert.match(avatarSchedule, /reaction: "idle", weight: 0\.6/);
+  assert.match(avatarSchedule, /reaction: "waiting", weight: 0\.2/);
+  assert.match(avatarSchedule, /reaction: "smile", weight: 0\.2/);
+  assert.match(component, /onEnded=\{onComplete\}/);
+  assert.doesNotMatch(component, /waitingReactionDelayMs|loop=|showReaction\("waiting"\)/);
   assert.match(component, /autoPlay/);
   assert.match(component, /preload="auto"/);
   assert.doesNotMatch(component, /beginMotion|mediaReady/);
