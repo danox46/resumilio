@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -404,9 +404,6 @@ try {
   const outgoingPage = await outgoingContext.newPage();
   await outgoingPage.goto(`${origin}/`, { waitUntil: "networkidle" });
   await outgoingPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
-  await outgoingPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
-    && document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-on-the-fuze-backend-lead");
-  await outgoingPage.locator('[data-claim-id="claim-alphahub-hubspot-specialist"].claim-node').click();
   await outgoingPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out");
   const outgoingNodes = outgoingPage.locator('[data-node-role="outgoing"]');
   report.outgoingRetreat = await outgoingNodes.count() > 0
@@ -439,6 +436,41 @@ try {
   if (!report.mobileReserveCap) throw new Error(`Mobile reserve stress state exposed ${mobileVisibleReserves} of ${mobileReserveCount} ghosts; expected exactly 8 visible.`);
   await mobileDepthContext.close();
 
+  const relationshipContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "reduce" });
+  const relationshipPage = await relationshipContext.newPage();
+  await relationshipPage.goto(`${origin}/`, { waitUntil: "load" });
+  await relationshipPage.locator('[data-claim-id="claim-operations-company-integration-specialist"].claim-node').click();
+  await relationshipPage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-operations-company-integration-specialist"
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
+    && [...document.querySelectorAll<HTMLElement>(".claim-node")].length === 5
+    && [...document.querySelectorAll<HTMLElement>(".claim-node")].every((node) => node.innerText.trim() && Number(getComputedStyle(node).opacity) > .9)
+    && [...document.querySelectorAll<HTMLElement>(".claim-node strong, .claim-node small")].every((node) => Number(getComputedStyle(node).opacity) > .9));
+  const masgloBridge = relationshipPage.locator('[data-claim-id="claim-masglo-commercial-proposal"].claim-node');
+  if (!await masgloBridge.isVisible()) throw new Error("Integration Specialist did not reveal the Masglo relationship bridge.");
+  const integrationBridgeScreenshot = join(outputDirectory, "integration-specialist-masglo-bridge.png");
+  await relationshipPage.screenshot({ path: integrationBridgeScreenshot });
+  report.relationshipBridgeScreenshots.push(integrationBridgeScreenshot);
+  await masgloBridge.click();
+  await relationshipPage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-masglo-commercial-proposal"
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
+    && [...document.querySelectorAll<HTMLElement>(".claim-node")].length === 5
+    && [...document.querySelectorAll<HTMLElement>(".claim-node")].every((node) => node.innerText.trim() && Number(getComputedStyle(node).opacity) > .9)
+    && [...document.querySelectorAll<HTMLElement>(".claim-node strong, .claim-node small")].every((node) => Number(getComputedStyle(node).opacity) > .9));
+  const aiNeighborhood = new Set(await relationshipPage.locator(".claim-node").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-claim-id"))));
+  const expectedAiNeighborhood = [
+    "claim-operations-company-integration-specialist",
+    "claim-professional-ai-text-completion",
+    "claim-google-cloud-big-data-course",
+    "claim-how-google-does-machine-learning",
+    "claim-mai-full-stack-developer",
+  ];
+  report.relationshipBridge = aiNeighborhood.size === expectedAiNeighborhood.length && expectedAiNeighborhood.every((claimId) => aiNeighborhood.has(claimId));
+  if (!report.relationshipBridge) throw new Error(`Masglo revealed the wrong AI neighborhood: ${[...aiNeighborhood].join(", ")}`);
+  const masgloAiScreenshot = join(outputDirectory, "masglo-ai-neighborhood.png");
+  await relationshipPage.screenshot({ path: masgloAiScreenshot });
+  report.relationshipBridgeScreenshots.push(masgloAiScreenshot);
+  await relationshipContext.close();
+
   const searchContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const searchPage = await searchContext.newPage();
   await searchPage.goto(`${origin}/`, { waitUntil: "networkidle" });
@@ -466,7 +498,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

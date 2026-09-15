@@ -90,15 +90,28 @@ export function recommendationScore(claim: ResumilioProfile["claims"][number], s
   return topical + novelty;
 }
 
+const directRelationshipBoost = 8;
+
 export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryState, excludeClaimId?: string) {
+  const relatedClaimIds = new Set(profile.relationships.flatMap((relationship) => {
+    if (relationship.type !== "related-to" || !excludeClaimId) return [];
+    if (relationship.sourceId === excludeClaimId) return [relationship.targetId];
+    if (relationship.targetId === excludeClaimId) return [relationship.sourceId];
+    return [];
+  }));
   const remaining = profile.claims
     .filter((claim) => claim.id !== excludeClaimId)
-    .map((claim) => ({ claim, score: recommendationScore(claim, state) }))
-    .sort((a, b) => b.score - a.score || a.claim.id.localeCompare(b.claim.id));
+    .map((claim) => ({
+      claim,
+      directlyRelated: relatedClaimIds.has(claim.id),
+      score: recommendationScore(claim, state) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
+    }))
+    .sort((a, b) => Number(b.directlyRelated) - Number(a.directlyRelated) || b.score - a.score || a.claim.id.localeCompare(b.claim.id));
   const selected: typeof remaining = [];
   const representedTags = new Set<string>();
   while (remaining.length) {
     remaining.sort((a, b) => {
+      if (a.directlyRelated !== b.directlyRelated) return Number(b.directlyRelated) - Number(a.directlyRelated);
       const adjusted = (item: typeof a) => item.score - item.claim.tags.filter((tag) => representedTags.has(tag)).length * .75;
       return adjusted(b) - adjusted(a) || a.claim.id.localeCompare(b.claim.id);
     });
@@ -106,7 +119,7 @@ export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryS
     selected.push(next);
     next.claim.tags.forEach((tag) => representedTags.add(tag));
   }
-  return selected;
+  return selected.map(({ directlyRelated: _, ...recommendation }) => recommendation);
 }
 
 function displayTopic(topic: string): string {

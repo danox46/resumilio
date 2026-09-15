@@ -27,6 +27,9 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   assert.equal(claims.get("claim-on-the-fuze-backend-lead")?.type, "experience");
   assert.equal(claims.get("claim-hubspot-academy-credentials")?.type, "certification");
   assert.equal(claims.get("claim-platzi-node-backend-courses")?.type, "certification");
+  const related = seed.relationships.filter((relationship) => relationship.type === "related-to");
+  assert.ok(related.some((relationship) => relationship.sourceId === "claim-operations-company-integration-specialist" && relationship.targetId === "claim-masglo-commercial-proposal"));
+  assert.equal(related.filter((relationship) => relationship.sourceId === "claim-masglo-commercial-proposal").length, 4);
   assert.ok(seed.claims.length >= 15);
   assert.ok(seed.organizations.length >= 10);
 });

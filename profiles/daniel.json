@@ -769,6 +769,36 @@
       "type": "provided-by",
       "sourceId": "claim-platzi-node-backend-courses",
       "targetId": "organization-platzi"
+    },
+    {
+      "id": "relationship-integration-specialist-masglo",
+      "type": "related-to",
+      "sourceId": "claim-operations-company-integration-specialist",
+      "targetId": "claim-masglo-commercial-proposal"
+    },
+    {
+      "id": "relationship-masglo-professional-ai",
+      "type": "related-to",
+      "sourceId": "claim-masglo-commercial-proposal",
+      "targetId": "claim-professional-ai-text-completion"
+    },
+    {
+      "id": "relationship-masglo-google-cloud-ml",
+      "type": "related-to",
+      "sourceId": "claim-masglo-commercial-proposal",
+      "targetId": "claim-google-cloud-big-data-course"
+    },
+    {
+      "id": "relationship-masglo-how-google-ml",
+      "type": "related-to",
+      "sourceId": "claim-masglo-commercial-proposal",
+      "targetId": "claim-how-google-does-machine-learning"
+    },
+    {
+      "id": "relationship-masglo-mai-development",
+      "type": "related-to",
+      "sourceId": "claim-masglo-commercial-proposal",
+      "targetId": "claim-mai-full-stack-developer"
     }
   ]
 }

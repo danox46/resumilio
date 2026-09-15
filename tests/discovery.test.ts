@@ -21,10 +21,38 @@ test("session signals rank deterministically, reward novelty, and grow related b
   const rankedOnce = rankRecommendations(profile, base, "claim-professional-ai-text-completion").map((item) => item.claim.id);
   const rankedTwice = rankRecommendations(profile, base, "claim-professional-ai-text-completion").map((item) => item.claim.id);
   assert.deepEqual(rankedOnce, rankedTwice);
-  assert.equal(rankedOnce[0], "claim-alphahub-hubspot-specialist");
+  assert.equal(rankedOnce[0], "claim-masglo-commercial-proposal");
   const grown = applySignal(base, "more-like-this", ["hubspot"], "claim-professional-ai-text-completion");
-  assert.ok(rankRecommendations(profile, grown, "claim-professional-ai-text-completion")[0].score > rankRecommendations(profile, base, "claim-professional-ai-text-completion")[0].score);
+  const baseHubSpotScore = rankRecommendations(profile, base, "claim-professional-ai-text-completion").find((item) => item.claim.id === "claim-alphahub-hubspot-specialist")!.score;
+  const grownHubSpotScore = rankRecommendations(profile, grown, "claim-professional-ai-text-completion").find((item) => item.claim.id === "claim-alphahub-hubspot-specialist")!.score;
+  assert.ok(grownHubSpotScore > baseHubSpotScore);
   assert.ok(rankedOnce.indexOf("claim-masglo-commercial-proposal") < rankedOnce.length);
+});
+
+test("claim relationships bridge Integration Specialist into Masglo's AI neighborhood", () => {
+  const integration = profile.claims.find((claim) => claim.id === "claim-operations-company-integration-specialist")!;
+  const masglo = profile.claims.find((claim) => claim.id === "claim-masglo-commercial-proposal")!;
+  const afterIntegration = applySignal(emptyDiscoveryState(), "open", integration.tags, integration.id);
+  const integrationNeighborhood = rankRecommendations(profile, afterIntegration, integration.id).slice(0, 5).map((item) => item.claim.id);
+
+  assert.equal(integrationNeighborhood[0], masglo.id);
+
+  let noisySession = emptyDiscoveryState();
+  for (let index = 0; index < 12; index += 1) {
+    noisySession = applySignal(noisySession, "more-like-this", ["hubspot", "automation", "crm"], "claim-alphahub-hubspot-specialist");
+  }
+  const noisyIntegrationNeighborhood = rankRecommendations(profile, noisySession, integration.id).slice(0, 5).map((item) => item.claim.id);
+  assert.equal(noisyIntegrationNeighborhood[0], masglo.id);
+
+  const afterMasglo = applySignal(afterIntegration, "open", masglo.tags, masglo.id);
+  const masgloNeighborhood = rankRecommendations(profile, afterMasglo, masglo.id).slice(0, 5).map((item) => item.claim.id);
+  assert.deepEqual(new Set(masgloNeighborhood), new Set([
+    integration.id,
+    "claim-professional-ai-text-completion",
+    "claim-google-cloud-big-data-course",
+    "claim-how-google-does-machine-learning",
+    "claim-mai-full-stack-developer",
+  ]));
 });
 
 test("topic vectors are session-isolated and recommendation reasons are transparent", () => {
