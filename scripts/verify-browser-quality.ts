@@ -56,7 +56,7 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, nodeTransition: false, nodeTransitionScreenshot: "", experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -129,6 +129,18 @@ try {
   report.evidencePageScriptRequests = scriptRequests.length;
   await context.close();
 
+  const linkContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "reduce" });
+  const constellationPage = await linkContext.newPage();
+  await constellationPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  const sourceUrl = constellationPage.url();
+  const detailPagePromise = linkContext.waitForEvent("page");
+  await constellationPage.locator(".experience-focus .button--primary").click();
+  const detailPage = await detailPagePromise;
+  await detailPage.waitForLoadState("networkidle");
+  if (constellationPage.url() !== sourceUrl || !detailPage.url().includes("/evidence/claim-")) throw new Error("View experience did not preserve the constellation and open the record in a new tab.");
+  report.experienceLinkNewTab = true;
+  await linkContext.close();
+
   const motionContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const motionPage = await motionContext.newPage();
   await motionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
@@ -190,7 +202,7 @@ try {
   await motionContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.nodeTransition || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

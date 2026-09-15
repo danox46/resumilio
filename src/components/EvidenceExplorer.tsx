@@ -127,7 +127,7 @@ function ClaimDetail({ profile, claim, locale, onMoreLike }: {
     <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
     <p className="detail-summary">{marketClaimSummary(claim, locale)}</p>
     <div className="detail-actions">
-      <a className="button button--primary" href={claimPath(claim.id, locale)}>{t.view}<ArrowIcon/></a>
+      <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}<ArrowIcon/></a>
       <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
     </div>
   </section>;

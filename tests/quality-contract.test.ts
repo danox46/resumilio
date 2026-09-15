@@ -18,6 +18,7 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(component, /data-transition-phase=\{transition\.phase\}/);
   assert.match(component, /claim-node--promoting/);
   assert.match(component, /className="ambient-nodes" aria-hidden="true"/);
+  assert.match(component, /href=\{claimPath\(claim\.id, locale\)\} target="_blank" rel="noopener noreferrer"/);
   assert.match(entryPages, /client:load/);
 });
 
