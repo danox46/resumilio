@@ -414,10 +414,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 }
 .background-edge--reserve { opacity: .52; }
 .background-edge--reserve:nth-of-type(3n) { stroke: rgb(168 166 154 / 20%); opacity: .42; }
+.background-edge--echo { stroke: rgb(168 166 154 / 16%); opacity: .34; }
+.background-edge--echo:nth-of-type(3n + 1) { stroke: rgb(214 174 105 / 17%); opacity: .42; }
 .background-edge--perimeter { stroke: rgb(205 168 103 / 18%); opacity: .46; }
 .background-edge--avatar { stroke: rgb(228 177 91 / 31%); opacity: .7; }
-.reserve-layers, .transition-reserves { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.reserve-layers, .depth-echoes, .transition-reserves { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .reserve-layers { z-index: 2; }
+.depth-echoes { z-index: 1; }
 .transition-reserves { z-index: 4; }
 .reserve-node, .retired-node, .queued-target-node {
   position: absolute;
@@ -448,6 +451,21 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 }
 .reserve-node:nth-child(3n + 2) { opacity: .26; border-color: rgb(242 175 75 / 39%); }
 .reserve-node:nth-child(4n) { opacity: .13; }
+.depth-echo-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: clamp(30px, 3.6vw, 62px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(190 166 122 / 23%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 46% 43%, rgb(224 181 103 / 24%) 0 3%, rgb(80 79 73 / 13%) 8%, rgb(20 21 20 / 3%) 68%);
+  box-shadow: 0 0 22px rgb(218 168 77 / 4%);
+  opacity: .16;
+  transform: translate(-50%, -50%) scale(var(--echo-scale, .55));
+}
+.depth-echo-node:nth-child(3n + 2) { opacity: .1; }
+.depth-echo-node:nth-child(4n) { border-color: rgb(242 175 75 / 29%); opacity: .2; }
 .retired-node {
   width: clamp(54px, 6vw, 104px);
   opacity: .16;
@@ -662,7 +680,9 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .graph-stage[data-transition-phase="out"] .constellation-depth-field { animation: constellation-field-recede 432ms cubic-bezier(.3,.05,.4,1) both; }
 .graph-stage[data-transition-phase="in"] .constellation-depth-field { animation: constellation-field-align 513ms cubic-bezier(.18,.8,.26,1) both; }
 .graph-stage[data-transition-phase="in"] .reserve-layers .reserve-node { animation: background-node-materialize 594ms calc(var(--order) * 12ms) ease-out both; }
-.graph-stage[data-transition-phase="in"] .background-edge--reserve { stroke-dasharray: 14 7; animation: background-edge-arrival 513ms var(--edge-delay, 122ms) ease-out both; }
+.graph-stage[data-transition-phase="in"] .depth-echo-node { animation: background-node-materialize 594ms calc(var(--order) * 10ms) ease-out both; }
+.graph-stage[data-transition-phase="in"] .background-edge--reserve,
+.graph-stage[data-transition-phase="in"] .background-edge--echo { stroke-dasharray: 14 7; animation: background-edge-arrival 513ms var(--edge-delay, 122ms) ease-out both; }
 .graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 243ms ease-in both; }
 .graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 432ms cubic-bezier(.18,.8,.26,1) both; }
 .graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 432ms ease-in both; }
@@ -788,6 +808,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .empty-state { top: auto; bottom: 80px; }
   .reserve-layers .reserve-node:nth-child(n + 9) { display: none; }
   .reserve-node { width: clamp(42px, 17vw, 68px); }
+  .depth-echo-node { width: clamp(32px, 11vw, 50px); }
+  .depth-echo-node:nth-child(n + 4) { display: none; }
   .graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation-name: mobile-node-depart; }
   .graph-stage[data-transition-phase="out"] .claim-node--selected-target { animation-name: mobile-node-promote; }
   .graph-stage[data-transition-phase="in"] .claim-node--previous-center,

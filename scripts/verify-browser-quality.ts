@@ -75,10 +75,12 @@ try {
     const reserveDomCount = await page.locator(".reserve-layers .reserve-node").count();
     const visibleReserveCount = await page.locator(".reserve-layers .reserve-node:visible").count();
     const backgroundNodeCount = Number(await page.locator(".constellation-depth-field").getAttribute("data-background-node-count"));
+    const backgroundNodeFloor = Number(await page.locator(".constellation-depth-field").getAttribute("data-background-node-floor"));
     const backgroundEdgeCount = Number(await page.locator(".constellation-depth-field").getAttribute("data-background-edge-count"));
+    const backgroundDomCount = await page.locator(".reserve-layers .reserve-node, .depth-echoes .depth-echo-node").count();
     if (visibleNodeCount === 5 && layerCount !== 5) throw new Error(`${viewport.name} preloaded ${layerCount} layers; expected one for every active node.`);
     if (reserveDomCount !== reserveCount) throw new Error(`${viewport.name} reserve DOM count does not match its data plan.`);
-    if (backgroundNodeCount !== reserveCount || backgroundEdgeCount < backgroundNodeCount + 4) throw new Error(`${viewport.name} did not render a connected background constellation.`);
+    if (backgroundNodeFloor !== 15 || backgroundNodeCount < backgroundNodeFloor || backgroundDomCount !== backgroundNodeCount || backgroundEdgeCount < backgroundNodeCount + 4) throw new Error(`${viewport.name} did not render a connected minimum-density background constellation.`);
     report.backgroundConstellation = true;
     if (viewport.name === "desktop") {
       const owners = await page.locator(".reserve-layers .reserve-node").evaluateAll((nodes) => new Set(nodes.map((node) => node.getAttribute("data-reserve-owner"))).size);
@@ -115,6 +117,7 @@ try {
       reserveCount,
       visibleReserveCount,
       backgroundNodeCount,
+      backgroundNodeFloor,
       backgroundEdgeCount,
       responsiveAvatarSizing,
       screenshot,
@@ -430,11 +433,13 @@ try {
   const outgoingPage = await outgoingContext.newPage();
   await outgoingPage.goto(`${origin}/`, { waitUntil: "networkidle" });
   await outgoingPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
-  await outgoingPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out");
-  const outgoingNodes = outgoingPage.locator('[data-node-role="outgoing"]');
-  report.outgoingRetreat = await outgoingNodes.count() > 0
-    && await outgoingNodes.first().evaluate((node) => getComputedStyle(node).animationName) === "node-depart";
-  if (!report.outgoingRetreat) throw new Error("A low-overlap branch did not send obsolete nodes into the background.");
+  await outgoingPage.waitForFunction(() => {
+    const outgoingNode = document.querySelector('[data-node-role="outgoing"]');
+    return document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
+      && outgoingNode
+      && getComputedStyle(outgoingNode).animationName === "node-depart";
+  });
+  report.outgoingRetreat = true;
   await outgoingContext.close();
 
   const queueContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });

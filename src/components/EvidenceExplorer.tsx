@@ -33,6 +33,7 @@ type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
 const transitionCommitMs = 432;
 const transitionSettleMs = 945;
+const minimumBackgroundNodeCount = 15;
 
 const copy = {
   en: {
@@ -86,6 +87,30 @@ const perimeterEdges: Array<{ key: string; from: ConstellationPoint; to: Constel
   { key: "south-east-anchor", from: [94, 64], to: constellationSlots[4].point },
   { key: "avatar-anchor", from: [13, 82], to: constellationSlots[3].point, avatar: true },
 ];
+
+const depthEchoOrigins: Array<{ point: ConstellationPoint; scale: number }> = [
+  { point: [9, 9], scale: .54 },
+  { point: [5, 52], scale: .57 },
+  { point: [18, 27], scale: .7 },
+  { point: [27, 8], scale: .46 },
+  { point: [43, 18], scale: .62 },
+  { point: [58, 7], scale: .52 },
+  { point: [73, 15], scale: .68 },
+  { point: [88, 8], scale: .48 },
+  { point: [92, 43], scale: .58 },
+  { point: [89, 88], scale: .72 },
+  { point: [73, 94], scale: .5 },
+  { point: [58, 91], scale: .66 },
+  { point: [44, 95], scale: .47 },
+  { point: [29, 89], scale: .61 },
+  { point: [12, 92], scale: .53 },
+];
+
+function stableIndex(value: string, length: number) {
+  let hash = 0;
+  for (const character of value) hash = (Math.imul(hash, 31) + character.charCodeAt(0)) | 0;
+  return (hash >>> 0) % length;
+}
 
 function graphTitle(title: string) { return title.split(" — ")[0]; }
 function nodeTitle(title: string) {
@@ -359,6 +384,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const backgroundLayers = layerPlan.successors
     .filter((layer) => transition.phase !== "out" || layer.targetId !== transition.layer.targetId);
   const backgroundReserves = backgroundLayers.flatMap((layer) => layer.reserveNodes);
+  const echoStart = stableIndex(selectedId, depthEchoOrigins.length);
+  const backgroundEchoes = Array.from({ length: Math.max(0, minimumBackgroundNodeCount - backgroundReserves.length) }, (_, index) => {
+    const sourceIndex = (echoStart + index) % depthEchoOrigins.length;
+    const source = depthEchoOrigins[sourceIndex];
+    return { key: `echo:${selectedId}:${index}:${sourceIndex}`, point: source.point, scale: source.scale };
+  });
   const backgroundEdges = backgroundLayers.flatMap((layer, branchIndex) => {
     const ownerSlot = constellationSlots[layerPlan.slotByClaimId[layer.targetId] ?? layer.targetSlot];
     return layer.reserveNodes.map((node, nodeIndex) => ({
@@ -369,6 +400,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       nodeIndex,
     }));
   });
+  const backgroundEchoEdges = backgroundEchoes.map((node, index) => ({
+    key: `edge:${node.key}`,
+    from: index === 0 ? decorativeNodes[echoStart % decorativeNodes.length].point : backgroundEchoes[index - 1].point,
+    to: node.point,
+    nodeIndex: index,
+  }));
   const transitioningReserves = transitionLayer?.reserveNodes ?? [];
   const transitionTargetPoint = transitionLayer ? constellationSlots[transitionLayer.targetSlot]?.point : constellationFocus;
   const depthFieldStyle = {
@@ -427,8 +464,9 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         >
           <div
             className="constellation-depth-field"
-            data-background-node-count={backgroundReserves.length}
-            data-background-edge-count={backgroundEdges.length + perimeterEdges.length}
+            data-background-node-count={backgroundReserves.length + backgroundEchoes.length}
+            data-background-node-floor={minimumBackgroundNodeCount}
+            data-background-edge-count={backgroundEdges.length + backgroundEchoEdges.length + perimeterEdges.length}
             style={depthFieldStyle}
             aria-hidden="true"
           >
@@ -448,6 +486,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
                 style={{ "--edge-delay": `${122 + edge.branchIndex * 18 + edge.nodeIndex * 12}ms` } as CSSProperties}
               />)}
+              {backgroundEchoEdges.map((edge) => <line
+                key={edge.key}
+                className="background-edge background-edge--echo"
+                x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
+                style={{ "--edge-delay": `${176 + edge.nodeIndex * 14}ms` } as CSSProperties}
+              />)}
             </svg>
             <div className="reserve-layers" aria-hidden="true">
               {backgroundReserves.map((node, index) => <span
@@ -458,6 +502,16 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 style={{
                   "--x": `${node.origin[0]}%`, "--y": `${node.origin[1]}%`,
                   "--reserve-scale": node.scale, "--order": index,
+                } as CSSProperties}
+              />)}
+            </div>
+            <div className="depth-echoes" aria-hidden="true">
+              {backgroundEchoes.map((node, index) => <span
+                key={node.key}
+                className="depth-echo-node"
+                style={{
+                  "--x": `${node.point[0]}%`, "--y": `${node.point[1]}%`,
+                  "--echo-scale": node.scale, "--order": backgroundReserves.length + index,
                 } as CSSProperties}
               />)}
             </div>
