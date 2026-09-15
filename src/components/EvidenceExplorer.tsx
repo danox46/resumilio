@@ -61,15 +61,15 @@ const featuredClaimIds = [
   "claim-computer-science-studies",
 ];
 
-const graphSlots: Array<{ claim: [number, number]; side: "left" | "right" }> = [
-  { claim: [19, 16], side: "left" },
-  { claim: [81, 16], side: "right" },
-  { claim: [12, 39], side: "left" },
-  { claim: [88, 39], side: "right" },
-  { claim: [11, 65], side: "left" },
-  { claim: [89, 65], side: "right" },
-  { claim: [22, 87], side: "left" },
-  { claim: [78, 87], side: "right" },
+const graphSlots: Array<{ wide: [number, number]; stacked: [number, number]; side: "left" | "right" }> = [
+  { wide: [34, 16], stacked: [19, 16], side: "left" },
+  { wide: [88, 16], stacked: [81, 16], side: "right" },
+  { wide: [38, 39], stacked: [12, 39], side: "left" },
+  { wide: [92, 39], stacked: [88, 39], side: "right" },
+  { wide: [40, 65], stacked: [11, 65], side: "left" },
+  { wide: [91, 65], stacked: [89, 65], side: "right" },
+  { wide: [45, 87], stacked: [22, 87], side: "left" },
+  { wide: [84, 87], stacked: [78, 87], side: "right" },
 ];
 
 function graphTitle(title: string) {
@@ -96,15 +96,15 @@ function evidenceFor(profile: ResumilioProfile, claim: Claim) {
   return profile.evidence.find((item) => item.id === claim.evidenceIds[0])!;
 }
 
-function AvatarGuide({ reaction, sequence, layout, mediaReady, selectedTitle, selectedLabel, onComplete }: {
-  reaction: AvatarReaction; sequence: number; layout: AvatarLayout; mediaReady: boolean; selectedTitle: string; selectedLabel: string; onComplete: () => void;
+function AvatarGuide({ reaction, sequence, layout, selectedTitle, selectedLabel, onComplete }: {
+  reaction: AvatarReaction; sequence: number; layout: AvatarLayout; selectedTitle: string; selectedLabel: string; onComplete: () => void;
 }) {
   const source = reaction === "guide" ? avatarGuideMedia[layout] : avatarMedia[reaction];
   return <figure className="avatar-guide" data-avatar-state={reaction} data-avatar-layout={layout} data-avatar-variant={reaction === "guide" ? layout : "shared"} aria-hidden="true">
     <div className="avatar-orbit avatar-orbit--outer"/>
     <div className="avatar-orbit avatar-orbit--inner"/>
     <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="eager" fetchPriority="high"/>
-    {mediaReady && <video
+    <video
       key={`${reaction}-${layout}-${sequence}`}
       className="avatar-video"
       src={source}
@@ -113,9 +113,9 @@ function AvatarGuide({ reaction, sequence, layout, mediaReady, selectedTitle, se
       playsInline
       autoPlay
       loop={reaction === "idle"}
-      preload={reaction === "idle" ? "auto" : "metadata"}
+      preload="auto"
       onEnded={reaction === "idle" ? undefined : onComplete}
-    />}
+    />
     <figcaption className="avatar-mobile-callout"><span>{selectedLabel}</span><strong>{graphTitle(selectedTitle)}</strong></figcaption>
   </figure>;
 }
@@ -159,7 +159,6 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [menuOpen, setMenuOpen] = useState(false);
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
-  const [mediaReady, setMediaReady] = useState(false);
   const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
   const [avatar, setAvatar] = useState<{ reaction: AvatarReaction; sequence: number }>({ reaction: "idle", sequence: 0 });
   const t = copy[locale];
@@ -185,22 +184,6 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     syncLayout();
     media.addEventListener("change", syncLayout);
     return () => media.removeEventListener("change", syncLayout);
-  }, []);
-
-  useEffect(() => {
-    const removeMotionListeners = () => {
-      window.removeEventListener("pointermove", beginMotion);
-      window.removeEventListener("keydown", beginMotion);
-      window.removeEventListener("touchstart", beginMotion);
-    };
-    const beginMotion = () => {
-      setMediaReady(true);
-      removeMotionListeners();
-    };
-    window.addEventListener("pointermove", beginMotion, { once: true, passive: true });
-    window.addEventListener("keydown", beginMotion, { once: true });
-    window.addEventListener("touchstart", beginMotion, { once: true, passive: true });
-    return removeMotionListeners;
   }, []);
 
   const signal = useCallback((kind: Parameters<typeof applySignal>[1], topics: string[], claimId?: string) => {
@@ -309,15 +292,18 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="graph-stage">
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {graphClaims.map((claim) => { const point = graphPoints.get(claim.id)!; return <line key={`career-${claim.id}`} x1="50" y1="51" x2={point.claim[0]} y2={point.claim[1]} className={`relation relation--claim${claim.id === selected.id ? " relation--selected" : ""}`}/>; })}
+            {graphClaims.flatMap((claim) => { const point = graphPoints.get(claim.id)!; const selectedClass = claim.id === selected.id ? " relation--selected" : ""; return [
+              <line key={`career-wide-${claim.id}`} x1="62" y1="51" x2={point.wide[0]} y2={point.wide[1]} className={`relation relation--claim relation--wide${selectedClass}`}/>,
+              <line key={`career-stacked-${claim.id}`} x1="50" y1="51" x2={point.stacked[0]} y2={point.stacked[1]} className={`relation relation--claim relation--stacked${selectedClass}`}/>,
+            ]; })}
           </svg>
-          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} layout={avatarLayout} mediaReady={mediaReady} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={returnToIdle}/>
+          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} layout={avatarLayout} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={returnToIdle}/>
           <div className="claim-graph">
             {graphClaims.map((claim) => {
               const point = graphPoints.get(claim.id)!;
               const isSelected = claim.id === selected.id;
               const hidden = !visibleIds.has(claim.id);
-              const claimStyle = { "--x": `${point.claim[0]}%`, "--y": `${point.claim[1]}%` } as CSSProperties;
+              const claimStyle = { "--x": `${point.wide[0]}%`, "--y": `${point.wide[1]}%`, "--x-stacked": `${point.stacked[0]}%`, "--y-stacked": `${point.stacked[1]}%` } as CSSProperties;
               return <article key={claim.id} className={`graph-branch graph-branch--${point.side}${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
                 <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onFocus={() => showReaction("nod")} onMouseEnter={() => showReaction("nod")} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{graphTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
                 {isSelected && <ClaimDetail profile={profile} claim={claim} locale={locale} state={discovery} compact onMoreLike={moreLike}/>}

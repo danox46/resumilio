@@ -10,7 +10,8 @@ Rendered reference captures:
 ## Experience model
 
 - The public career map is a focused dark universe inside the otherwise white-first Resumilio experience.
-- Daniel is the visual center of the map. Career highlights orbit the guide and connect back to him rather than forming a decorative or arbitrary chain.
+- Career information is the visual center. On wide layouts, Daniel occupies the lower-left corner as a supporting guide while the career-map hub, highlights, and selected detail own the center and right side.
+- On stacked layouts, the portrait returns to the horizontal center because the selected information moves below it; at phone widths the short selected-title callout sits over the lower portrait.
 - The detail rail and career list stay conventional and readable. The immersive treatment is limited to the map.
 - Public language remains job-market language; internal profile and provenance contracts are unchanged.
 
@@ -25,7 +26,7 @@ The runtime uses only pre-rendered, first-party media:
 - `daniel-guide-stacked.mp4`: stacked-layout selection guidance; Daniel looks toward the selected information below him.
 - `daniel-smile.mp4`: positive response to a search, filter, or “Show similar work” recommendation.
 
-Motion begins on the visitor's first pointer, keyboard, or touch interaction. The waiting, nod, guidance, and smile clips play once and return to the standing-still idle. They are muted, inline, and have no dependency on Flow or any model at runtime. The idle poster remains visible before interaction, while video loads, or when motion is reduced.
+The standing-still idle video loads and plays immediately. The waiting, nod, guidance, and smile clips play once and return to that idle. They are muted, inline, and have no dependency on Flow or any model at runtime. The idle poster remains visible only while video loads, if playback fails, or when motion is reduced.
 
 ## Responsive reaction contract
 
@@ -35,6 +36,8 @@ Motion begins on the visitor's first pointer, keyboard, or touch interaction. Th
 - `stacked` at 820px and below uses `daniel-guide-stacked.mp4`, because the selected detail is below the portrait. At phone widths, a short, decorative selected-title callout sits over the lower portrait to give the downward gaze an immediate visual target; the complete semantic detail remains in the career trail.
 
 The breakpoint is owned by the representation, not by device detection. It matches the CSS transition where `.constellation` changes from a side-by-side grid to a stacked layout. `matchMedia("(max-width: 820px)")` is observed at runtime, so resizing or rotating before another selection changes the next guidance clip without changing the event name or selected record.
+
+Wide composition deliberately avoids making the avatar the graph hub: the portrait is anchored at `left: 13%` and below the visual midpoint, its orbit rings are suppressed, and relationship lines originate from the information field at 62%. The stacked representation restores the centered portrait, original node coordinates, and orbit treatment. Agents reproducing this pattern should bind avatar placement and choreography to the same representation breakpoint so pose and information hierarchy cannot drift apart.
 
 To add another responsive reaction, keep one semantic reaction name, provide an asset per layout only when the choreography must change, and select the asset through the same `AvatarLayout` mapping. Do not fork analytics or business behavior by viewport.
 

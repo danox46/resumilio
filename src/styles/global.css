@@ -74,11 +74,12 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .clear-control { min-height: 44px; padding: 0 5px; color: var(--green); font-size: 14px; white-space: nowrap; }
 
 .constellation { min-height: 560px; display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(320px, .96fr); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 22px 58px rgb(7 26 59 / 8%); }
-.graph-stage { position: relative; min-height: 560px; overflow: hidden; background: radial-gradient(circle at 50% 48%, #1b364e 0, #151d28 34%, var(--cosmos) 68%, #0a111c 100%); }
+.graph-stage { position: relative; min-height: 560px; overflow: hidden; background: radial-gradient(circle at 62% 48%, #1b364e 0, #151d28 34%, var(--cosmos) 68%, #0a111c 100%); }
 .graph-stage::before { content: ""; position: absolute; inset: 0; z-index: 0; opacity: .35; background-image: radial-gradient(circle, rgb(255 255 255 / 65%) 0 1px, transparent 1.5px); background-size: 93px 79px; background-position: 15px 22px; }
 .relationship-map { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
 .relation { vector-effect: non-scaling-stroke; stroke: rgb(144 194 220 / 30%); stroke-width: 1.05; }
 .relation--claim { stroke-dasharray: 2 4; }
+.relation--stacked { display: none; }
 .relation--selected { stroke: var(--coral); stroke-width: 1.8; stroke-dasharray: none; }
 .claim-graph { position: absolute; inset: 0; z-index: 3; }
 .graph-branch { display: contents; }
@@ -98,7 +99,7 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .evidence-node .node-dot { flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%; background: var(--evidence); }
 .empty-state { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%,-50%); color: var(--body); }
 
-.avatar-guide { position: absolute; left: 50%; top: 51%; z-index: 2; width: min(27%, 244px); aspect-ratio: 9 / 16; margin: 0; transform: translate(-50%,-50%); }
+.avatar-guide { position: absolute; left: 13%; bottom: -4%; z-index: 2; width: min(21%, 190px); aspect-ratio: 9 / 16; margin: 0; transform: translateX(-50%); }
 .avatar-guide::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: -3%; height: 18%; z-index: -1; border-radius: 50%; background: rgb(103 217 255 / 22%); box-shadow: 0 0 28px rgb(103 217 255 / 18%); transition: background-color 220ms ease; }
 .avatar-poster, .avatar-video { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 46% 46% 24% 24% / 23% 23% 13% 13%; object-fit: cover; object-position: center; }
 .avatar-poster { z-index: 1; }
@@ -106,6 +107,8 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .avatar-orbit { position: absolute; left: 50%; top: 50%; z-index: -1; border: 1px solid rgb(103 217 255 / 23%); border-radius: 50%; transform: translate(-50%,-50%) rotate(-12deg); transition: border-color 220ms ease, box-shadow 220ms ease; }
 .avatar-orbit--outer { width: 178%; height: 63%; }
 .avatar-orbit--inner { width: 143%; height: 48%; transform: translate(-50%,-50%) rotate(18deg); }
+.avatar-guide[data-avatar-layout="wide"] .avatar-orbit { display: none; }
+.avatar-guide[data-avatar-layout="wide"]::after { opacity: .45; }
 .avatar-guide[data-avatar-state="nod"] .avatar-orbit--inner { border-color: rgb(103 217 255 / 68%); box-shadow: 0 0 24px rgb(103 217 255 / 12%); }
 .avatar-guide[data-avatar-state="guide"] .avatar-orbit { border-color: rgb(124 229 170 / 62%); box-shadow: 0 0 28px rgb(124 229 170 / 13%); }
 .avatar-guide[data-avatar-state="waiting"] .avatar-orbit { border-color: rgb(174 187 208 / 38%); }
@@ -191,6 +194,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .clear-control { grid-column: 1 / -1; }
   .constellation { grid-template-columns: 1fr; }
   .graph-stage { min-height: 560px; border-bottom: 1px solid var(--line); }
+  .relation--wide { display: none; }
+  .relation--stacked { display: block; }
+  .claim-node, .evidence-node { left: var(--x-stacked); top: var(--y-stacked); }
+  .avatar-guide { left: 50%; top: 51%; bottom: auto; width: min(29%, 220px); transform: translate(-50%,-50%); }
+  .avatar-guide[data-avatar-layout="stacked"] .avatar-orbit { display: block; }
+  .avatar-guide[data-avatar-layout="stacked"]::after { opacity: 1; }
   .constellation > .claim-detail { border-left-width: 0; border-top: 3px solid var(--green); }
   .evidence-row { grid-template-columns: minmax(230px, 2fr) 90px 120px 20px; }
   .evidence-row > :nth-child(4), .evidence-row > :nth-child(5) { display: none; }

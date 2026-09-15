@@ -50,7 +50,7 @@ const viewports = [
 ];
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, avatarReactions: false, avatarPlayback: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -106,14 +106,20 @@ try {
   const motionContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const motionPage = await motionContext.newPage();
   await motionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
-  await motionPage.mouse.move(10, 10);
   const video = motionPage.locator(".avatar-video");
   await motionPage.waitForFunction(() => {
     const element = document.querySelector<HTMLVideoElement>(".avatar-video");
-    return Boolean(element && !element.paused && element.currentTime > 0.1);
+    return Boolean(element && !element.paused && element.currentTime > 0.1 && element.currentSrc.endsWith("daniel-idle.mp4"));
   });
-  await motionPage.locator(".claim-node:not(:disabled)").first().click();
+  report.immediateIdlePlayback = true;
   const avatar = motionPage.locator(".avatar-guide");
+  const graphBox = await motionPage.locator(".graph-stage").boundingBox();
+  const avatarBox = await avatar.boundingBox();
+  report.wideAvatarPlacement = Boolean(graphBox && avatarBox
+    && avatarBox.x < graphBox.x + graphBox.width * .2
+    && avatarBox.y > graphBox.y + graphBox.height * .35);
+  if (!report.wideAvatarPlacement) throw new Error("Wide avatar is not anchored in the lower-left supporting position.");
+  await motionPage.locator(".claim-node:not(:disabled)").first().click();
   if (await avatar.getAttribute("data-avatar-state") !== "guide"
     || await avatar.getAttribute("data-avatar-variant") !== "wide"
     || !String(await video.getAttribute("src")).endsWith("daniel-guide-wide.mp4")) throw new Error("Wide selection did not use the pointing guidance clip.");
@@ -148,7 +154,7 @@ try {
   await motionContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.avatarReactions || !report.avatarPlayback || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
