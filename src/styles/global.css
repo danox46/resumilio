@@ -107,9 +107,11 @@ main { max-width: 1536px; margin: 0 auto; padding: 26px clamp(20px, 2.5vw, 38px)
 .avatar-orbit--outer { width: 178%; height: 63%; }
 .avatar-orbit--inner { width: 143%; height: 48%; transform: translate(-50%,-50%) rotate(18deg); }
 .avatar-guide[data-avatar-state="nod"] .avatar-orbit--inner { border-color: rgb(103 217 255 / 68%); box-shadow: 0 0 24px rgb(103 217 255 / 12%); }
+.avatar-guide[data-avatar-state="guide"] .avatar-orbit { border-color: rgb(124 229 170 / 62%); box-shadow: 0 0 28px rgb(124 229 170 / 13%); }
 .avatar-guide[data-avatar-state="waiting"] .avatar-orbit { border-color: rgb(174 187 208 / 38%); }
 .avatar-guide[data-avatar-state="smile"]::after { background: rgb(255 107 87 / 34%); }
 .avatar-guide[data-avatar-state="smile"] .avatar-orbit { border-color: rgb(255 107 87 / 58%); box-shadow: 0 0 28px rgb(255 107 87 / 12%); }
+.avatar-mobile-callout { display: none; }
 
 .claim-detail { min-width: 0; padding: 20px 20px 18px; border-left: 3px solid var(--green); background: var(--white); }
 .claim-detail--compact { display: none; }
@@ -215,8 +217,11 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .constellation { display: block; min-height: 0; border: 0; box-shadow: none; }
   .graph-stage { min-height: 0; padding: 28px 18px 12px; overflow: hidden; border: 0; border-radius: 16px; }
   .legend, .relationship-map, .constellation > .claim-detail { display: none; }
-  .avatar-guide { position: relative; left: auto; top: auto; width: 120px; height: 180px; margin: 0 auto 28px; transform: none; }
+  .avatar-guide { position: relative; left: auto; top: auto; width: min(46vw, 176px); height: auto; aspect-ratio: 2 / 3; margin: 0 auto 36px; transform: none; }
   .avatar-poster, .avatar-video { border-radius: 36px 36px 22px 22px; mask-image: none; }
+  .avatar-mobile-callout { position: absolute; left: 50%; bottom: 16px; z-index: 3; width: clamp(150px, 62vw, 232px); display: grid; gap: 3px; padding: 8px 10px; transform: translateX(-50%); border: 1px solid rgb(124 229 170 / 52%); border-radius: 9px; background: rgb(5 14 25 / 86%); box-shadow: 0 10px 28px rgb(0 0 0 / 32%); color: #fff; text-align: left; backdrop-filter: blur(6px); }
+  .avatar-mobile-callout span { color: #7ce5aa; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .avatar-mobile-callout strong { overflow: hidden; font-size: 12px; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
   .claim-graph { position: relative; inset: auto; padding-left: 28px; }
   .graph-branch { display: block; position: relative; padding: 0 0 22px 30px; border-left: 1px solid rgb(174 187 208 / 38%); }
   .graph-branch:last-child { border-left-color: transparent; }

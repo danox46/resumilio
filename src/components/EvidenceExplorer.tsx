@@ -6,14 +6,21 @@ import { claimPath } from "../site.js";
 
 const sessionKey = "resumilio:discovery:v1";
 type Claim = ResumilioProfile["claims"][number];
-type AvatarReaction = "idle" | "waiting" | "nod" | "smile";
+type AvatarReaction = "idle" | "waiting" | "nod" | "guide" | "smile";
+type AvatarLayout = "wide" | "stacked";
 const waitingReactionDelayMs = 24_000;
+const stackedAvatarQuery = "(max-width: 820px)";
 
-const avatarMedia: Record<AvatarReaction, string> = {
+const avatarMedia: Record<Exclude<AvatarReaction, "guide">, string> = {
   idle: "/media/avatar/daniel-idle.mp4",
   waiting: "/media/avatar/daniel-waiting.mp4",
   nod: "/media/avatar/daniel-nod.mp4",
   smile: "/media/avatar/daniel-smile.mp4",
+};
+
+const avatarGuideMedia: Record<AvatarLayout, string> = {
+  wide: "/media/avatar/daniel-guide-wide.mp4",
+  stacked: "/media/avatar/daniel-guide-stacked.mp4",
 };
 
 const copy = {
@@ -89,15 +96,18 @@ function evidenceFor(profile: ResumilioProfile, claim: Claim) {
   return profile.evidence.find((item) => item.id === claim.evidenceIds[0])!;
 }
 
-function AvatarGuide({ reaction, sequence, mediaReady, onComplete }: { reaction: AvatarReaction; sequence: number; mediaReady: boolean; onComplete: () => void }) {
-  return <figure className="avatar-guide" data-avatar-state={reaction} aria-hidden="true">
+function AvatarGuide({ reaction, sequence, layout, mediaReady, selectedTitle, selectedLabel, onComplete }: {
+  reaction: AvatarReaction; sequence: number; layout: AvatarLayout; mediaReady: boolean; selectedTitle: string; selectedLabel: string; onComplete: () => void;
+}) {
+  const source = reaction === "guide" ? avatarGuideMedia[layout] : avatarMedia[reaction];
+  return <figure className="avatar-guide" data-avatar-state={reaction} data-avatar-layout={layout} data-avatar-variant={reaction === "guide" ? layout : "shared"} aria-hidden="true">
     <div className="avatar-orbit avatar-orbit--outer"/>
     <div className="avatar-orbit avatar-orbit--inner"/>
-    <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="lazy" fetchPriority="low"/>
+    <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="eager" fetchPriority="high"/>
     {mediaReady && <video
-      key={`${reaction}-${sequence}`}
+      key={`${reaction}-${layout}-${sequence}`}
       className="avatar-video"
-      src={avatarMedia[reaction]}
+      src={source}
       poster="/media/avatar/daniel-idle-poster.webp"
       muted
       playsInline
@@ -106,6 +116,7 @@ function AvatarGuide({ reaction, sequence, mediaReady, onComplete }: { reaction:
       preload={reaction === "idle" ? "auto" : "metadata"}
       onEnded={reaction === "idle" ? undefined : onComplete}
     />}
+    <figcaption className="avatar-mobile-callout"><span>{selectedLabel}</span><strong>{graphTitle(selectedTitle)}</strong></figcaption>
   </figure>;
 }
 
@@ -149,6 +160,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
+  const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
   const [avatar, setAvatar] = useState<{ reaction: AvatarReaction; sequence: number }>({ reaction: "idle", sequence: 0 });
   const t = copy[locale];
 
@@ -166,6 +178,14 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   }, [discovery, storageReady]);
 
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
+
+  useEffect(() => {
+    const media = window.matchMedia(stackedAvatarQuery);
+    const syncLayout = () => setAvatarLayout(media.matches ? "stacked" : "wide");
+    syncLayout();
+    media.addEventListener("change", syncLayout);
+    return () => media.removeEventListener("change", syncLayout);
+  }, []);
 
   useEffect(() => {
     const removeMotionListeners = () => {
@@ -221,7 +241,11 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const graphClaims = [...featured, ...resultClaims.filter((claim) => !featuredClaimIds.includes(claim.id))].slice(0, graphSlots.length);
   const graphPoints = new Map(graphClaims.map((claim, index) => [claim.id, graphSlots[index]]));
   const tags = [...new Set(profile.claims.flatMap((claim) => claim.tags))].sort();
-  const selectClaim = (claim: Claim) => { setSelectedId(claim.id); signal("open", claim.tags, claim.id); showReaction("nod"); };
+  const selectClaim = (claim: Claim, react = true) => {
+    setSelectedId(claim.id);
+    signal("open", claim.tags, claim.id);
+    if (react) showReaction("guide");
+  };
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
     if (!keys.includes(event.key) || graphClaims.length === 0) return;
@@ -233,8 +257,11 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         ? graphClaims.length - 1
         : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + graphClaims.length) % graphClaims.length;
     const next = graphClaims[nextIndex];
-    selectClaim(next);
-    window.requestAnimationFrame(() => document.getElementById(`claim-node-${next.id}`)?.focus());
+    selectClaim(next, false);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`claim-node-${next.id}`)?.focus();
+      showReaction("guide");
+    });
   };
   const moreLike = () => {
     const next = applySignal(discovery, "more-like-this", selected.tags, selected.id);
@@ -284,7 +311,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             {graphClaims.map((claim) => { const point = graphPoints.get(claim.id)!; return <line key={`career-${claim.id}`} x1="50" y1="51" x2={point.claim[0]} y2={point.claim[1]} className={`relation relation--claim${claim.id === selected.id ? " relation--selected" : ""}`}/>; })}
           </svg>
-          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} mediaReady={mediaReady} onComplete={returnToIdle}/>
+          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} layout={avatarLayout} mediaReady={mediaReady} selectedTitle={selected.title[locale]} selectedLabel={t.selected} onComplete={returnToIdle}/>
           <div className="claim-graph">
             {graphClaims.map((claim) => {
               const point = graphPoints.get(claim.id)!;

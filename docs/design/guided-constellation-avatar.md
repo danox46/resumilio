@@ -21,9 +21,32 @@ The runtime uses only pre-rendered, first-party media:
 - `daniel-idle.mp4`: quiet baseline loop.
 - `daniel-waiting.mp4`: a one-shot shift after 24 seconds without another reaction.
 - `daniel-nod.mp4`: acknowledgment when a visitor hovers, focuses, or selects a career highlight.
+- `daniel-guide-wide.mp4`: wide-layout selection guidance; Daniel gestures toward the detail rail.
+- `daniel-guide-stacked.mp4`: stacked-layout selection guidance; Daniel looks toward the selected information below him.
 - `daniel-smile.mp4`: positive response to a search, filter, or “Show similar work” recommendation.
 
-Motion begins on the visitor's first pointer, keyboard, or touch interaction. The waiting, nod, and smile clips play once and return to the standing-still idle. They are muted, inline, and have no dependency on Flow or any model at runtime. The idle poster remains visible before interaction, while video loads, or when motion is reduced.
+Motion begins on the visitor's first pointer, keyboard, or touch interaction. The waiting, nod, guidance, and smile clips play once and return to the standing-still idle. They are muted, inline, and have no dependency on Flow or any model at runtime. The idle poster remains visible before interaction, while video loads, or when motion is reduced.
+
+## Responsive reaction contract
+
+`selection-guidance` is one semantic event with layout-aware choreography. It fires when a visitor selects a career highlight, including directional-key selection. The event always updates the same selected claim and accessible detail content; only its decorative animation changes:
+
+- `wide` at 821px and above uses `daniel-guide-wide.mp4`, because the selected detail is in the rail to Daniel's right.
+- `stacked` at 820px and below uses `daniel-guide-stacked.mp4`, because the selected detail is below the portrait. At phone widths, a short, decorative selected-title callout sits over the lower portrait to give the downward gaze an immediate visual target; the complete semantic detail remains in the career trail.
+
+The breakpoint is owned by the representation, not by device detection. It matches the CSS transition where `.constellation` changes from a side-by-side grid to a stacked layout. `matchMedia("(max-width: 820px)")` is observed at runtime, so resizing or rotating before another selection changes the next guidance clip without changing the event name or selected record.
+
+To add another responsive reaction, keep one semantic reaction name, provide an asset per layout only when the choreography must change, and select the asset through the same `AvatarLayout` mapping. Do not fork analytics or business behavior by viewport.
+
+### Media preparation
+
+Source clips are normalized to silent, fast-start H.264 at 720 × 1280, 24fps, `yuv420p`:
+
+```powershell
+ffmpeg -i <source.mp4> -map_metadata -1 -an -vf "scale=720:1280:flags=lanczos" -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -r 24 -movflags +faststart <public-output.mp4>
+```
+
+Verify each result with `ffprobe`, then run `npm run phase6`. Browser QA must select a different career highlight once at 1440px and once at 390px and confirm that both runs expose `data-avatar-state="guide"` while the chosen sources and `data-avatar-variant` differ.
 
 ## Accessibility and resilience
 

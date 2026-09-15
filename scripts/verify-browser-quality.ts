@@ -50,7 +50,7 @@ const viewports = [
 ];
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, avatarReactions: false, avatarPlayback: false, assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, avatarReactions: false, avatarPlayback: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -81,7 +81,7 @@ try {
       if (!before || !after || before === after || pressed !== "true" || outlineStyle === "none") throw new Error("Directional-key focus, selection, or visible focus failed.");
       report.keyboard = true;
       const avatar = page.locator(".avatar-guide");
-      if (await avatar.getAttribute("data-avatar-state") !== "nod") throw new Error("Avatar did not acknowledge career-map focus.");
+      if (await avatar.getAttribute("data-avatar-state") !== "guide") throw new Error("Avatar did not guide attention after keyboard selection.");
       await page.locator(".search-field input").fill("HubSpot");
       await page.locator(".search-controls").press("Enter");
       if (await avatar.getAttribute("data-avatar-state") !== "smile") throw new Error("Avatar did not react to a search.");
@@ -103,7 +103,7 @@ try {
   report.evidencePageScriptRequests = scriptRequests.length;
   await context.close();
 
-  const motionContext = await browser.newContext({ reducedMotion: "no-preference" });
+  const motionContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const motionPage = await motionContext.newPage();
   await motionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
   await motionPage.mouse.move(10, 10);
@@ -113,14 +113,42 @@ try {
     return Boolean(element && !element.paused && element.currentTime > 0.1);
   });
   await motionPage.locator(".claim-node:not(:disabled)").first().click();
-  if (await motionPage.locator(".avatar-guide").getAttribute("data-avatar-state") !== "nod" || !String(await video.getAttribute("src")).endsWith("daniel-nod.mp4")) throw new Error("Nod playback did not replace idle after selection.");
+  const avatar = motionPage.locator(".avatar-guide");
+  if (await avatar.getAttribute("data-avatar-state") !== "guide"
+    || await avatar.getAttribute("data-avatar-variant") !== "wide"
+    || !String(await video.getAttribute("src")).endsWith("daniel-guide-wide.mp4")) throw new Error("Wide selection did not use the pointing guidance clip.");
+  await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>(".avatar-video")?.currentTime ?? 0) > 2);
+  const wideGuideScreenshot = join(outputDirectory, "responsive-guide-wide.png");
+  await motionPage.screenshot({ path: wideGuideScreenshot });
+  report.responsiveAvatarScreenshots.push(wideGuideScreenshot);
+
+  await motionPage.setViewportSize({ width: 390, height: 844 });
+  await motionPage.waitForFunction(() => matchMedia("(max-width: 820px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "stacked");
+  await motionPage.locator(".claim-node:not(:disabled)").nth(1).click();
+  const selectedNodeTitle = (await motionPage.locator('.claim-node[aria-pressed="true"] strong').textContent())?.trim();
+  const calloutTitle = (await motionPage.locator(".avatar-mobile-callout strong").textContent())?.trim();
+  if (await avatar.getAttribute("data-avatar-state") !== "guide"
+    || await avatar.getAttribute("data-avatar-variant") !== "stacked"
+    || !String(await video.getAttribute("src")).endsWith("daniel-guide-stacked.mp4")
+    || !await motionPage.locator(".avatar-mobile-callout").isVisible()
+    || !selectedNodeTitle
+    || calloutTitle !== selectedNodeTitle) throw new Error("Stacked selection did not use the downward guidance clip and synchronized mobile callout.");
+  await motionPage.waitForFunction(() => (document.querySelector<HTMLVideoElement>(".avatar-video")?.currentTime ?? 0) > 2);
+  await avatar.scrollIntoViewIfNeeded();
+  const stackedGuideScreenshot = join(outputDirectory, "responsive-guide-stacked.png");
+  await motionPage.screenshot({ path: stackedGuideScreenshot });
+  report.responsiveAvatarScreenshots.push(stackedGuideScreenshot);
+  report.responsiveAvatar = true;
+
+  await motionPage.setViewportSize({ width: 1440, height: 1024 });
+  await motionPage.waitForFunction(() => !matchMedia("(max-width: 820px)").matches && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide");
   await motionPage.locator(".constellation > .claim-detail .button--secondary").click();
-  if (await motionPage.locator(".avatar-guide").getAttribute("data-avatar-state") !== "smile" || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace nod after recommendation.");
+  if (await avatar.getAttribute("data-avatar-state") !== "smile" || !String(await video.getAttribute("src")).endsWith("daniel-smile.mp4")) throw new Error("Smile playback did not replace guidance after recommendation.");
   report.avatarPlayback = true;
   await motionContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.avatarReactions || !report.avatarPlayback || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.avatarReactions || !report.avatarPlayback || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
