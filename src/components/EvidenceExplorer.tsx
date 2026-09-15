@@ -136,12 +136,15 @@ function ClaimDetail({ profile, claim, locale, onMoreLike }: {
 }) {
   const t = copy[locale];
   const organization = organizationFor(profile, claim);
-  return <section className="claim-detail" aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
+  const title = graphTitle(claim.title[locale]);
+  const summary = marketClaimSummary(claim, locale);
+  const detailDensity = title.length > 28 || summary.length > 190 ? " claim-detail--dense" : "";
+  return <section className={`claim-detail${detailDensity}`} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
     <p className="detail-label">{t.selected}</p>
-    <h2>{graphTitle(claim.title[locale])}</h2>
+    <h2>{title}</h2>
     {organization && <p className="detail-organization">{organization.name[locale]}</p>}
     <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
-    <p className="detail-summary">{marketClaimSummary(claim, locale)}</p>
+    <p className="detail-summary">{summary}</p>
     <div className="detail-actions">
       <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}<ArrowIcon/></a>
       <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
@@ -545,6 +548,10 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
           <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} selectedTitle={graphTitle(selected.title[locale])} selectedLabel={t.selected} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
             {renderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
+              const fullTitle = graphTitle(claim.title[locale]);
+              const visibleTitle = nodeTitle(claim.title[locale]);
+              const textDensity = visibleTitle.length > 34 ? "dense" : visibleTitle.length > 24 ? "compact" : "standard";
+              const lifecycleLabel = marketLabel(claim.lifecycle, locale);
               const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
               const claimStyle = {
                 "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index,
@@ -557,17 +564,19 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               } as CSSProperties;
               return <button
                 key={claim.id}
-                className={`claim-node claim-node--${slot.className} claim-node--${role}`}
+                className={`claim-node claim-node--${slot.className} claim-node--${role} claim-node--text-${textDensity}`}
                 id={`claim-node-${claim.id}`}
                 data-claim-id={claim.id}
                 data-node-role={role}
+                aria-label={`${fullTitle} — ${lifecycleLabel}`}
+                lang={locale}
                 style={claimStyle}
                 type="button"
                 onFocus={acknowledgeNode}
                 onMouseEnter={acknowledgeNode}
                 onKeyDown={(event) => moveClaimFocus(event, claim)}
                 onClick={() => selectClaim(claim)}
-              ><strong>{nodeTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}</small></button>;
+              ><strong title={fullTitle}>{visibleTitle}</strong><small>{lifecycleLabel}</small></button>;
             })}
           </div>
           <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike}/></div>

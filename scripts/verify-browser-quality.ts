@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, isAbsolute, join, normalize, resolve } from "node:path";
-import { chromium } from "playwright-core";
+import { chromium, type Page } from "playwright-core";
 
 const chromeCandidates = [
   process.env.CHROME_PATH,
@@ -55,8 +55,17 @@ function overlaps(first: { x: number; y: number; width: number; height: number }
     && first.y < second.y + second.height && first.y + first.height > second.y;
 }
 
+async function overflowingNodeLabels(page: Page) {
+  return page.locator(".claim-node:visible").evaluateAll((nodes) => nodes.flatMap((node) => {
+    const nodeBox = node.getBoundingClientRect();
+    const textBoxes = [...node.querySelectorAll("strong, small")].map((label) => label.getBoundingClientRect());
+    const outside = textBoxes.some((box) => box.left < nodeBox.left - 1 || box.right > nodeBox.right + 1 || box.top < nodeBox.top - 1 || box.bottom > nodeBox.bottom + 1);
+    return outside ? [node.getAttribute("data-claim-id") ?? "unknown"] : [];
+  }));
+}
+
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -69,7 +78,9 @@ try {
     const visibleTargets = await page.locator("button:visible, a:visible, input:visible, select:visible").count();
     if (visibleTargets === 0) throw new Error(`${viewport.name} exposes no interactive targets.`);
     const visibleNodeCount = await page.locator(".claim-node:visible").count();
+    const overflowingLabels = await overflowingNodeLabels(page);
     if (["tablet", "desktop", "full-hd", "wide-short", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
+    if (overflowingLabels.length > 0) throw new Error(`${viewport.name} has overflowing node labels: ${overflowingLabels.join(", ")}.`);
     const layerCount = Number(await page.locator(".graph-stage").getAttribute("data-layer-count"));
     const reserveCount = Number(await page.locator(".graph-stage").getAttribute("data-reserve-count"));
     const reserveDomCount = await page.locator(".reserve-layers .reserve-node").count();
@@ -113,6 +124,7 @@ try {
       overflow,
       visibleTargets,
       visibleNodeCount,
+      overflowingLabels,
       layerCount,
       reserveCount,
       visibleReserveCount,
@@ -153,6 +165,19 @@ try {
     }
     await context.close();
   }
+
+  const localizedContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", locale: "es-CO" });
+  const localizedPage = await localizedContext.newPage();
+  await localizedPage.goto(`${origin}/es/`, { waitUntil: "networkidle" });
+  await localizedPage.locator(".search-field input").fill("Credenciales de HubSpot Academy");
+  await localizedPage.locator(".search-controls").press("Enter");
+  await localizedPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
+    && document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-hubspot-academy-credentials");
+  const localizedOverflowingLabels = await overflowingNodeLabels(localizedPage);
+  const localizedDetailFits = await localizedPage.locator(".claim-detail").evaluate((detail) => detail.scrollHeight <= detail.clientHeight + 1);
+  if (localizedOverflowingLabels.length > 0 || !localizedDetailFits) throw new Error(`Spanish long-label state overflowed: nodes=${localizedOverflowingLabels.join(", ") || "none"}, detailFits=${localizedDetailFits}.`);
+  report.localizedResponsiveLabels = true;
+  await localizedContext.close();
 
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -529,7 +554,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

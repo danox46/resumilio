@@ -503,6 +503,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   place-content: center;
   gap: 7px;
   padding: 17px;
+  container-type: inline-size;
+  overflow: hidden;
   border: 1px solid rgb(242 175 75 / 68%);
   border-radius: 50%;
   color: var(--constellation-ink);
@@ -520,8 +522,35 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   background: #1c1c1a;
   box-shadow: 0 0 0 7px rgb(242 175 75 / 8%), 0 14px 38px rgb(0 0 0 / 34%);
 }
-.experience-shell .claim-node strong { font-size: clamp(12px, .92vw, 15px); line-height: 1.2; }
-.experience-shell .claim-node small { margin: 0; color: var(--amber); font-size: 10px; line-height: 1.25; }
+.experience-shell .claim-node strong,
+.experience-shell .claim-node small {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
+}
+.experience-shell .claim-node strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-size: clamp(11px, 11cqi, 15px);
+  line-height: 1.16;
+}
+.experience-shell .claim-node small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  margin: 0;
+  color: var(--amber);
+  font-size: clamp(8px, 8cqi, 10px);
+  line-height: 1.18;
+}
+.experience-shell .claim-node--text-compact { gap: 6px; padding: 15px; }
+.experience-shell .claim-node--text-compact strong { font-size: clamp(10px, 10cqi, 13.5px); line-height: 1.14; }
+.experience-shell .claim-node--text-dense { gap: 5px; padding: 14px; }
+.experience-shell .claim-node--text-dense strong { font-size: clamp(9px, 9cqi, 12.5px); line-height: 1.12; }
 .experience-focus {
   position: absolute;
   left: 60%;
@@ -537,7 +566,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   background: rgb(12 13 13 / 88%);
   box-shadow: 0 28px 80px rgb(0 0 0 / 36%);
   backdrop-filter: blur(12px);
+  overflow: hidden;
 }
+.experience-shell .claim-detail h2,
+.experience-shell .detail-organization,
+.experience-shell .detail-status,
+.experience-shell .detail-summary { min-width: 0; max-width: 100%; overflow-wrap: anywhere; hyphens: auto; }
 .experience-shell .detail-label { margin-bottom: 10px; color: var(--amber); font-size: 11px; font-weight: 760; letter-spacing: .13em; text-transform: uppercase; }
 .experience-shell .claim-detail h2 { color: var(--constellation-ink); font-size: clamp(25px, 2.3vw, 38px); }
 .experience-shell .detail-organization { margin-top: 9px; color: var(--constellation-muted); font-size: 14px; }
@@ -704,11 +738,20 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   }
   .experience-shell .detail-actions { grid-template-columns: 1fr; gap: 9px; margin-top: 17px; }
   .experience-shell .button { min-height: 40px; }
+  .experience-shell .claim-detail--dense { padding: clamp(40px, 3.7vw, 58px); }
+  .experience-shell .claim-detail--dense h2 { font-size: clamp(22px, 2vw, 32px); line-height: 1.06; }
+  .experience-shell .claim-detail--dense .detail-label { margin-bottom: 7px; }
+  .experience-shell .claim-detail--dense .detail-organization { margin-top: 7px; font-size: 13px; }
+  .experience-shell .claim-detail--dense .detail-status { margin: 7px 0 12px; }
+  .experience-shell .claim-detail--dense .detail-summary { font-size: clamp(12px, .9vw, 14px); line-height: 1.42; }
+  .experience-shell .claim-detail--dense .detail-actions { margin-top: 13px; }
 }
 
 @media (max-width: 1100px) and (min-width: 701px) {
   .constellation-header { grid-template-columns: minmax(190px, .75fr) minmax(280px, 1.3fr) auto; gap: 20px; }
   .experience-shell .claim-node { width: 104px; padding: 12px; }
+  .experience-shell .claim-node--text-compact { padding: 10px; }
+  .experience-shell .claim-node--text-dense { padding: 9px; }
   .experience-shell .claim-node--north { left: 58%; top: 21%; }
   .experience-shell .claim-node--west { left: 20%; top: 38%; }
   .experience-shell .claim-node--east { left: 92%; top: 35%; }
@@ -831,5 +874,6 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .avatar-guide { width: 188px; }
   .experience-shell .claim-detail { padding: 20px 16px; }
   .experience-shell .claim-node { width: 124px; padding: 12px; }
-  .experience-shell .claim-node strong { font-size: 12px; }
+  .experience-shell .claim-node--text-compact { padding: 10px; }
+  .experience-shell .claim-node--text-dense { padding: 9px; }
 }
