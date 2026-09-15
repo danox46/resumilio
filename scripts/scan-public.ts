@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname.replace(/^\/(?:[A-Za-z]:)/, (value) => value.slice(1)));
-const ignoredDirectories = new Set([".git", ".astro", ".playwright-cli", "node_modules", "coverage", "dist", "site-dist", "output"]);
+const ignoredDirectories = new Set([".git", ".astro", ".playwright-cli", ".wrangler", "node_modules", "coverage", "dist", "site-dist", "output", "qa-artifacts"]);
 const ignoredFiles = new Set(["package-lock.json"]);
 const forbiddenExtensions = new Set([".pdf", ".doc", ".docx", ".rtf", ".odt", ".p12", ".pfx", ".pem", ".key"]);
 const textExtensions = new Set([".astro", ".css", ".html", ".js", ".json", ".md", ".mjs", ".ts", ".tsx", ".txt", ".yaml", ".yml"]);

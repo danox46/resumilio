@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
 const component = readFileSync("src/components/EvidenceExplorer.tsx", "utf8");
@@ -16,8 +16,27 @@ test("claim controls expose directional keyboard navigation", () => {
 test("visual motion and focus have accessible alternatives", () => {
   assert.match(styles, /:focus-visible/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /\.avatar-video \{ display: none; \}/);
   assert.match(component, /aria-describedby="graph-help"/);
   assert.match(component, /className="sr-only" id="graph-help"/);
+});
+
+test("the avatar uses bounded local media for idle, waiting, nod, and smile reactions", () => {
+  for (const name of ["daniel-idle.mp4", "daniel-waiting.mp4", "daniel-nod.mp4", "daniel-smile.mp4", "daniel-idle-poster.webp"]) {
+    const path = `public/media/avatar/${name}`;
+    assert.ok(existsSync(path), `${path} is missing`);
+    assert.ok(statSync(path).size > 0, `${path} is empty`);
+  }
+  assert.match(component, /data-avatar-state=\{reaction\}/);
+  assert.match(component, /onFocus=\{\(\) => showReaction\("nod"\)\}/);
+  assert.match(component, /onMouseEnter=\{\(\) => showReaction\("nod"\)\}/);
+  assert.match(component, /showReaction\("smile"\)/);
+  assert.match(component, /showReaction\("waiting"\)/);
+  assert.match(component, /waitingReactionDelayMs = 24_000/);
+  assert.match(component, /addEventListener\("pointermove", beginMotion/);
+  assert.match(component, /addEventListener\("keydown", beginMotion/);
+  assert.match(component, /addEventListener\("touchstart", beginMotion/);
+  assert.doesNotMatch(component, /flow\.google|labs\.google|generativelanguage|veo/i);
 });
 
 test("personalization remains session-local and network-independent", () => {

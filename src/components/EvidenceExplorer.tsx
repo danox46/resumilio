@@ -6,6 +6,15 @@ import { claimPath } from "../site.js";
 
 const sessionKey = "resumilio:discovery:v1";
 type Claim = ResumilioProfile["claims"][number];
+type AvatarReaction = "idle" | "waiting" | "nod" | "smile";
+const waitingReactionDelayMs = 24_000;
+
+const avatarMedia: Record<AvatarReaction, string> = {
+  idle: "/media/avatar/daniel-idle.mp4",
+  waiting: "/media/avatar/daniel-waiting.mp4",
+  nod: "/media/avatar/daniel-nod.mp4",
+  smile: "/media/avatar/daniel-smile.mp4",
+};
 
 const copy = {
   en: {
@@ -45,15 +54,15 @@ const featuredClaimIds = [
   "claim-computer-science-studies",
 ];
 
-const graphSlots: Array<{ claim: [number, number] }> = [
-  { claim: [17, 28] },
-  { claim: [49, 22] },
-  { claim: [79, 30] },
-  { claim: [18, 61] },
-  { claim: [49, 55] },
-  { claim: [80, 64] },
-  { claim: [26, 88] },
-  { claim: [68, 86] },
+const graphSlots: Array<{ claim: [number, number]; side: "left" | "right" }> = [
+  { claim: [19, 16], side: "left" },
+  { claim: [81, 16], side: "right" },
+  { claim: [12, 39], side: "left" },
+  { claim: [88, 39], side: "right" },
+  { claim: [11, 65], side: "left" },
+  { claim: [89, 65], side: "right" },
+  { claim: [22, 87], side: "left" },
+  { claim: [78, 87], side: "right" },
 ];
 
 function graphTitle(title: string) {
@@ -78,6 +87,26 @@ function Chevron({ direction = "right" }: { direction?: "right" | "down" }) {
 
 function evidenceFor(profile: ResumilioProfile, claim: Claim) {
   return profile.evidence.find((item) => item.id === claim.evidenceIds[0])!;
+}
+
+function AvatarGuide({ reaction, sequence, mediaReady, onComplete }: { reaction: AvatarReaction; sequence: number; mediaReady: boolean; onComplete: () => void }) {
+  return <figure className="avatar-guide" data-avatar-state={reaction} aria-hidden="true">
+    <div className="avatar-orbit avatar-orbit--outer"/>
+    <div className="avatar-orbit avatar-orbit--inner"/>
+    <img className="avatar-poster" src="/media/avatar/daniel-idle-poster.webp" alt="" width="360" height="640" decoding="async" loading="lazy" fetchPriority="low"/>
+    {mediaReady && <video
+      key={`${reaction}-${sequence}`}
+      className="avatar-video"
+      src={avatarMedia[reaction]}
+      poster="/media/avatar/daniel-idle-poster.webp"
+      muted
+      playsInline
+      autoPlay
+      loop={reaction === "idle"}
+      preload={reaction === "idle" ? "auto" : "metadata"}
+      onEnded={reaction === "idle" ? undefined : onComplete}
+    />}
+  </figure>;
 }
 
 function ClaimDetail({ profile, claim, locale, state, compact = false, onMoreLike }: {
@@ -119,6 +148,8 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [menuOpen, setMenuOpen] = useState(false);
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
+  const [mediaReady, setMediaReady] = useState(false);
+  const [avatar, setAvatar] = useState<{ reaction: AvatarReaction; sequence: number }>({ reaction: "idle", sequence: 0 });
   const t = copy[locale];
 
   useEffect(() => {
@@ -136,9 +167,38 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
 
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
 
+  useEffect(() => {
+    const removeMotionListeners = () => {
+      window.removeEventListener("pointermove", beginMotion);
+      window.removeEventListener("keydown", beginMotion);
+      window.removeEventListener("touchstart", beginMotion);
+    };
+    const beginMotion = () => {
+      setMediaReady(true);
+      removeMotionListeners();
+    };
+    window.addEventListener("pointermove", beginMotion, { once: true, passive: true });
+    window.addEventListener("keydown", beginMotion, { once: true });
+    window.addEventListener("touchstart", beginMotion, { once: true, passive: true });
+    return removeMotionListeners;
+  }, []);
+
   const signal = useCallback((kind: Parameters<typeof applySignal>[1], topics: string[], claimId?: string) => {
     setDiscovery((current) => applySignal(current, kind, topics, claimId));
   }, []);
+
+  const showReaction = useCallback((reaction: Exclude<AvatarReaction, "idle">) => {
+    setAvatar((current) => ({ reaction, sequence: current.sequence + 1 }));
+  }, []);
+  const returnToIdle = useCallback(() => {
+    setAvatar((current) => ({ reaction: "idle", sequence: current.sequence + 1 }));
+  }, []);
+
+  useEffect(() => {
+    if (avatar.reaction !== "idle") return;
+    const timer = window.setTimeout(() => showReaction("waiting"), waitingReactionDelayMs);
+    return () => window.clearTimeout(timer);
+  }, [avatar.reaction, avatar.sequence, showReaction]);
 
   const selected = profile.claims.find((claim) => claim.id === selectedId) ?? profile.claims[0];
   useEffect(() => {
@@ -161,7 +221,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const graphClaims = [...featured, ...resultClaims.filter((claim) => !featuredClaimIds.includes(claim.id))].slice(0, graphSlots.length);
   const graphPoints = new Map(graphClaims.map((claim, index) => [claim.id, graphSlots[index]]));
   const tags = [...new Set(profile.claims.flatMap((claim) => claim.tags))].sort();
-  const selectClaim = (claim: Claim) => { setSelectedId(claim.id); signal("open", claim.tags, claim.id); };
+  const selectClaim = (claim: Claim) => { setSelectedId(claim.id); signal("open", claim.tags, claim.id); showReaction("nod"); };
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
     if (!keys.includes(event.key) || graphClaims.length === 0) return;
@@ -181,10 +241,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     setDiscovery(next);
     const recommendation = rankRecommendations(profile, next, selected.id)[0]?.claim;
     if (recommendation) setSelectedId(recommendation.id);
+    showReaction("smile");
   };
-  const submitSearch = (event: { preventDefault: () => void }) => { event.preventDefault(); signal("search", normalizeTerm(query).split(" ")); };
+  const submitSearch = (event: { preventDefault: () => void }) => { event.preventDefault(); signal("search", normalizeTerm(query).split(" ")); showReaction("smile"); };
   const reset = () => {
     setDiscovery(emptyDiscoveryState()); setQuery(""); setType(""); setLifecycle(""); setTag(""); setSort("relevant"); setSelectedId(defaultClaimId);
+    returnToIdle();
     try { sessionStorage.removeItem(sessionKey); } catch { /* Nothing else to reset. */ }
   };
 
@@ -210,9 +272,9 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
 
       <form className="search-controls" id="search" role="search" onSubmit={submitSearch}>
         <label className="search-field"><span className="sr-only">{t.search}</span><SearchIcon/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder}/></label>
-        <select aria-label={t.allTypes} value={type} onChange={(event) => { setType(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allTypes}</option>{[...new Set(profile.claims.map((claim) => claim.type))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
-        <select aria-label={t.allStatuses} value={lifecycle} onChange={(event) => { setLifecycle(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allStatuses}</option>{[...new Set(profile.claims.map((claim) => claim.lifecycle))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
-        <select aria-label={t.allSkills} value={tag} onChange={(event) => { setTag(event.target.value); if (event.target.value) signal("filter", [event.target.value]); }}><option value="">{t.allSkills}</option>{tags.map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allTypes} value={type} onChange={(event) => { setType(event.target.value); if (event.target.value) { signal("filter", [event.target.value]); showReaction("smile"); } }}><option value="">{t.allTypes}</option>{[...new Set(profile.claims.map((claim) => claim.type))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allStatuses} value={lifecycle} onChange={(event) => { setLifecycle(event.target.value); if (event.target.value) { signal("filter", [event.target.value]); showReaction("smile"); } }}><option value="">{t.allStatuses}</option>{[...new Set(profile.claims.map((claim) => claim.lifecycle))].map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
+        <select aria-label={t.allSkills} value={tag} onChange={(event) => { setTag(event.target.value); if (event.target.value) { signal("filter", [event.target.value]); showReaction("smile"); } }}><option value="">{t.allSkills}</option>{tags.map((value) => <option key={value} value={value}>{marketLabel(value, locale)}</option>)}</select>
         <button className="clear-control" type="button" onClick={() => { setQuery(""); setType(""); setLifecycle(""); setTag(""); }}>{t.clear}</button>
       </form>
 
@@ -220,16 +282,17 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
         <div className="graph-stage">
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {graphClaims.slice(1).map((claim, index) => { const from = graphPoints.get(graphClaims[index].id)!; const to = graphPoints.get(claim.id)!; return <line key={`career-${claim.id}`} x1={from.claim[0]} y1={from.claim[1]} x2={to.claim[0]} y2={to.claim[1]} className="relation relation--claim"/>; })}
+            {graphClaims.map((claim) => { const point = graphPoints.get(claim.id)!; return <line key={`career-${claim.id}`} x1="50" y1="51" x2={point.claim[0]} y2={point.claim[1]} className={`relation relation--claim${claim.id === selected.id ? " relation--selected" : ""}`}/>; })}
           </svg>
+          <AvatarGuide reaction={avatar.reaction} sequence={avatar.sequence} mediaReady={mediaReady} onComplete={returnToIdle}/>
           <div className="claim-graph">
             {graphClaims.map((claim) => {
               const point = graphPoints.get(claim.id)!;
               const isSelected = claim.id === selected.id;
               const hidden = !visibleIds.has(claim.id);
               const claimStyle = { "--x": `${point.claim[0]}%`, "--y": `${point.claim[1]}%` } as CSSProperties;
-              return <article key={claim.id} className={`graph-branch${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
-                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{graphTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
+              return <article key={claim.id} className={`graph-branch graph-branch--${point.side}${isSelected ? " graph-branch--selected" : ""}${hidden ? " graph-branch--hidden" : ""}`}>
+                <button className="claim-node" id={`claim-node-${claim.id}`} data-claim-id={claim.id} style={claimStyle} type="button" aria-pressed={isSelected} disabled={hidden} onFocus={() => showReaction("nod")} onMouseEnter={() => showReaction("nod")} onKeyDown={(event) => moveClaimFocus(event, claim)} onClick={() => selectClaim(claim)}><span className="node-dot" aria-hidden="true"/><span><strong>{graphTitle(claim.title[locale])}</strong><small>{marketLabel(claim.lifecycle, locale)}{claim.tags.includes("non-ai") ? (locale === "en" ? " · no AI" : " · sin IA") : ""}</small></span></button>
                 {isSelected && <ClaimDetail profile={profile} claim={claim} locale={locale} state={discovery} compact onMoreLike={moreLike}/>}
               </article>;
             })}
