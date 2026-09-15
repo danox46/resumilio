@@ -48,6 +48,15 @@
         "url": "https://danienremoto.com/"
       },
       {
+        "id": "contact-itch",
+        "kind": "portfolio",
+        "label": {
+          "en": "Games on itch.io",
+          "es": "Juegos en itch.io"
+        },
+        "url": "https://dnxgaming.itch.io/"
+      },
+      {
         "id": "contact-email",
         "kind": "email",
         "label": {
@@ -131,6 +140,29 @@
         "es": "Platzi"
       },
       "url": "https://platzi.com/"
+    },
+    {
+      "id": "organization-cloud-academy",
+      "name": {
+        "en": "Cloud Academy",
+        "es": "Cloud Academy"
+      },
+      "url": "https://cloudacademy.com/"
+    },
+    {
+      "id": "organization-yunoia",
+      "name": {
+        "en": "YUNOIA",
+        "es": "YUNOIA"
+      }
+    },
+    {
+      "id": "organization-dnx-gaming",
+      "name": {
+        "en": "DNX Gaming",
+        "es": "DNX Gaming"
+      },
+      "url": "https://dnxgaming.itch.io/"
     }
   ],
   "claims": [
@@ -379,7 +411,8 @@
       },
       "organizationId": "organization-coursera",
       "evidenceIds": [
-        "evidence-google-cloud-course-credential"
+        "evidence-google-cloud-course-credential",
+        "evidence-coursera-completion-mail"
       ],
       "tags": [
         "google-cloud",
@@ -396,8 +429,8 @@
         "es": "Credenciales de HubSpot Academy"
       },
       "summary": {
-        "en": "Earned time-bounded HubSpot credentials covering Marketing Software, Reporting, CMS for Marketers, Revenue Operations, and CMS Development. These are presented as historical qualifications, not current certifications.",
-        "es": "Obtuvo credenciales temporales de HubSpot en Marketing Software, Reporting, CMS para Marketers, Revenue Operations y desarrollo de CMS. Se presentan como formación histórica, no como certificaciones vigentes."
+        "en": "Portfolio overview for five time-bounded HubSpot credentials. Each qualification also has its own searchable record; all are presented as historical rather than current certifications.",
+        "es": "Resumen de cinco credenciales temporales de HubSpot. Cada formación también tiene su propio registro consultable; todas se presentan como certificaciones históricas, no vigentes."
       },
       "organizationId": "organization-hubspot-academy",
       "evidenceIds": [
@@ -408,7 +441,123 @@
         "hubspot",
         "revenue-operations",
         "digital-marketing",
-        "cms"
+        "cms",
+        "certification-portfolio"
+      ]
+    },
+    {
+      "id": "claim-hubspot-marketing-software",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot Marketing Software",
+        "es": "Software de Marketing de HubSpot"
+      },
+      "summary": {
+        "en": "Earned the time-bounded HubSpot Academy Marketing Software credential. Listed as a historical qualification rather than a current certification.",
+        "es": "Obtuvo la credencial temporal de Software de Marketing de HubSpot Academy. Se presenta como formación histórica, no como certificación vigente."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "marketing-operations",
+        "digital-marketing"
+      ]
+    },
+    {
+      "id": "claim-hubspot-reporting",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot Reporting",
+        "es": "Reportes de HubSpot"
+      },
+      "summary": {
+        "en": "Earned the time-bounded HubSpot Academy Reporting credential. Listed as a historical qualification rather than a current certification.",
+        "es": "Obtuvo la credencial temporal de Reportes de HubSpot Academy. Se presenta como formación histórica, no como certificación vigente."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "reporting",
+        "analytics"
+      ]
+    },
+    {
+      "id": "claim-hubspot-cms-marketers",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot CMS for Marketers",
+        "es": "CMS de HubSpot para Marketers"
+      },
+      "summary": {
+        "en": "Earned the time-bounded HubSpot Academy CMS for Marketers credential. Listed as a historical qualification rather than a current certification.",
+        "es": "Obtuvo la credencial temporal de CMS de HubSpot para Marketers. Se presenta como formación histórica, no como certificación vigente."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "cms",
+        "digital-marketing"
+      ]
+    },
+    {
+      "id": "claim-hubspot-revenue-operations",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot Revenue Operations",
+        "es": "Operaciones de Ingresos de HubSpot"
+      },
+      "summary": {
+        "en": "Earned the time-bounded HubSpot Academy Revenue Operations credential. Listed as a historical qualification rather than a current certification.",
+        "es": "Obtuvo la credencial temporal de Operaciones de Ingresos de HubSpot Academy. Se presenta como formación histórica, no como certificación vigente."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "revenue-operations",
+        "crm"
+      ]
+    },
+    {
+      "id": "claim-hubspot-cms-developers",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "HubSpot CMS for Developers",
+        "es": "CMS de HubSpot para Desarrolladores"
+      },
+      "summary": {
+        "en": "Earned the time-bounded HubSpot Academy CMS for Developers credential. Listed as a historical qualification rather than a current certification.",
+        "es": "Obtuvo la credencial temporal de CMS de HubSpot para Desarrolladores. Se presenta como formación histórica, no como certificación vigente."
+      },
+      "organizationId": "organization-hubspot-academy",
+      "evidenceIds": [
+        "evidence-hubspot-certificate-archive",
+        "evidence-linkedin-credentials-profile"
+      ],
+      "tags": [
+        "hubspot",
+        "cms",
+        "web-development"
       ]
     },
     {
@@ -425,7 +574,8 @@
       },
       "organizationId": "organization-coursera",
       "evidenceIds": [
-        "evidence-linkedin-credentials-profile"
+        "evidence-linkedin-credentials-profile",
+        "evidence-coursera-completion-mail"
       ],
       "tags": [
         "machine-learning",
@@ -447,7 +597,8 @@
       "organizationId": "organization-coursera",
       "evidenceIds": [
         "evidence-linkedin-credentials-profile",
-        "evidence-private-resume"
+        "evidence-private-resume",
+        "evidence-coursera-completion-mail"
       ],
       "tags": [
         "sql",
@@ -476,6 +627,152 @@
         "authentication",
         "jwt",
         "backend"
+      ]
+    },
+    {
+      "id": "claim-cloud-academy-dotnet-foundations",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": ".NET fundamentals and debugging",
+        "es": "Fundamentos de .NET y depuración"
+      },
+      "summary": {
+        "en": "Completed Cloud Academy training in .NET fundamentals, UI technologies, and debugging during the Microsoft support training period.",
+        "es": "Completó formación de Cloud Academy en fundamentos de .NET, tecnologías de interfaz y depuración durante el periodo de capacitación para soporte de Microsoft."
+      },
+      "organizationId": "organization-cloud-academy",
+      "evidenceIds": [
+        "evidence-private-resume",
+        "evidence-cloud-academy-training-record"
+      ],
+      "tags": [
+        "dotnet",
+        "debugging",
+        "software-development",
+        "technical-support"
+      ]
+    },
+    {
+      "id": "claim-cloud-academy-dynamics-365",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Dynamics 365 Finance and Operations coursework",
+        "es": "Formación en Dynamics 365 Finance and Operations"
+      },
+      "summary": {
+        "en": "Completed Cloud Academy coursework supporting work with Microsoft Dynamics 365 Finance and Operations features, administration, security, and workflows.",
+        "es": "Completó formación de Cloud Academy para apoyar el trabajo con funciones, administración, seguridad y flujos de Microsoft Dynamics 365 Finance and Operations."
+      },
+      "organizationId": "organization-cloud-academy",
+      "evidenceIds": [
+        "evidence-private-resume",
+        "evidence-cloud-academy-training-record"
+      ],
+      "tags": [
+        "microsoft-dynamics-365",
+        "technical-support",
+        "workflows",
+        "security"
+      ]
+    },
+    {
+      "id": "claim-yunoia-certified-journalist",
+      "type": "certification",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Certified game journalist — YUNOIA",
+        "es": "Periodista de videojuegos certificado — YUNOIA"
+      },
+      "summary": {
+        "en": "YUNOIA verified Daniel as a certified journalist in November 2018, supporting game coverage and publisher key requests for DNX Gaming.",
+        "es": "YUNOIA verificó a Daniel como periodista certificado en noviembre de 2018, respaldando la cobertura de videojuegos y solicitudes de claves para DNX Gaming."
+      },
+      "organizationId": "organization-yunoia",
+      "evidenceIds": [
+        "evidence-yunoia-journalist-mail"
+      ],
+      "tags": [
+        "game-journalism",
+        "content",
+        "games"
+      ]
+    },
+    {
+      "id": "claim-leaf-town",
+      "type": "project",
+      "lifecycle": "shipped",
+      "title": {
+        "en": "Leaf Town",
+        "es": "Leaf Town"
+      },
+      "summary": {
+        "en": "Built and published a Unity adventure game in 20 days for the Great Autumn Game Jam 2021, including custom physics behavior that synchronized cloth deformation with Rigidbody collisions.",
+        "es": "Creó y publicó un juego de aventura en Unity en 20 días para Great Autumn Game Jam 2021, incluyendo física personalizada que sincronizó deformación de tela con colisiones de Rigidbody."
+      },
+      "organizationId": "organization-dnx-gaming",
+      "evidenceIds": [
+        "evidence-dnx-gaming-itch-profile"
+      ],
+      "tags": [
+        "unity",
+        "c-sharp",
+        "game-development",
+        "physics",
+        "artificial-intelligence",
+        "itch-io"
+      ]
+    },
+    {
+      "id": "claim-children-of-preservation",
+      "type": "project",
+      "lifecycle": "shipped",
+      "title": {
+        "en": "The Children of Preservation prototype",
+        "es": "Prototipo The Children of Preservation"
+      },
+      "summary": {
+        "en": "Published a playable Unity action-platformer prototype through DNX Gaming, demonstrating gameplay systems and collaborative game production.",
+        "es": "Publicó un prototipo jugable de plataformas y acción en Unity a través de DNX Gaming, demostrando sistemas de juego y producción colaborativa."
+      },
+      "organizationId": "organization-dnx-gaming",
+      "evidenceIds": [
+        "evidence-dnx-gaming-itch-profile"
+      ],
+      "tags": [
+        "unity",
+        "c-sharp",
+        "game-development",
+        "prototype",
+        "itch-io"
+      ]
+    },
+    {
+      "id": "claim-resumilio-living-resume",
+      "type": "project",
+      "lifecycle": "shipped",
+      "title": {
+        "en": "Resumilio",
+        "es": "Resumilio"
+      },
+      "summary": {
+        "en": "Designed and built an open-source, bilingual living-resume engine with a typed career graph, CLI and MCP interfaces, machine-readable public endpoints, privacy-aware evidence records, and an adaptive constellation experience. The public engine is shipped while the guided constellation redesign remains under active iteration.",
+        "es": "Diseñó y construyó un motor de currículum vivo bilingüe y de código abierto con grafo profesional tipado, interfaces CLI y MCP, endpoints públicos legibles por máquinas, registros de respaldo con privacidad y una experiencia adaptativa de constelación. El motor público está publicado mientras el rediseño guiado de la constelación sigue en iteración activa."
+      },
+      "evidenceIds": [
+        "evidence-resumilio-public-repository",
+        "evidence-resumilio-public-site"
+      ],
+      "tags": [
+        "typescript",
+        "astro",
+        "react",
+        "mcp",
+        "cli",
+        "data-modeling",
+        "accessibility",
+        "artificial-intelligence"
       ]
     }
   ],
@@ -600,7 +897,9 @@
         "claim-mai-full-stack-developer",
         "claim-hivebound-content-lead",
         "claim-computer-science-studies",
-        "claim-introduction-sql"
+        "claim-introduction-sql",
+        "claim-cloud-academy-dotnet-foundations",
+        "claim-cloud-academy-dynamics-365"
       ],
       "title": {
         "en": "Work history",
@@ -622,6 +921,11 @@
       "id": "evidence-linkedin-credentials-profile",
       "claimIds": [
         "claim-hubspot-academy-credentials",
+        "claim-hubspot-marketing-software",
+        "claim-hubspot-reporting",
+        "claim-hubspot-cms-marketers",
+        "claim-hubspot-revenue-operations",
+        "claim-hubspot-cms-developers",
         "claim-how-google-does-machine-learning",
         "claim-introduction-sql"
       ],
@@ -645,7 +949,12 @@
     {
       "id": "evidence-hubspot-certificate-archive",
       "claimIds": [
-        "claim-hubspot-academy-credentials"
+        "claim-hubspot-academy-credentials",
+        "claim-hubspot-marketing-software",
+        "claim-hubspot-reporting",
+        "claim-hubspot-cms-marketers",
+        "claim-hubspot-revenue-operations",
+        "claim-hubspot-cms-developers"
       ],
       "title": {
         "en": "HubSpot qualifications",
@@ -656,12 +965,145 @@
       "lifecycle": "restricted",
       "source": {
         "label": {
-          "en": "Five credential files reviewed privately; validity periods are historical and the files are not published",
-          "es": "Cinco credenciales revisadas de forma privada; sus periodos de vigencia son históricos y los archivos no se publican"
+          "en": "Five credential files reviewed privately and mapped to individual qualification records; validity periods are historical and the files are not published",
+          "es": "Cinco credenciales revisadas de forma privada y vinculadas a registros individuales; sus periodos de vigencia son históricos y los archivos no se publican"
         },
         "visibility": "public-summary"
       },
       "observedAt": "2026-09-14"
+    },
+    {
+      "id": "evidence-coursera-completion-mail",
+      "claimIds": [
+        "claim-google-cloud-big-data-course",
+        "claim-how-google-does-machine-learning",
+        "claim-introduction-sql"
+      ],
+      "title": {
+        "en": "Coursera completion receipts",
+        "es": "Confirmaciones de finalización de Coursera"
+      },
+      "evidenceType": "credential",
+      "strength": "primary",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Provider completion and certificate-ready messages verified privately in the owner's mailbox; message details are not published",
+          "es": "Mensajes del proveedor sobre finalización y certificados verificados de forma privada en el correo del titular; no se publican detalles de los mensajes"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-15"
+    },
+    {
+      "id": "evidence-cloud-academy-training-record",
+      "claimIds": [
+        "claim-cloud-academy-dotnet-foundations",
+        "claim-cloud-academy-dynamics-365"
+      ],
+      "title": {
+        "en": "Cloud Academy training record",
+        "es": "Registro de formación de Cloud Academy"
+      },
+      "evidenceType": "artifact",
+      "strength": "corroborated",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Course names appear in the current private resume and are corroborated by employer mailbox references; original training records are not published",
+          "es": "Los nombres de los cursos aparecen en el currículum privado actual y están corroborados por referencias laborales en el correo; los registros originales no se publican"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-15"
+    },
+    {
+      "id": "evidence-yunoia-journalist-mail",
+      "claimIds": [
+        "claim-yunoia-certified-journalist"
+      ],
+      "title": {
+        "en": "YUNOIA journalist verification",
+        "es": "Verificación periodística de YUNOIA"
+      },
+      "evidenceType": "credential",
+      "strength": "primary",
+      "lifecycle": "restricted",
+      "source": {
+        "label": {
+          "en": "Provider verification messages confirmed the journalist certification in November 2018; mailbox content is not published",
+          "es": "Mensajes de verificación del proveedor confirmaron la certificación periodística en noviembre de 2018; el contenido del correo no se publica"
+        },
+        "visibility": "public-summary"
+      },
+      "observedAt": "2026-09-15"
+    },
+    {
+      "id": "evidence-dnx-gaming-itch-profile",
+      "claimIds": [
+        "claim-leaf-town",
+        "claim-children-of-preservation"
+      ],
+      "title": {
+        "en": "DNX Gaming creator portfolio",
+        "es": "Portafolio de creador DNX Gaming"
+      },
+      "evidenceType": "public-source",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Public itch.io creator page linked to Daniel's GitHub account and published games",
+          "es": "Página pública de creador en itch.io vinculada a la cuenta de GitHub de Daniel y sus juegos publicados"
+        },
+        "visibility": "public",
+        "url": "https://dnxgaming.itch.io/"
+      },
+      "observedAt": "2026-09-15"
+    },
+    {
+      "id": "evidence-resumilio-public-repository",
+      "claimIds": [
+        "claim-resumilio-living-resume"
+      ],
+      "title": {
+        "en": "Resumilio public repository",
+        "es": "Repositorio público de Resumilio"
+      },
+      "evidenceType": "repository",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Open-source Resumilio implementation",
+          "es": "Implementación de código abierto de Resumilio"
+        },
+        "visibility": "public",
+        "url": "https://github.com/danox46/resumilio"
+      },
+      "observedAt": "2026-09-15"
+    },
+    {
+      "id": "evidence-resumilio-public-site",
+      "claimIds": [
+        "claim-resumilio-living-resume"
+      ],
+      "title": {
+        "en": "Resumilio public experience",
+        "es": "Experiencia pública de Resumilio"
+      },
+      "evidenceType": "public-source",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Public bilingual living-resume site and machine endpoints",
+          "es": "Sitio público bilingüe de currículum vivo y endpoints para máquinas"
+        },
+        "visibility": "public",
+        "url": "https://resumilio.danielx9.workers.dev/"
+      },
+      "observedAt": "2026-09-15"
     },
     {
       "id": "evidence-platzi-node-credentials",
@@ -799,6 +1241,90 @@
       "type": "related-to",
       "sourceId": "claim-masglo-commercial-proposal",
       "targetId": "claim-mai-full-stack-developer"
+    },
+    {
+      "id": "relationship-hubspot-marketing-software",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-marketing-software",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-hubspot-reporting",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-reporting",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-hubspot-cms-marketers",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-cms-marketers",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-hubspot-revenue-operations",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-revenue-operations",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-hubspot-cms-developers",
+      "type": "provided-by",
+      "sourceId": "claim-hubspot-cms-developers",
+      "targetId": "organization-hubspot-academy"
+    },
+    {
+      "id": "relationship-cloud-academy-dotnet-foundations",
+      "type": "provided-by",
+      "sourceId": "claim-cloud-academy-dotnet-foundations",
+      "targetId": "organization-cloud-academy"
+    },
+    {
+      "id": "relationship-cloud-academy-dynamics-365",
+      "type": "provided-by",
+      "sourceId": "claim-cloud-academy-dynamics-365",
+      "targetId": "organization-cloud-academy"
+    },
+    {
+      "id": "relationship-yunoia-certified-journalist",
+      "type": "provided-by",
+      "sourceId": "claim-yunoia-certified-journalist",
+      "targetId": "organization-yunoia"
+    },
+    {
+      "id": "relationship-leaf-town-dnx-gaming",
+      "type": "performed-for",
+      "sourceId": "claim-leaf-town",
+      "targetId": "organization-dnx-gaming"
+    },
+    {
+      "id": "relationship-children-preservation-dnx-gaming",
+      "type": "performed-for",
+      "sourceId": "claim-children-of-preservation",
+      "targetId": "organization-dnx-gaming"
+    },
+    {
+      "id": "relationship-leaf-town-children-preservation",
+      "type": "related-to",
+      "sourceId": "claim-leaf-town",
+      "targetId": "claim-children-of-preservation"
+    },
+    {
+      "id": "relationship-yunoia-hivebound-content",
+      "type": "related-to",
+      "sourceId": "claim-yunoia-certified-journalist",
+      "targetId": "claim-hivebound-content-lead"
+    },
+    {
+      "id": "relationship-resumilio-professional-ai",
+      "type": "related-to",
+      "sourceId": "claim-resumilio-living-resume",
+      "targetId": "claim-professional-ai-text-completion"
+    },
+    {
+      "id": "relationship-resumilio-integration-specialist",
+      "type": "related-to",
+      "sourceId": "claim-resumilio-living-resume",
+      "targetId": "claim-operations-company-integration-specialist"
     }
   ]
 }

@@ -26,12 +26,22 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   assert.equal(claims.get("claim-alphahub-hubspot-specialist")?.lifecycle, "production");
   assert.equal(claims.get("claim-on-the-fuze-backend-lead")?.type, "experience");
   assert.equal(claims.get("claim-hubspot-academy-credentials")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-marketing-software")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-reporting")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-cms-marketers")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-revenue-operations")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-cms-developers")?.type, "certification");
   assert.equal(claims.get("claim-platzi-node-backend-courses")?.type, "certification");
+  assert.equal(claims.get("claim-yunoia-certified-journalist")?.type, "certification");
+  assert.equal(claims.get("claim-leaf-town")?.lifecycle, "shipped");
+  assert.equal(claims.get("claim-children-of-preservation")?.lifecycle, "shipped");
+  assert.equal(claims.get("claim-resumilio-living-resume")?.lifecycle, "shipped");
+  assert.ok(seed.profile.contacts.some((contact) => contact.id === "contact-itch" && contact.url === "https://dnxgaming.itch.io/"));
   const related = seed.relationships.filter((relationship) => relationship.type === "related-to");
   assert.ok(related.some((relationship) => relationship.sourceId === "claim-operations-company-integration-specialist" && relationship.targetId === "claim-masglo-commercial-proposal"));
   assert.equal(related.filter((relationship) => relationship.sourceId === "claim-masglo-commercial-proposal").length, 4);
-  assert.ok(seed.claims.length >= 15);
-  assert.ok(seed.organizations.length >= 10);
+  assert.ok(seed.claims.length >= 26);
+  assert.ok(seed.organizations.length >= 13);
 });
 
 test("private career artifacts remain locator-free", () => {

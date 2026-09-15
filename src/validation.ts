@@ -16,7 +16,7 @@ const validateSchema = ajv.compile(schema);
 const approvedContactHosts = new Map([
   ["github", new Set(["github.com"])],
   ["linkedin", new Set(["www.linkedin.com", "linkedin.com"])],
-  ["portfolio", new Set(["danienremoto.com", "www.danienremoto.com"])],
+  ["portfolio", new Set(["danienremoto.com", "www.danienremoto.com", "dnxgaming.itch.io"])],
 ]);
 
 function localizedValues(value: { en: string; es: string }): string[] {
