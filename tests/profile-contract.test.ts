@@ -31,6 +31,10 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   assert.equal(claims.get("claim-hubspot-cms-marketers")?.type, "certification");
   assert.equal(claims.get("claim-hubspot-revenue-operations")?.type, "certification");
   assert.equal(claims.get("claim-hubspot-cms-developers")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-implementation-for-partners")?.type, "certification");
+  assert.equal(claims.get("claim-visual-basic-6-course")?.type, "certification");
+  assert.equal(claims.get("claim-hubspot-cms-marketers")?.title.en, "HubSpot Content Hub for Marketers");
+  assert.equal(seed.claims.filter((claim) => claim.id === "claim-hubspot-cms-developers").length, 1);
   assert.equal(claims.get("claim-platzi-node-backend-courses")?.type, "certification");
   assert.equal(claims.get("claim-yunoia-certified-journalist")?.type, "certification");
   assert.equal(claims.get("claim-freelance-transcriptionist")?.type, "experience");
@@ -46,8 +50,8 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   const related = seed.relationships.filter((relationship) => relationship.type === "related-to");
   assert.ok(related.some((relationship) => relationship.sourceId === "claim-operations-company-integration-specialist" && relationship.targetId === "claim-masglo-commercial-proposal"));
   assert.equal(related.filter((relationship) => relationship.sourceId === "claim-masglo-commercial-proposal").length, 4);
-  assert.ok(seed.claims.length >= 32);
-  assert.ok(seed.organizations.length >= 16);
+  assert.ok(seed.claims.length >= 34);
+  assert.ok(seed.organizations.length >= 17);
 });
 
 test("private career artifacts remain locator-free", () => {
