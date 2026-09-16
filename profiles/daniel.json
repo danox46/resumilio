@@ -119,6 +119,27 @@
       }
     },
     {
+      "id": "organization-freelance",
+      "name": {
+        "en": "Freelance",
+        "es": "Trabajo independiente"
+      }
+    },
+    {
+      "id": "organization-pb-collections",
+      "name": {
+        "en": "PB Collections",
+        "es": "PB Collections"
+      }
+    },
+    {
+      "id": "organization-the-loot-gaming",
+      "name": {
+        "en": "The Loot Gaming",
+        "es": "The Loot Gaming"
+      }
+    },
+    {
       "id": "organization-universidad-carabobo",
       "name": {
         "en": "Universidad de Carabobo",
@@ -263,6 +284,53 @@
       ]
     },
     {
+      "id": "claim-freelance-transcriptionist",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Bilingual Transcriptionist — Freelance",
+        "es": "Transcriptor bilingüe — Trabajo independiente"
+      },
+      "summary": {
+        "en": "Transcribed English- and Spanish-language audio and video for freelance clients. March 2022.",
+        "es": "Transcribió audio y video en inglés y español para clientes independientes. Marzo de 2022."
+      },
+      "organizationId": "organization-freelance",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "transcription",
+        "bilingual",
+        "english",
+        "spanish",
+        "freelance"
+      ]
+    },
+    {
+      "id": "claim-pb-collections-regional-distributor",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Regional Distributor — PB Collections",
+        "es": "Distribuidor regional — PB Collections"
+      },
+      "summary": {
+        "en": "Sold handbags and accessories to regional stores while coordinating delivery and payment. March 2022.",
+        "es": "Vendió bolsos y accesorios a tiendas regionales, coordinando las entregas y los pagos. Marzo de 2022."
+      },
+      "organizationId": "organization-pb-collections",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "sales",
+        "distribution",
+        "logistics",
+        "client-relationships"
+      ]
+    },
+    {
       "id": "claim-mai-full-stack-developer",
       "type": "experience",
       "lifecycle": "completed",
@@ -294,11 +362,12 @@
         "es": "Director de Contenido — Hivebound"
       },
       "summary": {
-        "en": "Led a team of up to seven content creators and developers delivering multi-platform client initiatives across WordPress, Shopify, Mailchimp, and Zoho. 2018 to 2021.",
-        "es": "Lideró un equipo de hasta siete creadores de contenido y desarrolladores para iniciativas de clientes en WordPress, Shopify, Mailchimp y Zoho. 2018 a 2021."
+        "en": "Led a team of up to seven content creators and developers delivering multi-platform client initiatives across WordPress, Shopify, Mailchimp, and Zoho. November 2018 to March 2022.",
+        "es": "Lideró un equipo de hasta siete creadores de contenido y desarrolladores para iniciativas de clientes en WordPress, Shopify, Mailchimp y Zoho. Noviembre de 2018 a marzo de 2022."
       },
       "organizationId": "organization-hivebound",
       "evidenceIds": [
+        "evidence-linkedin-career-profile",
         "evidence-private-resume"
       ],
       "tags": [
@@ -307,6 +376,99 @@
         "wordpress",
         "shopify",
         "zoho"
+      ]
+    },
+    {
+      "id": "claim-freelance-content-creator",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Freelance Content Creator",
+        "es": "Creador de contenido independiente"
+      },
+      "summary": {
+        "en": "Created campaign content including articles, graphics, email templates, landing pages, white papers, and social-media calendars for freelance clients. October 2017 to March 2022.",
+        "es": "Creó contenido para campañas, incluidos artículos, piezas gráficas, plantillas de correo, páginas de destino, documentos técnicos y calendarios de redes sociales para clientes independientes. Octubre de 2017 a marzo de 2022."
+      },
+      "organizationId": "organization-freelance",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "content-marketing",
+        "copywriting",
+        "graphic-design",
+        "email-marketing",
+        "landing-pages"
+      ]
+    },
+    {
+      "id": "claim-the-loot-gaming-contributor",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Contributor — The Loot Gaming",
+        "es": "Colaborador — The Loot Gaming"
+      },
+      "summary": {
+        "en": "Wrote video-game news, reviews, opinion pieces, and feature articles for The Loot Gaming. December 2017 to March 2022.",
+        "es": "Escribió noticias, reseñas, artículos de opinión y reportajes sobre videojuegos para The Loot Gaming. Diciembre de 2017 a marzo de 2022."
+      },
+      "organizationId": "organization-the-loot-gaming",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "games-journalism",
+        "editorial",
+        "content-writing",
+        "reviews"
+      ]
+    },
+    {
+      "id": "claim-hivebound-founder",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Founder — Hivebound",
+        "es": "Fundador — Hivebound"
+      },
+      "summary": {
+        "en": "Founded a content-marketing startup that planned and developed multichannel campaigns tailored to each client's goals and audience. November 2018 to September 2020.",
+        "es": "Fundó una startup de marketing de contenidos que planificó y desarrolló campañas multicanal adaptadas a los objetivos y la audiencia de cada cliente. Noviembre de 2018 a septiembre de 2020."
+      },
+      "organizationId": "organization-hivebound",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "entrepreneurship",
+        "content-marketing",
+        "campaign-strategy",
+        "leadership"
+      ]
+    },
+    {
+      "id": "claim-dnx-gaming-founder",
+      "type": "experience",
+      "lifecycle": "completed",
+      "title": {
+        "en": "Founder — DNX Gaming",
+        "es": "Fundador — DNX Gaming"
+      },
+      "summary": {
+        "en": "Founded a game-development and marketing initiative that helped independent teams shape immersive experiences and reach audiences through relevant channels. January to November 2018.",
+        "es": "Fundó una iniciativa de desarrollo y marketing de videojuegos que ayudó a equipos independientes a dar forma a experiencias inmersivas y llegar a sus audiencias por canales relevantes. Enero a noviembre de 2018."
+      },
+      "organizationId": "organization-dnx-gaming",
+      "evidenceIds": [
+        "evidence-linkedin-career-profile"
+      ],
+      "tags": [
+        "entrepreneurship",
+        "game-development",
+        "game-marketing",
+        "content-strategy"
       ]
     },
     {
@@ -340,8 +502,8 @@
         "es": "Aplicación personalizada de SMS para HubSpot"
       },
       "summary": {
-        "en": "Built and shipped a professional HubSpot SMS custom app. This work is explicitly non-AI.",
-        "es": "Construyó y entregó una aplicación profesional de SMS para HubSpot. Este trabajo no usa IA."
+        "en": "Built and shipped a custom HubSpot app that let businesses trigger bulk SMS campaigns to end clients from automated workflows, bringing outbound messaging into their CRM automation.",
+        "es": "Desarrolló y entregó una aplicación personalizada de HubSpot que permitió a las empresas activar campañas masivas de SMS para sus clientes finales desde flujos automatizados, incorporando la mensajería saliente a la automatización del CRM."
       },
       "organizationId": "organization-on-the-fuze",
       "evidenceIds": [
@@ -350,7 +512,9 @@
       "tags": [
         "hubspot",
         "sms",
-        "integration",
+        "workflow-automation",
+        "crm",
+        "integrations",
         "non-ai"
       ]
     },
@@ -869,6 +1033,13 @@
         "claim-operations-company-integration-specialist",
         "claim-on-the-fuze-backend-lead",
         "claim-teleperformance-support-engineer",
+        "claim-freelance-transcriptionist",
+        "claim-pb-collections-regional-distributor",
+        "claim-hivebound-content-lead",
+        "claim-freelance-content-creator",
+        "claim-the-loot-gaming-contributor",
+        "claim-hivebound-founder",
+        "claim-dnx-gaming-founder",
         "claim-computer-science-studies"
       ],
       "title": {
@@ -886,7 +1057,7 @@
         "visibility": "public",
         "url": "https://www.linkedin.com/in/danieltalking/"
       },
-      "observedAt": "2026-09-14"
+      "observedAt": "2026-09-16"
     },
     {
       "id": "evidence-private-resume",
@@ -1171,6 +1342,18 @@
       "targetId": "organization-teleperformance"
     },
     {
+      "id": "relationship-freelance-transcriptionist",
+      "type": "performed-for",
+      "sourceId": "claim-freelance-transcriptionist",
+      "targetId": "organization-freelance"
+    },
+    {
+      "id": "relationship-pb-collections-regional-distributor",
+      "type": "performed-for",
+      "sourceId": "claim-pb-collections-regional-distributor",
+      "targetId": "organization-pb-collections"
+    },
+    {
       "id": "relationship-mai-full-stack-developer",
       "type": "performed-for",
       "sourceId": "claim-mai-full-stack-developer",
@@ -1181,6 +1364,60 @@
       "type": "performed-for",
       "sourceId": "claim-hivebound-content-lead",
       "targetId": "organization-hivebound"
+    },
+    {
+      "id": "relationship-freelance-content-creator",
+      "type": "performed-for",
+      "sourceId": "claim-freelance-content-creator",
+      "targetId": "organization-freelance"
+    },
+    {
+      "id": "relationship-the-loot-gaming-contributor",
+      "type": "performed-for",
+      "sourceId": "claim-the-loot-gaming-contributor",
+      "targetId": "organization-the-loot-gaming"
+    },
+    {
+      "id": "relationship-hivebound-founder",
+      "type": "performed-for",
+      "sourceId": "claim-hivebound-founder",
+      "targetId": "organization-hivebound"
+    },
+    {
+      "id": "relationship-dnx-gaming-founder",
+      "type": "performed-for",
+      "sourceId": "claim-dnx-gaming-founder",
+      "targetId": "organization-dnx-gaming"
+    },
+    {
+      "id": "relationship-transcription-content-creator",
+      "type": "related-to",
+      "sourceId": "claim-freelance-transcriptionist",
+      "targetId": "claim-freelance-content-creator"
+    },
+    {
+      "id": "relationship-hivebound-founder-content-lead",
+      "type": "related-to",
+      "sourceId": "claim-hivebound-founder",
+      "targetId": "claim-hivebound-content-lead"
+    },
+    {
+      "id": "relationship-loot-gaming-yunoia",
+      "type": "related-to",
+      "sourceId": "claim-the-loot-gaming-contributor",
+      "targetId": "claim-yunoia-certified-journalist"
+    },
+    {
+      "id": "relationship-dnx-founder-leaf-town",
+      "type": "related-to",
+      "sourceId": "claim-dnx-gaming-founder",
+      "targetId": "claim-leaf-town"
+    },
+    {
+      "id": "relationship-dnx-founder-children-preservation",
+      "type": "related-to",
+      "sourceId": "claim-dnx-gaming-founder",
+      "targetId": "claim-children-of-preservation"
     },
     {
       "id": "relationship-computer-science-studies",

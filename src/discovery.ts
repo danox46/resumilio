@@ -93,6 +93,13 @@ export function recommendationScore(claim: ResumilioProfile["claims"][number], s
 const directRelationshipBoost = 8;
 
 export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryState, excludeClaimId?: string) {
+  // Profile order is a small editorial freshness signal; direct relationships and demonstrated intent can override it.
+  const profileOrder = new Map(profile.claims.map((claim, index) => [claim.id, index]));
+  const lastProfileIndex = Math.max(profile.claims.length - 1, 1);
+  const curationBias = (claimId: string) => {
+    const index = profileOrder.get(claimId) ?? lastProfileIndex;
+    return 1.2 * (1 - index / lastProfileIndex);
+  };
   const relatedClaimIds = new Set(profile.relationships.flatMap((relationship) => {
     if (relationship.type !== "related-to" || !excludeClaimId) return [];
     if (relationship.sourceId === excludeClaimId) return [relationship.targetId];
@@ -104,7 +111,7 @@ export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryS
     .map((claim) => ({
       claim,
       directlyRelated: relatedClaimIds.has(claim.id),
-      score: recommendationScore(claim, state) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
+      score: recommendationScore(claim, state) + curationBias(claim.id) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
     }))
     .sort((a, b) => Number(b.directlyRelated) - Number(a.directlyRelated) || b.score - a.score || a.claim.id.localeCompare(b.claim.id));
   const selected: typeof remaining = [];

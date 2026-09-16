@@ -33,6 +33,12 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   assert.equal(claims.get("claim-hubspot-cms-developers")?.type, "certification");
   assert.equal(claims.get("claim-platzi-node-backend-courses")?.type, "certification");
   assert.equal(claims.get("claim-yunoia-certified-journalist")?.type, "certification");
+  assert.equal(claims.get("claim-freelance-transcriptionist")?.type, "experience");
+  assert.equal(claims.get("claim-pb-collections-regional-distributor")?.type, "experience");
+  assert.equal(claims.get("claim-freelance-content-creator")?.type, "experience");
+  assert.equal(claims.get("claim-the-loot-gaming-contributor")?.type, "experience");
+  assert.equal(claims.get("claim-hivebound-founder")?.type, "experience");
+  assert.equal(claims.get("claim-dnx-gaming-founder")?.type, "experience");
   assert.equal(claims.get("claim-leaf-town")?.lifecycle, "shipped");
   assert.equal(claims.get("claim-children-of-preservation")?.lifecycle, "shipped");
   assert.equal(claims.get("claim-resumilio-living-resume")?.lifecycle, "shipped");
@@ -40,8 +46,8 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   const related = seed.relationships.filter((relationship) => relationship.type === "related-to");
   assert.ok(related.some((relationship) => relationship.sourceId === "claim-operations-company-integration-specialist" && relationship.targetId === "claim-masglo-commercial-proposal"));
   assert.equal(related.filter((relationship) => relationship.sourceId === "claim-masglo-commercial-proposal").length, 4);
-  assert.ok(seed.claims.length >= 26);
-  assert.ok(seed.organizations.length >= 13);
+  assert.ok(seed.claims.length >= 32);
+  assert.ok(seed.organizations.length >= 16);
 });
 
 test("private career artifacts remain locator-free", () => {

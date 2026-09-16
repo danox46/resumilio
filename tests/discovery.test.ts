@@ -64,3 +64,16 @@ test("topic vectors are session-isolated and recommendation reasons are transpar
   assert.equal(recommendationReason(changed, "en"), "Recommended because you explored HubSpot and Automation");
   assert.equal(recommendationReason(changed, "es"), "Recomendado porque exploraste HubSpot y Automation");
 });
+
+test("curated order favors recent work while historical roles remain discoverable", () => {
+  assert.equal(searchClaims(profile, "PB Collections")[0].claim.id, "claim-pb-collections-regional-distributor");
+  assert.equal(searchClaims(profile, "The Loot Gaming")[0].claim.id, "claim-the-loot-gaming-contributor");
+
+  const unpersonalized = rankRecommendations(profile, emptyDiscoveryState()).map((item) => item.claim.id);
+  assert.ok(unpersonalized.indexOf("claim-alphahub-hubspot-specialist") < unpersonalized.indexOf("claim-pb-collections-regional-distributor"));
+  assert.ok(unpersonalized.indexOf("claim-operations-company-integration-specialist") < unpersonalized.indexOf("claim-hivebound-founder"));
+
+  const contentIntent = applySignal(emptyDiscoveryState(), "search", ["content-marketing", "entrepreneurship"]);
+  const contentRecommendations = rankRecommendations(profile, contentIntent).slice(0, 6).map((item) => item.claim.id);
+  assert.ok(contentRecommendations.includes("claim-hivebound-founder"));
+});
