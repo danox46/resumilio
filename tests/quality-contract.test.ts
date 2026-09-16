@@ -14,7 +14,7 @@ test("claim controls expose directional keyboard navigation", () => {
     assert.match(component, new RegExp(`\\\"${key}\\\"`));
   }
   assert.match(component, /onKeyDown=\{\(event\) => moveClaimFocus\(event, claim\)\}/);
-  assert.match(component, /visibleNeighborhoodSize = 5/);
+  assert.match(component, /visibleNeighborhoodSize = constellationNeighborhoodSize/);
   assert.match(component, /slice\(0, visibleNeighborhoodSize\)/);
   assert.doesNotMatch(component, /evidence-table|allTypes|allStatuses|allSkills/);
   assert.match(component, /data-transition-phase=\{transition\.phase\}/);
@@ -55,7 +55,7 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(component, /claim-node--text-\$\{textDensity\}/);
   assert.match(component, /previewText\(title, 44\)/);
   assert.match(component, /previewText\(summary, 126\)/);
-  assert.match(component, /renderedNodes\.slice\(0, 3\)/);
+  assert.match(component, /renderedNodes\.slice\(0, mobileConstellationNeighborhoodSize\)/);
   assert.doesNotMatch(component, /<small>\{lifecycleLabel\}<\/small>/);
   assert.match(styles, /container-type: inline-size/);
   assert.match(styles, /place-content: center;\s*place-items: center/);

@@ -3,6 +3,9 @@ import type { ResumilioProfile } from "./profile.js";
 export type SignalKind = "search" | "open" | "filter" | "dwell" | "source-visit" | "more-like-this";
 export type TopicVector = Record<string, number>;
 
+export const constellationNeighborhoodSize = 5;
+export const mobileConstellationNeighborhoodSize = 3;
+
 export interface DiscoveryState {
   topics: TopicVector;
   openedClaimIds: string[];
@@ -140,41 +143,49 @@ export function rankConstellationRecommendations(
   profile: ResumilioProfile,
   state: DiscoveryState,
   centerClaimId: string,
-  limit = 5,
+  limit = constellationNeighborhoodSize,
 ) {
   if (limit <= 0) return [];
   const ranked = rankRecommendations(profile, state, centerClaimId);
   const selected = ranked.slice(0, limit);
   const protectedIds = new Set<string>();
+  const priorityWindowSize = Math.min(selected.length, mobileConstellationNeighborhoodSize);
 
-  const include = (candidate: typeof ranked[number] | undefined, protect = false) => {
-    if (!candidate) return;
-    if (selected.some((item) => item.claim.id === candidate.claim.id)) {
-      if (protect) protectedIds.add(candidate.claim.id);
+  const includeInPriorityWindow = (candidate: typeof ranked[number] | undefined) => {
+    if (!candidate || priorityWindowSize <= 0) return;
+    const candidateIndex = selected.findIndex((item) => item.claim.id === candidate.claim.id);
+    if (candidateIndex >= 0 && candidateIndex < priorityWindowSize) {
+      protectedIds.add(candidate.claim.id);
       return;
     }
-    if (selected.length < limit) selected.push(candidate);
-    else {
-      let replacementIndex = -1;
-      for (let index = selected.length - 1; index >= 0; index -= 1) {
-        if (!protectedIds.has(selected[index].claim.id)) { replacementIndex = index; break; }
-      }
-      if (replacementIndex < 0) return;
+
+    let replacementIndex = -1;
+    for (let index = priorityWindowSize - 1; index >= 0; index -= 1) {
+      if (!protectedIds.has(selected[index].claim.id)) { replacementIndex = index; break; }
+    }
+    if (replacementIndex < 0) return;
+
+    if (candidateIndex >= 0) {
+      const displaced = selected[replacementIndex];
+      selected[replacementIndex] = candidate;
+      selected[candidateIndex] = displaced;
+    } else {
       selected[replacementIndex] = candidate;
     }
-    if (protect) protectedIds.add(candidate.claim.id);
+    protectedIds.add(candidate.claim.id);
   };
 
   // Every claim points to the next stable profile record. Following this one bridge
   // from any center walks the entire graph and prevents disconnected recommendation islands.
+  // Keep it in the first three slots so the four-record mobile presentation can use it too.
   const traversalId = traversalSuccessorId(profile, centerClaimId);
-  include(ranked.find((item) => item.claim.id === traversalId), true);
+  includeInPriorityWindow(ranked.find((item) => item.claim.id === traversalId));
 
-  // Relevance may fill all five slots with records the visitor already opened. Keep
-  // one genuinely unexplored frontier available until the whole graph has been seen.
+  // Relevance may fill the visible slots with records the visitor already opened. Keep
+  // one genuinely unexplored frontier inside the mobile window until the graph is exhausted.
   const openedIds = new Set(state.openedClaimIds);
   const frontier = ranked.find((item) => !openedIds.has(item.claim.id));
-  include(frontier);
+  includeInPriorityWindow(frontier);
 
   return selected;
 }

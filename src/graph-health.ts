@@ -1,4 +1,4 @@
-import { emptyDiscoveryState, rankConstellationRecommendations } from "./discovery.js";
+import { emptyDiscoveryState, mobileConstellationNeighborhoodSize, rankConstellationRecommendations } from "./discovery.js";
 import type { ResumilioProfile } from "./profile.js";
 
 export interface ConstellationGraphHealth {
@@ -12,7 +12,7 @@ export interface ConstellationGraphHealth {
   navigationGuaranteed: boolean;
 }
 
-export function analyzeConstellationGraph(profile: ResumilioProfile, neighborhoodSize = 5): ConstellationGraphHealth {
+export function analyzeConstellationGraph(profile: ResumilioProfile, neighborhoodSize = mobileConstellationNeighborhoodSize): ConstellationGraphHealth {
   const claimIds = new Set(profile.claims.map((claim) => claim.id));
   const semanticAdjacency = new Map(profile.claims.map((claim) => [claim.id, new Set<string>()]));
   let semanticRelationshipCount = 0;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import type { ResumilioProfile } from "../src/profile.js";
-import { applySignal, emptyDiscoveryState, rankConstellationRecommendations } from "../src/discovery.js";
+import { applySignal, emptyDiscoveryState, mobileConstellationNeighborhoodSize, rankConstellationRecommendations, traversalSuccessorId } from "../src/discovery.js";
 import { buildLayerPlan, buildSuccessorLayer, constellationSlots } from "../src/constellation-layers.js";
 
 const profile = JSON.parse(await readFile("profiles/daniel.json", "utf8")) as ResumilioProfile;
@@ -27,6 +27,9 @@ test("each visible node owns a deterministic one-step successor layer", () => {
   assert.equal(first.successors.length, 5);
   assert.equal(first.reserveCount, first.successors.reduce((total, layer) => total + 5 - layer.sharedIds.length, 0));
   assert.ok(first.successors.every((layer) => layer.reserveNodes.length === 5 - layer.sharedIds.length));
+  assert.ok(first.successors.every((layer) => layer.nextNeighborhoodIds
+    .slice(0, mobileConstellationNeighborhoodSize)
+    .includes(traversalSuccessorId(profile, layer.targetId)!)));
 });
 
 test("reserve instances stay separate when branches reserve the same record", () => {

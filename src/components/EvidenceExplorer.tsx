@@ -9,14 +9,23 @@ import {
   type ConstellationPoint,
   type SuccessorLayerPlan,
 } from "../constellation-layers.js";
-import { applySignal, emptyDiscoveryState, normalizeTerm, rankConstellationRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
+import {
+  applySignal,
+  constellationNeighborhoodSize,
+  emptyDiscoveryState,
+  mobileConstellationNeighborhoodSize,
+  normalizeTerm,
+  rankConstellationRecommendations,
+  searchClaims,
+  type DiscoveryState,
+} from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
 import { claimPath } from "../site.js";
 import AvatarGuide from "./AvatarGuide.js";
 
 const sessionKey = "resumilio:discovery:v1";
-const visibleNeighborhoodSize = 5;
+const visibleNeighborhoodSize = constellationNeighborhoodSize;
 type Claim = ResumilioProfile["claims"][number];
 type InteractiveAvatarReaction = "nod" | "smile";
 type TransitionPhase = "idle" | "out" | "in";
@@ -362,7 +371,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const selectClaim = (claim: Claim, reaction: "guide" | "smile" = "guide") => requestSelection({ claimId: claim.id, reaction });
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
-    const keyboardNeighborhood = avatarLayout === "stacked" ? neighborhood.slice(0, 3) : neighborhood;
+    const keyboardNeighborhood = avatarLayout === "stacked" ? neighborhood.slice(0, mobileConstellationNeighborhoodSize) : neighborhood;
     if (!keys.includes(event.key) || keyboardNeighborhood.length === 0) return;
     event.preventDefault();
     const current = Math.max(0, keyboardNeighborhood.findIndex((item) => item.id === claim.id));
@@ -450,7 +459,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     const reserveSource = transitionLayer?.reserveNodes.find((node) => node.claimId === claim.id);
     return { claim, slot, drift, role, reserveSource };
   });
-  const visibleRenderedNodes = avatarLayout === "stacked" ? renderedNodes.slice(0, 3) : renderedNodes;
+  const visibleRenderedNodes = avatarLayout === "stacked" ? renderedNodes.slice(0, mobileConstellationNeighborhoodSize) : renderedNodes;
 
   return <div className="experience-shell">
     <header className="constellation-header">

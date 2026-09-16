@@ -7,7 +7,9 @@ import type { ResumilioProfile } from "../src/profile.js";
 import { analyzeConstellationGraph } from "../src/graph-health.js";
 import {
   applySignal,
+  constellationNeighborhoodSize,
   emptyDiscoveryState,
+  mobileConstellationNeighborhoodSize,
   rankConstellationRecommendations,
   rankRecommendations,
   recommendationReason,
@@ -87,11 +89,12 @@ test("curated order favors recent work while historical roles remain discoverabl
   assert.ok(contentRecommendations.includes("claim-hivebound-founder"));
 });
 
-test("every constellation center exposes a stable path through the full claim graph", () => {
+test("every constellation center exposes a stable path inside the mobile recommendation window", () => {
   for (const center of profile.claims) {
-    const neighborhood = rankConstellationRecommendations(profile, emptyDiscoveryState(), center.id, 5)
+    const neighborhood = rankConstellationRecommendations(profile, emptyDiscoveryState(), center.id, constellationNeighborhoodSize)
       .map((item) => item.claim.id);
-    assert.ok(neighborhood.includes(traversalSuccessorId(profile, center.id)!));
+    assert.equal(neighborhood.length, constellationNeighborhoodSize);
+    assert.ok(neighborhood.slice(0, mobileConstellationNeighborhoodSize).includes(traversalSuccessorId(profile, center.id)!));
   }
 
   for (const start of profile.claims) {
@@ -108,15 +111,31 @@ test("every constellation center exposes a stable path through the full claim gr
 test("an exhausted relevant neighborhood yields an unexplored frontier node", () => {
   const center = profile.claims.find((claim) => claim.id === "claim-masglo-commercial-proposal")!;
   const contextual = applySignal(emptyDiscoveryState(), "open", center.tags, center.id);
-  const firstNeighborhood = rankConstellationRecommendations(profile, contextual, center.id, 5).map((item) => item.claim.id);
+  const firstNeighborhood = rankConstellationRecommendations(profile, contextual, center.id, constellationNeighborhoodSize).map((item) => item.claim.id);
   const exhausted = {
     ...contextual,
     openedClaimIds: [center.id, ...firstNeighborhood],
   };
-  const nextNeighborhood = rankConstellationRecommendations(profile, exhausted, center.id, 5).map((item) => item.claim.id);
+  const nextNeighborhood = rankConstellationRecommendations(profile, exhausted, center.id, constellationNeighborhoodSize).map((item) => item.claim.id);
+  const mobileNeighborhood = nextNeighborhood.slice(0, mobileConstellationNeighborhoodSize);
 
-  assert.ok(nextNeighborhood.some((claimId) => !exhausted.openedClaimIds.includes(claimId)));
-  assert.ok(nextNeighborhood.includes(traversalSuccessorId(profile, center.id)!));
+  assert.ok(mobileNeighborhood.some((claimId) => !exhausted.openedClaimIds.includes(claimId)));
+  assert.ok(mobileNeighborhood.includes(traversalSuccessorId(profile, center.id)!));
+});
+
+test("every mobile neighborhood keeps an unseen escape after its relevant set is exhausted", () => {
+  for (const center of profile.claims) {
+    const contextual = applySignal(emptyDiscoveryState(), "open", center.tags, center.id);
+    const relevantIds = rankConstellationRecommendations(profile, contextual, center.id, constellationNeighborhoodSize)
+      .map((item) => item.claim.id);
+    const exhausted = { ...contextual, openedClaimIds: [center.id, ...relevantIds] };
+    const mobileNeighborhood = rankConstellationRecommendations(profile, exhausted, center.id, constellationNeighborhoodSize)
+      .slice(0, mobileConstellationNeighborhoodSize)
+      .map((item) => item.claim.id);
+    const unseenClaimsRemain = profile.claims.some((claim) => !exhausted.openedClaimIds.includes(claim.id));
+
+    if (unseenClaimsRemain) assert.ok(mobileNeighborhood.some((claimId) => !exhausted.openedClaimIds.includes(claimId)));
+  }
 });
 
 test("sparse contributor data remains navigable without invented semantic relationships", () => {
