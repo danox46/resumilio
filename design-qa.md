@@ -47,6 +47,9 @@ The normalized annotated source and revised implementation were inspected togeth
 5. Preview typography pass: P2 preview labels still read too cautiously inside the enlarged circles, while a first large-type attempt split long words at 320px.
    - Fix: increased standard, compact, and dense preview typography; allowed three mobile lines; and added a 92-112px small-phone circle floor so `Integration Specialist` and `Backend Technical Lead` remain whole-word readable. A separate <=280px fallback preserves the bounded ultra-compact layout.
    - Post-fix evidence: the final 320 x 568, 390 x 844, 1440 x 1024, and 2572 x 1233 captures show visibly larger labels with no reported label overflow, horizontal overflow, or avatar collision. English and Spanish long-label checks pass.
+6. Preview alignment pass: P2 multiline labels were centered as intrinsic-width grid content, which made uneven line stacks look horizontally offset inside otherwise centered circles.
+   - Fix: centered both the grid item and its full-width text box with `place-items: center`, a stretched 100% label box, explicit self-alignment, and local text centering.
+   - Post-fix evidence: the revised phone, desktop, and ultrawide captures show the label block centered on each circle axis; all responsive overflow and interaction checks remain green.
 
 ## Browser verification
 

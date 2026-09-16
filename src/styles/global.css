@@ -488,6 +488,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   min-height: 0;
   display: grid;
   place-content: center;
+  place-items: center;
   gap: 7px;
   padding: 17px;
   container-type: inline-size;
@@ -510,11 +511,16 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   box-shadow: 0 0 0 7px rgb(242 175 75 / 8%), 0 14px 38px rgb(0 0 0 / 34%);
 }
 .experience-shell .claim-node strong {
+  width: 100%;
   min-width: 0;
   max-width: 100%;
+  margin: 0;
+  justify-self: stretch;
+  align-self: center;
   overflow: hidden;
   overflow-wrap: anywhere;
   hyphens: auto;
+  text-align: center;
   text-wrap: balance;
 }
 .experience-shell .claim-node strong {
