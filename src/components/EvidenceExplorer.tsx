@@ -40,27 +40,25 @@ const copy = {
     eyebrow: "Constellation of experience",
     placeholder: "Search roles, skills, or projects",
     search: "Search experience",
-    selected: "Now exploring",
-    view: "View experience",
-    more: "Show similar work",
+    selected: "Selected experience",
+    view: "Classic View",
+    more: "Similar Work",
     reset: "Reset",
     empty: "No experience matches that search. Try a skill, company, or project.",
     graphHelp: "A small set of related experience appears at a time. Select a circle to reform the constellation around it. Use arrow keys to move between visible circles.",
     neighborhood: "Related experience",
-    visible: "Showing {visible} of {total} career records. Search or select a circle to reveal more.",
   },
   es: {
     eyebrow: "Constelación de experiencia",
     placeholder: "Busca cargos, habilidades o proyectos",
     search: "Buscar experiencia",
-    selected: "Explorando ahora",
-    view: "Ver experiencia",
-    more: "Ver trabajo similar",
+    selected: "Experiencia seleccionada",
+    view: "Vista clásica",
+    more: "Trabajo similar",
     reset: "Reiniciar",
     empty: "No encontramos experiencia con esa búsqueda. Prueba una habilidad, empresa o proyecto.",
     graphHelp: "Mostramos un grupo pequeño de experiencia relacionada. Elige un círculo para reorganizar la constelación. Usa las flechas para recorrer los círculos visibles.",
     neighborhood: "Experiencia relacionada",
-    visible: "Viendo {visible} de {total} registros profesionales. Busca o elige un círculo para descubrir más.",
   },
 } as const;
 
@@ -133,12 +131,18 @@ function SearchIcon() {
 function ResetIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v5h5"/><path d="M5.8 17.2A8 8 0 1 0 4.3 9"/></svg>;
 }
-function ArrowIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>;
+function ClaimActions({ claim, locale, onMoreLike, mobile = false }: {
+  claim: Claim; locale: Locale; onMoreLike: () => void; mobile?: boolean;
+}) {
+  const t = copy[locale];
+  return <div className={`detail-actions${mobile ? " detail-actions--mobile" : ""}`}>
+    <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}</a>
+    <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
+  </div>;
 }
 
-function ClaimDetail({ profile, claim, locale, onMoreLike }: {
-  profile: ResumilioProfile; claim: Claim; locale: Locale; onMoreLike: () => void;
+function ClaimDetail({ profile, claim, locale, onMoreLike, showActions = true }: {
+  profile: ResumilioProfile; claim: Claim; locale: Locale; onMoreLike: () => void; showActions?: boolean;
 }) {
   const t = copy[locale];
   const organization = organizationFor(profile, claim);
@@ -148,15 +152,11 @@ function ClaimDetail({ profile, claim, locale, onMoreLike }: {
   const previewSummary = previewText(summary, 126);
   const detailDensity = title.length > 28 || summary.length > 190 ? " claim-detail--dense" : "";
   return <section className={`claim-detail${detailDensity}`} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
-    <p className="detail-label">{t.selected}</p>
     <h2 aria-label={title} title={title}>{previewTitle}</h2>
     {organization && <p className="detail-organization">{organization.name[locale]}</p>}
     <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
     <p className="detail-summary" aria-label={summary} title={summary}>{previewSummary}</p>
-    <div className="detail-actions">
-      <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}<ArrowIcon/></a>
-      <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
-    </div>
+    {showActions && <ClaimActions claim={claim} locale={locale} onMoreLike={onMoreLike}/>}
   </section>;
 }
 
@@ -165,6 +165,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [locale, setLocale] = useState<Locale>(initialLocale);
   const [selectedId, setSelectedId] = useState(defaultClaimId);
   const [query, setQuery] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -361,11 +362,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const selectClaim = (claim: Claim, reaction: "guide" | "smile" = "guide") => requestSelection({ claimId: claim.id, reaction });
   const moveClaimFocus = (event: KeyboardEvent<HTMLButtonElement>, claim: Claim) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
-    if (!keys.includes(event.key) || neighborhood.length === 0) return;
+    const keyboardNeighborhood = avatarLayout === "stacked" ? neighborhood.slice(0, 3) : neighborhood;
+    if (!keys.includes(event.key) || keyboardNeighborhood.length === 0) return;
     event.preventDefault();
-    const current = Math.max(0, neighborhood.findIndex((item) => item.id === claim.id));
-    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? neighborhood.length - 1 : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + neighborhood.length) % neighborhood.length;
-    document.getElementById(`claim-node-${neighborhood[nextIndex].id}`)?.focus();
+    const current = Math.max(0, keyboardNeighborhood.findIndex((item) => item.id === claim.id));
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? keyboardNeighborhood.length - 1 : (current + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + keyboardNeighborhood.length) % keyboardNeighborhood.length;
+    document.getElementById(`claim-node-${keyboardNeighborhood[nextIndex].id}`)?.focus();
   };
   const moreLike = () => {
     const nextState = applySignal(discovery, "more-like-this", selected.tags, selected.id);
@@ -388,11 +390,10 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const reset = () => {
     transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
-    setDiscovery(emptyDiscoveryState()); setQuery(""); setSelectedId(defaultClaimId); setSlotByClaimId({});
+    setDiscovery(emptyDiscoveryState()); setQuery(""); setMobileSearchOpen(false); setSelectedId(defaultClaimId); setSlotByClaimId({});
     setTransition({ phase: "idle" }); setQueuedSelection(undefined); setRetiredNodes([]); setHasTransitioned(false); resetAvatar();
     try { sessionStorage.removeItem(sessionKey); } catch { /* Nothing else to reset. */ }
   };
-  const visibleMessage = t.visible.replace("{visible}", String(neighborhood.length + 1)).replace("{total}", String(profile.claims.length));
   const transitionLayer = transition.phase === "idle" ? undefined : transition.layer;
   const backgroundLayers = layerPlan.successors
     .filter((layer) => transition.phase !== "out" || layer.targetId !== transition.layer.targetId);
@@ -449,11 +450,13 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     const reserveSource = transitionLayer?.reserveNodes.find((node) => node.claimId === claim.id);
     return { claim, slot, drift, role, reserveSource };
   });
+  const visibleRenderedNodes = avatarLayout === "stacked" ? renderedNodes.slice(0, 3) : renderedNodes;
 
   return <div className="experience-shell">
     <header className="constellation-header">
       <a className="constellation-wordmark" href={locale === "en" ? "/" : "/es/"}><strong>{profile.profile.name[locale]}</strong><span>{profile.profile.headline[locale]}</span></a>
-      <form className="search-controls" role="search" onSubmit={submitSearch}>
+      <form className={`search-controls${mobileSearchOpen ? " search-controls--open" : ""}`} role="search" onSubmit={(event) => { submitSearch(event); setMobileSearchOpen(false); }}>
+        <button className="mobile-search-toggle" type="button" aria-label={t.search} aria-expanded={mobileSearchOpen} onClick={() => setMobileSearchOpen((current) => !current)}><SearchIcon/></button>
         <label className="search-field"><span className="sr-only">{t.search}</span><SearchIcon/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder}/></label>
       </form>
       <div className="constellation-actions">
@@ -465,7 +468,6 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     <main className="constellation-main">
       <section className="constellation" aria-label={t.eyebrow} aria-describedby="graph-help">
         <p className="sr-only" id="graph-help">{t.graphHelp}</p>
-        <div className="constellation-intro"><p>{t.eyebrow}</p><span>{visibleMessage}</span></div>
         <div
           className="graph-stage"
           data-transition-phase={transition.phase}
@@ -548,20 +550,19 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
             } as CSSProperties}/>}
           </div>}
           <svg className="relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {renderedNodes.flatMap(({ claim, slot }) => {
+            {visibleRenderedNodes.flatMap(({ claim, slot }) => {
               return [
                 <line key={`${claim.id}-wide`} x1={constellationFocus[0]} y1={constellationFocus[1]} x2={slot.point[0]} y2={slot.point[1]} className="relation relation--claim relation--wide"/>,
                 <line key={`${claim.id}-mid`} x1="59" y1={constellationFocus[1]} x2={slot.midPoint[0]} y2={slot.midPoint[1]} className="relation relation--claim relation--mid"/>,
               ];
             })}
           </svg>
-          <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} selectedTitle={graphTitle(selected.title[locale])} selectedLabel={t.selected} onComplete={completeAvatarReaction}/>
+          <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
-            {renderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
+            {visibleRenderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
               const fullTitle = graphTitle(claim.title[locale]);
               const visibleTitle = nodeTitle(claim.title[locale]);
               const textDensity = visibleTitle.length > 34 ? "dense" : visibleTitle.length > 24 ? "compact" : "standard";
-              const lifecycleLabel = marketLabel(claim.lifecycle, locale);
               const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
               const claimStyle = {
                 "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index,
@@ -578,7 +579,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 id={`claim-node-${claim.id}`}
                 data-claim-id={claim.id}
                 data-node-role={role}
-                aria-label={`${fullTitle} — ${lifecycleLabel}`}
+                aria-label={fullTitle}
                 lang={locale}
                 style={claimStyle}
                 type="button"
@@ -586,10 +587,11 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 onMouseEnter={acknowledgeNode}
                 onKeyDown={(event) => moveClaimFocus(event, claim)}
                 onClick={() => selectClaim(claim)}
-              ><strong title={fullTitle}>{visibleTitle}</strong><small>{lifecycleLabel}</small></button>;
+              ><strong title={fullTitle}>{visibleTitle}</strong></button>;
             })}
           </div>
-          <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike}/></div>
+          <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike} showActions={avatarLayout !== "stacked"}/></div>
+          {avatarLayout === "stacked" && <ClaimActions claim={selected} locale={locale} onMoreLike={moreLike} mobile/>}
           {query && neighborhood.length === 0 && <p className="empty-state" aria-live="polite">{t.empty}</p>}
         </div>
       </section>

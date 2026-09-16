@@ -49,12 +49,10 @@ function framingStyle(variant: AvatarVariant): CSSProperties {
   return { "--avatar-video-scale": framing.scale, "--avatar-video-offset-y": framing.offsetY } as CSSProperties;
 }
 
-export default function AvatarGuide({ playback, layout, pageLoaded, selectedTitle, selectedLabel, onComplete }: {
+export default function AvatarGuide({ playback, layout, pageLoaded, onComplete }: {
   playback: AvatarPlayback;
   layout: AvatarLayout;
   pageLoaded: boolean;
-  selectedTitle: string;
-  selectedLabel: string;
   onComplete: (sequence: number) => void;
 }) {
   const initialLayer = useRef(videoLayer(playback, layout));
@@ -174,6 +172,5 @@ export default function AvatarGuide({ playback, layout, pageLoaded, selectedTitl
       {renderVideo(current, "active")}
       {pending && renderVideo(pending, "pending")}
     </div>
-    <figcaption className="avatar-mobile-callout"><span>{selectedLabel}</span><strong>{selectedTitle}</strong></figcaption>
   </figure>;
 }

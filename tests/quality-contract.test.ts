@@ -37,7 +37,7 @@ test("visual motion and focus have accessible alternatives", () => {
   assert.match(component, /className="sr-only" id="graph-help"/);
 });
 
-test("the constellation preloads semantic reserve layers without changing public copy", () => {
+test("the constellation preloads semantic reserve layers with a quiet mobile presentation", () => {
   assert.match(component, /transitionCommitMs = 432/);
   assert.match(component, /transitionSettleMs = 945/);
   assert.match(component, /minimumBackgroundNodeCount = 15/);
@@ -55,6 +55,8 @@ test("the constellation preloads semantic reserve layers without changing public
   assert.match(component, /claim-node--text-\$\{textDensity\}/);
   assert.match(component, /previewText\(title, 44\)/);
   assert.match(component, /previewText\(summary, 126\)/);
+  assert.match(component, /renderedNodes\.slice\(0, 3\)/);
+  assert.doesNotMatch(component, /<small>\{lifecycleLabel\}<\/small>/);
   assert.match(styles, /container-type: inline-size/);
   assert.match(styles, /-webkit-line-clamp: 3/);
   assert.match(styles, /claim-detail h2 \{ -webkit-line-clamp: 2/);
@@ -79,10 +81,10 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(component, /stackedAvatarQuery = "\(max-width: 700px\)"/);
   assert.match(component, /media\.addEventListener\("change", syncLayout\)/);
   assert.match(avatarComponent, /data-avatar-variant=\{playback\.reaction === "guide" \? layout : "shared"\}/);
-  assert.match(styles, /\.experience-shell \.avatar-mobile-callout \{\s*position: absolute;/);
+  assert.doesNotMatch(avatarComponent, /avatar-mobile-callout/);
   assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
   assert.match(styles, /@media \(min-width: 1800px\)[\s\S]*?width: clamp\(300px, min\(18vw, 38svh, calc\(30vw - 300px\)\), 470px\)/);
-  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 50%;\s*top: 4px;/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 34%;\s*top: 0;/);
   assert.match(styles, /\.avatar-media \{[\s\S]*?-webkit-mask-image:[\s\S]*?linear-gradient[\s\S]*?radial-gradient/);
   assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);
   assert.match(component, /x1=\{constellationFocus\[0\]\} y1=\{constellationFocus\[1\]\}/);
@@ -122,8 +124,11 @@ test("personalization remains session-local and network-independent", () => {
 });
 
 test("public labels use job-market language while internal contracts stay unchanged", () => {
-  for (const label of ["Constellation of experience", "career records", "Related experience", "View experience", "Show similar work"]) {
+  for (const label of ["Constellation of experience", "Related experience", "Classic View", "Similar Work"]) {
     assert.match(component + readFileSync("src/presentation.ts", "utf8"), new RegExp(label));
+  }
+  for (const retiredLabel of ["Now exploring", "View experience", "Show similar work"]) {
+    assert.doesNotMatch(component, new RegExp(retiredLabel));
   }
   for (const internalLabel of ["Selected claim", "Evidence strength", "Source visibility", "Evidence / source"]) {
     assert.doesNotMatch(component, new RegExp(internalLabel));

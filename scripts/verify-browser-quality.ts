@@ -80,6 +80,7 @@ try {
     const visibleNodeCount = await page.locator(".claim-node:visible").count();
     const overflowingLabels = await overflowingNodeLabels(page);
     if (["tablet", "desktop", "full-hd", "wide-short", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
+    if (["watch", "small-mobile", "mobile"].includes(viewport.name) && visibleNodeCount !== 3) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected the three-node mobile presentation.`);
     if (overflowingLabels.length > 0) throw new Error(`${viewport.name} has overflowing node labels: ${overflowingLabels.join(", ")}.`);
     const layerCount = Number(await page.locator(".graph-stage").getAttribute("data-layer-count"));
     const reserveCount = Number(await page.locator(".graph-stage").getAttribute("data-reserve-count"));
@@ -138,7 +139,7 @@ try {
     if (viewport.name === "mobile") {
       const initialNodes = page.locator(".claim-node");
       const initialCount = await initialNodes.count();
-      if (initialCount < 1 || initialCount > 5) throw new Error(`Reactive neighborhood rendered ${initialCount} nodes; expected 1-5.`);
+      if (initialCount !== 3) throw new Error(`Reactive mobile neighborhood rendered ${initialCount} nodes; expected 3.`);
       const initialIds = await initialNodes.evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-claim-id")));
       const initialFeature = await page.locator(".experience-focus").getAttribute("data-selected-id");
       const firstClaim = initialNodes.first();
@@ -155,6 +156,7 @@ try {
       const nextIds = await page.locator(".claim-node").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-claim-id")));
       if (!initialFeature || !nextFeature || initialFeature === nextFeature || initialIds.join("|") === nextIds.join("|")) throw new Error("Selected experience or constellation neighborhood did not change after selecting a node.");
       report.reactiveNeighborhood = true;
+      await page.locator(".mobile-search-toggle").click();
       await page.locator(".search-field input").fill("HubSpot");
       await page.locator(".search-controls").press("Enter");
       report.assistiveTechnologyStructureSmoke = await page.locator("main").count() === 1
@@ -169,6 +171,7 @@ try {
   const localizedContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", locale: "es-CO" });
   const localizedPage = await localizedContext.newPage();
   await localizedPage.goto(`${origin}/es/`, { waitUntil: "networkidle" });
+  await localizedPage.locator(".mobile-search-toggle").click();
   await localizedPage.locator(".search-field input").fill("Credenciales de HubSpot Academy");
   await localizedPage.locator(".search-controls").press("Enter");
   await localizedPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle"
@@ -221,7 +224,7 @@ try {
   await constellationPage.locator(".experience-focus .button--primary").click();
   const detailPage = await detailPagePromise;
   await detailPage.waitForLoadState("networkidle");
-  if (constellationPage.url() !== sourceUrl || !detailPage.url().includes("/evidence/claim-")) throw new Error("View experience did not preserve the constellation and open the record in a new tab.");
+  if (constellationPage.url() !== sourceUrl || !detailPage.url().includes("/evidence/claim-")) throw new Error("Classic View did not preserve the constellation and open the record in a new tab.");
   report.experienceLinkNewTab = true;
   await linkContext.close();
 
@@ -429,24 +432,25 @@ try {
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "guide"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
   const selectedNodeTitle = (await motionPage.locator(".experience-focus h2").getAttribute("aria-label"))?.trim();
-  const calloutTitle = (await motionPage.locator(".avatar-mobile-callout strong").textContent())?.trim();
+  const mobileNodeCount = await motionPage.locator(".claim-node:visible").count();
+  const mobileFocusVisible = await motionPage.locator(".experience-focus").isVisible();
   const stackedGuideState = {
     sequence: Number(await avatar.getAttribute("data-avatar-sequence")),
     guideSequenceBeforeSwap,
     state: await avatar.getAttribute("data-avatar-state"),
     variant: await avatar.getAttribute("data-avatar-variant"),
     src: await activeVideo().getAttribute("src"),
-    calloutVisible: await motionPage.locator(".avatar-mobile-callout").isVisible(),
     selectedNodeTitle,
-    calloutTitle,
+    mobileNodeCount,
+    mobileFocusVisible,
   };
   if (stackedGuideState.sequence !== guideSequenceBeforeSwap
     || stackedGuideState.state !== "guide"
     || stackedGuideState.variant !== "stacked"
     || !String(stackedGuideState.src).endsWith("daniel-guide-stacked.mp4")
-    || !stackedGuideState.calloutVisible
     || !selectedNodeTitle
-    || calloutTitle !== selectedNodeTitle) throw new Error(`Stacked selection did not use the downward guidance clip and synchronized mobile callout: ${JSON.stringify(stackedGuideState)}`);
+    || stackedGuideState.mobileNodeCount !== 3
+    || !stackedGuideState.mobileFocusVisible) throw new Error(`Stacked selection did not use the downward guidance clip and focused three-node mobile layout: ${JSON.stringify(stackedGuideState)}`);
   await avatar.scrollIntoViewIfNeeded();
   const stackedGuideScreenshot = join(outputDirectory, "responsive-guide-stacked.png");
   await motionPage.screenshot({ path: stackedGuideScreenshot });
@@ -510,8 +514,9 @@ try {
   const mobileDepthContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   const mobileDepthPage = await mobileDepthContext.newPage();
   await mobileDepthPage.goto(`${origin}/`, { waitUntil: "load" });
-  await mobileDepthPage.locator('[data-claim-id="claim-on-the-fuze-backend-lead"].claim-node').click();
-  await mobileDepthPage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-on-the-fuze-backend-lead");
+  const mobileTarget = await mobileDepthPage.locator(".claim-node").first().getAttribute("data-claim-id");
+  await mobileDepthPage.locator(".claim-node").first().click();
+  await mobileDepthPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, mobileTarget);
   const mobileReserveCount = Number(await mobileDepthPage.locator(".graph-stage").getAttribute("data-reserve-count"));
   const mobileVisibleReserves = await mobileDepthPage.locator(".reserve-layers .reserve-node:visible").count();
   report.mobileReserveCap = mobileReserveCount > 8 && mobileVisibleReserves === 8;
