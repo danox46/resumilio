@@ -49,7 +49,7 @@ export interface LayerPlan {
 export const constellationFocus: ConstellationPoint = [60, 54];
 export const constellationSlots: readonly ConstellationSlot[] = [
   { index: 0, point: [54, 13], midPoint: [58, 21], className: "north" },
-  { index: 1, point: [30, 34], midPoint: [20, 38], className: "west" },
+  { index: 1, point: [31.5, 34], midPoint: [20, 38], className: "west" },
   { index: 2, point: [83, 31], midPoint: [92, 35], className: "east" },
   { index: 3, point: [39, 79], midPoint: [22, 81], className: "south-west" },
   { index: 4, point: [79, 77], midPoint: [91, 79], className: "south-east" },

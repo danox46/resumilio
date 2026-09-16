@@ -3,6 +3,7 @@
 - Source visual truth: `docs/design/mobile-space-usage-feedback.png`
 - Implementation screenshot: `docs/design/mobile-space-usage-implementation.png`
 - Combined comparison: `docs/design/mobile-space-usage-comparison.png`
+- Wide-screen implementation: `docs/design/preview-node-scale-wide.png`
 - Implementation viewport: 390 x 844 CSS pixels at device scale factor 1
 - Source pixels: 384 x 786; normalized to 390 x 844 for the comparison board
 - Implementation pixels: 390 x 844
@@ -17,12 +18,14 @@ The normalized annotated source and revised implementation were inspected togeth
 - Focus panel: the revised surface is wider and taller, carries a larger title, preserves organization and focused lifecycle state, and allows a three-line summary. It is now the strongest information object rather than a small overlay.
 - Avatar and face: the portrait is scaled to 90% and shifted slightly left/up. The face remains unobstructed at 390 x 844 and 320 x 568 while the card occupies the torso.
 - Active constellation: three title-only circles alternate from upper-right to left-middle to lower-right. One straight-segment SVG polyline connects the sequence and includes illuminated joints; it is decorative and does not alter graph semantics.
+- Preview readability: mobile circles now scale from 76-108px according to their hierarchy, tablet circles use a 118px target, and desktop/wide circles scale from 126-168px. Compact and dense labels gained proportional padding and type size without exposing lifecycle commentary.
 - Controls: the bottom dock remains fully visible and separate from the animated focus panel at both tested phone sizes.
 
 ## Required fidelity surfaces
 
 - Fonts and typography: the existing Inter/system stack remains consistent with the product. The focus title is now 24-32px on mobile with tighter display leading; supporting text remains readable and clamped without overflow.
 - Spacing and layout rhythm: the card grows from a narrow torso overlay to the primary 77%-wide information region. The smaller portrait creates breathing room, while the zig-zag nodes use the upper-right, left-middle, and lower-right bands instead of a single diagonal.
+- Wide-screen balance: the five preview circles now keep a legible 168px ceiling instead of stopping at 148px. The west slot shifts slightly outward so the larger preview remains clear of the responsive avatar halo at 2572 x 1233.
 - Colors and visual tokens: existing graphite, amber, ivory, and muted gray tokens are preserved. Active mobile connectors and reserve edges are strengthened modestly to make the constellation legible.
 - Image quality and asset fidelity: the approved first-party avatar video and poster remain unchanged. Only CSS scale, anchor, and masking composition changed; no generated likeness replaced the real asset.
 - Copy and content: approved labels remain `Classic View` and `Similar Work`; preview nodes remain title-only, and lifecycle state remains exclusive to the focused record.
@@ -38,6 +41,9 @@ The normalized annotated source and revised implementation were inspected togeth
 3. Earlier hybrid implementation: P2 active nodes read as a nearly straight diagonal and the empty right-side regions weakened the constellation theme.
    - Fix: repositioned the three mobile nodes into a right-left-right sequence, added a connected straight-segment polyline with luminous joints, and raised the quiet reserve-field contrast.
    - Post-fix evidence: the final comparison and implementation capture show deliberate direction changes across the full viewport.
+4. Preview scale pass: P2 side-node titles were technically bounded but unnecessarily small on both phones and wide screens.
+   - Fix: raised the responsive circle sizes and compact/dense label scales across mobile, tablet, desktop, and wide breakpoints; moved the wide west slot 1.5 percentage points outward to preserve the avatar boundary.
+   - Post-fix evidence: `mobile-space-usage-comparison.png` and `preview-node-scale-wide.png` show larger readable previews; the browser matrix reports no horizontal overflow, label overflow, or wide-avatar collision.
 
 ## Browser verification
 
@@ -46,6 +52,6 @@ The normalized annotated source and revised implementation were inspected togeth
 - Console and page errors: none.
 - Horizontal overflow and node-label overflow: none.
 - External runtime requests: none.
-- Remaining P3: very long preview titles still truncate to two lines; the full title remains available to assistive technology and through the element title.
+- Remaining P3: very long mobile preview titles still truncate to two lines by design; the larger circle/type treatment improves scanability, while the full title remains available to assistive technology and through the element title.
 
 final result: passed

@@ -483,7 +483,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .experience-shell .relation--mid { display: none; }
 .experience-shell .claim-graph { z-index: 5; }
 .experience-shell .claim-node {
-  width: clamp(112px, 9.2vw, 148px);
+  width: clamp(126px, 9.8vw, 168px);
   aspect-ratio: 1;
   min-height: 0;
   display: grid;
@@ -524,10 +524,10 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   font-size: clamp(11px, 11cqi, 15px);
   line-height: 1.16;
 }
-.experience-shell .claim-node--text-compact { gap: 6px; padding: 15px; }
-.experience-shell .claim-node--text-compact strong { font-size: clamp(10px, 10cqi, 13.5px); line-height: 1.14; }
-.experience-shell .claim-node--text-dense { gap: 5px; padding: 14px; }
-.experience-shell .claim-node--text-dense strong { font-size: clamp(9px, 9cqi, 12.5px); line-height: 1.12; }
+.experience-shell .claim-node--text-compact { gap: 6px; padding: 16px; }
+.experience-shell .claim-node--text-compact strong { font-size: clamp(11px, 10.5cqi, 14.5px); line-height: 1.14; }
+.experience-shell .claim-node--text-dense { gap: 5px; padding: 15px; }
+.experience-shell .claim-node--text-dense strong { font-size: clamp(10px, 9.5cqi, 13.5px); line-height: 1.12; }
 .experience-focus {
   position: absolute;
   left: 60%;
@@ -730,9 +730,9 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 
 @media (max-width: 1100px) and (min-width: 701px) {
   .constellation-header { grid-template-columns: minmax(190px, .75fr) minmax(280px, 1.3fr) auto; gap: 20px; }
-  .experience-shell .claim-node { width: 104px; padding: 12px; }
-  .experience-shell .claim-node--text-compact { padding: 10px; }
-  .experience-shell .claim-node--text-dense { padding: 9px; }
+  .experience-shell .claim-node { width: 118px; padding: 14px; }
+  .experience-shell .claim-node--text-compact { padding: 12px; }
+  .experience-shell .claim-node--text-dense { padding: 11px; }
   .experience-shell .claim-node--north { left: 58%; top: 21%; }
   .experience-shell .claim-node--west { left: 20%; top: 38%; }
   .experience-shell .claim-node--east { left: 92%; top: 35%; }
@@ -872,14 +872,14 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   }
   .experience-shell .claim-node, .experience-shell .claim-node:hover, .experience-shell .claim-node:focus-visible {
     position: absolute;
-    width: clamp(68px, 22vw, 92px);
-    padding: 10px;
+    width: clamp(82px, 26vw, 108px);
+    padding: 11px;
     transform: translate(-50%, -50%);
   }
   .experience-shell .claim-node:nth-child(1) { left: 84%; top: 29%; }
-  .experience-shell .claim-node:nth-child(2) { left: 15%; top: 67%; width: clamp(66px, 21vw, 88px); }
-  .experience-shell .claim-node:nth-child(3) { left: 63%; top: 81%; width: clamp(62px, 19vw, 80px); }
-  .experience-shell .claim-node strong { -webkit-line-clamp: 2; font-size: clamp(9px, 11cqi, 13px); line-height: 1.12; }
+  .experience-shell .claim-node:nth-child(2) { left: 15%; top: 67%; width: clamp(80px, 25vw, 104px); }
+  .experience-shell .claim-node:nth-child(3) { left: 63%; top: 81%; width: clamp(76px, 24vw, 98px); }
+  .experience-shell .claim-node strong { -webkit-line-clamp: 2; font-size: clamp(10px, 11.5cqi, 14px); line-height: 1.12; }
   .experience-shell .claim-node--initial { animation-name: mobile-node-arrival; }
   .experience-shell .claim-node::after { content: none; }
   .experience-shell .claim-node::before { content: none; }
@@ -957,5 +957,5 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .detail-summary { -webkit-line-clamp: 2; }
   .experience-shell .claim-node:nth-child(1) { top: 28%; }
   .experience-shell .claim-node:nth-child(2) { top: 68%; }
-  .experience-shell .claim-node:nth-child(3) { top: 82%; }
+  .experience-shell .claim-node:nth-child(3) { top: 80%; }
 }
