@@ -9,6 +9,9 @@ Rendered design references:
 - `mobile-constellation-hybrid.png`
 - `mobile-constellation-hybrid-implementation.png`
 - `mobile-constellation-hybrid-comparison.png`
+- `mobile-space-usage-feedback.png`
+- `mobile-space-usage-implementation.png`
+- `mobile-space-usage-comparison.png`
 
 The concepts establish hierarchy and mood. The implementation deliberately uses circular nodes, ordinary straight SVG lines, semantic HTML controls, and React state rather than reproducing ornamental details from generated imagery.
 
@@ -34,7 +37,7 @@ Personalization is deterministic and session-local. There is no model call, trac
 
 - The selected experience is the visual center.
 - On wide layouts, Daniel is anchored in the lower-left as a supporting presence. He is never the graph hub. Above 1800px, the portrait can grow into unused space until viewport height or the nearest active-node corridor becomes the limiting dimension; its anchor does not move.
-- On layouts at 700px and below, Daniel becomes a full-height background plane anchored slightly left of center. A quiet face-safe region remains unobstructed, the focused record occupies a compact translucent torso surface, three title-only nodes form the active mobile trail, and actions sit in a separate bottom thumb dock. The 701-1100px composition keeps all five active nodes visible around the circular focus.
+- On layouts at 700px and below, Daniel becomes a slightly reduced background plane anchored left of center. A quiet face-safe region remains unobstructed, the focused record receives the largest readable torso surface, three title-only nodes alternate across a connected zig-zag trail, and actions sit in a separate bottom thumb dock. The 701-1100px composition keeps all five active nodes visible around the circular focus.
 - Circular nodes are intentionally simple CSS buttons. Their straight connectors are one inline SVG on wide screens and short CSS line segments in the stacked representation.
 - The neutral background follows the source video rather than introducing a separate blue universe: roughly `#202121` at the top, `#151616` through the middle, and `#080909` at the base.
 - A large graphite circle sits behind the unchanged lower-left video position. Its warmer center follows the portrait background while a four-edge plus elliptical mask dissolves the media rectangle into it. The thin amber outline connects it to the active node language without turning the avatar into the graph hub. The video remains first-party and plays directly; the poster is the reduced-motion and playback-failure fallback.

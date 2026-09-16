@@ -557,6 +557,15 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               ];
             })}
           </svg>
+          <svg className="mobile-relationship-map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <polyline points="96,13 84,29 93,42 15,67 63,81 89,72"/>
+            <circle cx="96" cy="13" r=".7"/>
+            <circle cx="84" cy="29" r=".8"/>
+            <circle cx="93" cy="42" r=".62"/>
+            <circle cx="15" cy="67" r=".8"/>
+            <circle cx="63" cy="81" r=".72"/>
+            <circle cx="89" cy="72" r=".55"/>
+          </svg>
           <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
             {visibleRenderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {

@@ -84,7 +84,8 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.doesNotMatch(avatarComponent, /avatar-mobile-callout/);
   assert.match(styles, /\.experience-shell \.avatar-guide \{\s*left: clamp\(105px, 13vw, 220px\);\s*bottom: -7%;/);
   assert.match(styles, /@media \(min-width: 1800px\)[\s\S]*?width: clamp\(300px, min\(18vw, 38svh, calc\(30vw - 300px\)\), 470px\)/);
-  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 34%;\s*top: 0;/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.experience-shell \.avatar-guide \{\s*position: absolute;\s*left: 31%;\s*top: -10px;/);
+  assert.match(component, /mobile-relationship-map[\s\S]*?96,13 84,29 93,42 15,67 63,81 89,72/);
   assert.match(styles, /\.avatar-media \{[\s\S]*?-webkit-mask-image:[\s\S]*?linear-gradient[\s\S]*?radial-gradient/);
   assert.match(styles, /\.avatar-node-backdrop \{[\s\S]*?border-radius: 50%;/);
   assert.match(component, /x1=\{constellationFocus\[0\]\} y1=\{constellationFocus\[1\]\}/);

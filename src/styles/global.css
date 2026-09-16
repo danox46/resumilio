@@ -473,6 +473,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   animation: queued-target-advance 432ms cubic-bezier(.18,.8,.26,1) both;
 }
 .experience-shell .relationship-map { z-index: 1; }
+.mobile-relationship-map { display: none; }
 .experience-shell .relation {
   stroke: var(--constellation-line);
   stroke-width: 1;
@@ -776,16 +777,45 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
       linear-gradient(180deg, #1f2020 0%, #151616 52%, #080909 100%);
   }
   .experience-shell .relationship-map { display: none; }
+  .mobile-relationship-map {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .mobile-relationship-map polyline {
+    fill: none;
+    stroke: rgb(239 175 75 / 54%);
+    stroke-width: .34;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 3px rgb(242 175 75 / 24%));
+  }
+  .mobile-relationship-map circle {
+    fill: var(--amber);
+    opacity: .84;
+    filter: drop-shadow(0 0 3px rgb(242 175 75 / 58%));
+  }
+  .experience-shell .constellation-depth-field { opacity: .82; }
+  .experience-shell .background-edge { stroke: rgb(221 177 100 / 31%); }
+  .experience-shell .reserve-node { opacity: .24; }
+  .experience-shell .depth-echo-node { opacity: .2; }
   .experience-shell .avatar-guide {
     position: absolute;
-    left: 34%;
-    top: 0;
+    left: 31%;
+    top: -10px;
     bottom: auto;
-    width: min(96vw, 420px);
+    width: min(88vw, 390px);
     height: calc(100dvh - 64px);
     aspect-ratio: auto;
     margin: 0;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(.9);
+    transform-origin: 50% 0;
   }
   .experience-shell .avatar-node-backdrop { display: none; }
   .experience-shell .avatar-media {
@@ -800,9 +830,9 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   }
   .experience-focus {
     position: absolute;
-    left: 38%;
-    right: 14px;
-    top: 45%;
+    left: 23%;
+    right: 12px;
+    top: 43%;
     width: auto;
     aspect-ratio: auto;
     margin: 0;
@@ -811,16 +841,17 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .claim-detail {
     height: auto;
     display: block;
-    padding: 15px 16px 16px;
+    min-height: 190px;
+    padding: 19px 20px 20px;
     border-radius: 16px;
     background: rgb(12 13 13 / 78%);
     box-shadow: 0 18px 48px rgb(0 0 0 / 32%);
     backdrop-filter: blur(13px);
   }
-  .experience-shell .claim-detail h2 { font-size: clamp(22px, 7.2vw, 30px); line-height: 1.02; }
-  .experience-shell .detail-organization { margin-top: 7px; font-size: 12px; }
-  .experience-shell .detail-status { margin: 6px 0 9px; font-size: 10px; }
-  .experience-shell .detail-summary { -webkit-line-clamp: 2; font-size: clamp(11px, 3.45vw, 13px); line-height: 1.38; }
+  .experience-shell .claim-detail h2 { font-size: clamp(24px, 7.7vw, 32px); line-height: 1.02; }
+  .experience-shell .detail-organization { margin-top: 8px; font-size: 13px; }
+  .experience-shell .detail-status { margin: 7px 0 11px; font-size: 11px; }
+  .experience-shell .detail-summary { -webkit-line-clamp: 3; font-size: clamp(12px, 3.65vw, 14px); line-height: 1.4; }
   .experience-shell .detail-actions--mobile {
     position: fixed;
     left: 14px;
@@ -845,26 +876,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     padding: 10px;
     transform: translate(-50%, -50%);
   }
-  .experience-shell .claim-node:nth-child(1) { left: 84%; top: 35%; }
-  .experience-shell .claim-node:nth-child(2) { left: 24%; top: 68%; width: clamp(66px, 21vw, 88px); }
-  .experience-shell .claim-node:nth-child(3) { left: 11%; top: 82%; width: clamp(62px, 19vw, 80px); }
+  .experience-shell .claim-node:nth-child(1) { left: 84%; top: 29%; }
+  .experience-shell .claim-node:nth-child(2) { left: 15%; top: 67%; width: clamp(66px, 21vw, 88px); }
+  .experience-shell .claim-node:nth-child(3) { left: 63%; top: 81%; width: clamp(62px, 19vw, 80px); }
   .experience-shell .claim-node strong { -webkit-line-clamp: 2; font-size: clamp(9px, 11cqi, 13px); line-height: 1.12; }
   .experience-shell .claim-node--initial { animation-name: mobile-node-arrival; }
   .experience-shell .claim-node::after { content: none; }
-  .experience-shell .claim-node::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    left: 78%;
-    top: 96%;
-    width: clamp(46px, 18vw, 72px);
-    height: 1px;
-    background: var(--constellation-line);
-    transform: rotate(45deg);
-    transform-origin: left center;
-  }
-  .experience-shell .claim-node:nth-child(1)::before { left: -48%; top: 88%; transform: rotate(138deg); }
-  .experience-shell .claim-node:nth-child(3)::before { display: none; }
+  .experience-shell .claim-node::before { content: none; }
   .experience-shell .search-controls {
     position: fixed;
     right: 14px;
@@ -918,25 +936,26 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 
 @media (max-width: 330px) {
   .constellation-header { padding-inline: 12px; }
-  .experience-shell .avatar-guide { left: 36%; width: 100vw; }
-  .experience-focus { left: 38%; right: 10px; }
+  .experience-shell .avatar-guide { left: 34%; width: 94vw; }
+  .experience-focus { left: 18%; right: 10px; }
   .experience-shell .claim-detail { padding: 12px; }
   .experience-shell .detail-actions { left: 10px; right: 68px; gap: 6px; }
   .experience-shell .search-controls { right: 10px; }
-  .experience-shell .claim-node:nth-child(1) { left: 86%; }
-  .experience-shell .claim-node:nth-child(2) { left: 22%; }
-  .experience-shell .claim-node:nth-child(3) { left: 10%; }
+  .experience-shell .claim-node:nth-child(1) { left: 84%; }
+  .experience-shell .claim-node:nth-child(2) { left: 14%; }
+  .experience-shell .claim-node:nth-child(3) { left: 62%; }
 }
 
 @media (max-width: 700px) and (max-height: 650px) {
-  .experience-shell .avatar-guide { top: 0; height: calc(100dvh - 58px); }
-  .experience-focus { top: 50%; }
+  .experience-shell .avatar-guide { top: -14px; height: calc(100dvh - 58px); }
+  .experience-focus { top: 42%; }
   .experience-shell .claim-detail { padding: 11px 12px 12px; }
+  .experience-shell .claim-detail { min-height: 150px; }
   .experience-shell .claim-detail h2 { font-size: clamp(20px, 6.6vw, 25px); }
   .experience-shell .detail-organization { margin-top: 5px; }
   .experience-shell .detail-status { margin: 4px 0 6px; }
-  .experience-shell .detail-summary { -webkit-line-clamp: 1; }
-  .experience-shell .claim-node:nth-child(1) { top: 34%; }
+  .experience-shell .detail-summary { -webkit-line-clamp: 2; }
+  .experience-shell .claim-node:nth-child(1) { top: 28%; }
   .experience-shell .claim-node:nth-child(2) { top: 68%; }
   .experience-shell .claim-node:nth-child(3) { top: 82%; }
 }
