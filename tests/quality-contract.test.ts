@@ -48,7 +48,7 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(component, /data-background-edge-count=/);
   assert.match(component, /data-reserve-owner=\{node\.ownerId\}/);
   assert.match(component, /data-node-role=\{role\}/);
-  assert.match(styles, /@keyframes reserve-advance/);
+  assert.match(styles, /@keyframes reserve-ready/);
   assert.match(styles, /@keyframes previous-center-out/);
   assert.match(styles, /constellation-field-recede 432ms/);
   assert.match(styles, /constellation-field-align 513ms/);
@@ -72,6 +72,9 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /claim-detail h2 \{ -webkit-line-clamp: 2/);
   assert.match(styles, /claim-detail--dense/);
   assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
+  assert.match(styles, /\.experience-shell \.claim-node:nth-child\(n \+ 4\) \{ display: none; \}/);
+  assert.match(styles, /@keyframes mobile-incoming-node-arrival/);
+  assert.match(component, /transition\.phase === "out" && transitionLayer && <div className="transition-reserves"/);
   assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);
 });
 

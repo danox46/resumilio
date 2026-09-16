@@ -540,7 +540,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               />)}
             </div>
           </div>
-          {transitionLayer && <div className="transition-reserves" aria-hidden="true">
+          {transition.phase === "out" && transitionLayer && <div className="transition-reserves" aria-hidden="true">
             {transitioningReserves.map((node, index) => <span
               key={`transition:${node.key}`}
               className="reserve-node reserve-node--advancing"

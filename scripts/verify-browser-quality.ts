@@ -77,7 +77,7 @@ async function nodeLabelCenterOffsets(page: Page) {
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -365,14 +365,18 @@ try {
       toY: style.getPropertyValue("--to-y"),
     };
   });
-  report.incomingReserveMotion = reserveMotion.animationName === "reserve-advance"
+  report.incomingReserveMotion = reserveMotion.animationName === "reserve-ready"
     && `${reserveMotion.fromX}|${reserveMotion.fromY}` !== `${reserveMotion.toX}|${reserveMotion.toY}`;
-  if (!report.incomingReserveMotion) throw new Error("The chosen reserve layer did not animate from its preloaded coordinates.");
+  if (!report.incomingReserveMotion) throw new Error("The chosen reserve layer did not arm its preloaded coordinates.");
   const nodeTransitionScreenshot = join(outputDirectory, "node-transition-out.png");
   await motionPage.screenshot({ path: nodeTransitionScreenshot });
   report.nodeTransitionScreenshot = nodeTransitionScreenshot;
   report.layerTransitionScreenshots.push(nodeTransitionScreenshot);
   await motionPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, transitionTarget);
+  const advancingReserveCount = await motionPage.locator(".transition-reserves .reserve-node--advancing").count();
+  const incomingAnimationNames = await motionPage.locator('[data-node-role="incoming"]').evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).animationName));
+  report.singleOwnerTransition = advancingReserveCount === 0 && incomingAnimationNames.every((name) => name === "incoming-node-arrival");
+  if (!report.singleOwnerTransition) throw new Error("Reserve and incoming-node actors overlapped after the transition handoff.");
   const previousCenter = motionPage.locator('[data-node-role="previous-center"]');
   report.previousCenterHandoff = await previousCenter.getAttribute("data-claim-id") === previousCenterId
     && await previousCenter.evaluate((node) => getComputedStyle(node).animationName) === "previous-center-out";
@@ -539,6 +543,24 @@ try {
   if (!report.mobileReserveCap) throw new Error(`Mobile reserve stress state exposed ${mobileVisibleReserves} of ${mobileReserveCount} ghosts; expected exactly 8 visible.`);
   await mobileDepthContext.close();
 
+  const mobileMotionContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference" });
+  const mobileMotionPage = await mobileMotionContext.newPage();
+  await mobileMotionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await mobileMotionPage.locator(".claim-node").first().click();
+  const mobileTransitionSamples: Array<{ phase: string | null; labeledNodes: number; advancingReserves: number }> = [];
+  for (let sample = 0; sample < 18; sample += 1) {
+    mobileTransitionSamples.push(await mobileMotionPage.evaluate(() => ({
+      phase: document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") ?? null,
+      labeledNodes: [...document.querySelectorAll<HTMLElement>(".claim-node")].filter((node) => getComputedStyle(node).display !== "none").length,
+      advancingReserves: document.querySelectorAll(".transition-reserves .reserve-node--advancing").length,
+    })));
+    await mobileMotionPage.waitForTimeout(60);
+  }
+  report.mobileTransitionNodeCeiling = mobileTransitionSamples.every((sample) => sample.labeledNodes === 3)
+    && mobileTransitionSamples.every((sample) => sample.phase !== "in" || sample.advancingReserves === 0);
+  if (!report.mobileTransitionNodeCeiling) throw new Error(`Mobile transition exposed duplicate node actors: ${JSON.stringify(mobileTransitionSamples)}.`);
+  await mobileMotionContext.close();
+
   const relationshipContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "reduce" });
   const relationshipPage = await relationshipContext.newPage();
   await relationshipPage.goto(`${origin}/`, { waitUntil: "load" });
@@ -603,7 +625,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
