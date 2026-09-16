@@ -64,6 +64,18 @@ async function overflowingNodeLabels(page: Page) {
   }));
 }
 
+async function nodeLabelCenterOffsets(page: Page) {
+  return page.locator(".claim-node:visible").evaluateAll((nodes) => nodes.map((node) => {
+    const nodeBox = node.getBoundingClientRect();
+    const labelBox = node.querySelector("strong")!.getBoundingClientRect();
+    return {
+      claimId: node.getAttribute("data-claim-id"),
+      x: Number((labelBox.left + labelBox.width / 2 - (nodeBox.left + nodeBox.width / 2)).toFixed(2)),
+      y: Number((labelBox.top + labelBox.height / 2 - (nodeBox.top + nodeBox.height / 2)).toFixed(2)),
+    };
+  }));
+}
+
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
 const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
@@ -79,9 +91,12 @@ try {
     if (visibleTargets === 0) throw new Error(`${viewport.name} exposes no interactive targets.`);
     const visibleNodeCount = await page.locator(".claim-node:visible").count();
     const overflowingLabels = await overflowingNodeLabels(page);
+    const labelCenterOffsets = await nodeLabelCenterOffsets(page);
     if (["tablet", "desktop", "full-hd", "wide-short", "four-k"].includes(viewport.name) && visibleNodeCount !== 5) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected 5.`);
     if (["watch", "small-mobile", "mobile"].includes(viewport.name) && visibleNodeCount !== 3) throw new Error(`${viewport.name} shows ${visibleNodeCount} active nodes; expected the three-node mobile presentation.`);
     if (overflowingLabels.length > 0) throw new Error(`${viewport.name} has overflowing node labels: ${overflowingLabels.join(", ")}.`);
+    const offCenterLabels = labelCenterOffsets.filter(({ x, y }) => Math.abs(x) > .75 || Math.abs(y) > .75);
+    if (offCenterLabels.length > 0) throw new Error(`${viewport.name} has off-center node labels: ${JSON.stringify(offCenterLabels)}.`);
     const layerCount = Number(await page.locator(".graph-stage").getAttribute("data-layer-count"));
     const reserveCount = Number(await page.locator(".graph-stage").getAttribute("data-reserve-count"));
     const reserveDomCount = await page.locator(".reserve-layers .reserve-node").count();
@@ -126,6 +141,7 @@ try {
       visibleTargets,
       visibleNodeCount,
       overflowingLabels,
+      labelCenterOffsets,
       layerCount,
       reserveCount,
       visibleReserveCount,

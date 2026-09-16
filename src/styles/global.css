@@ -511,12 +511,14 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   box-shadow: 0 0 0 7px rgb(242 175 75 / 8%), 0 14px 38px rgb(0 0 0 / 34%);
 }
 .experience-shell .claim-node strong {
-  width: 100%;
+  position: absolute;
+  inset-inline: 14%;
+  top: 50%;
+  width: auto;
   min-width: 0;
-  max-width: 100%;
+  max-width: none;
   margin: 0;
-  justify-self: stretch;
-  align-self: center;
+  transform: translateY(-50%);
   overflow: hidden;
   overflow-wrap: anywhere;
   hyphens: auto;
@@ -531,9 +533,9 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   line-height: 1.13;
 }
 .experience-shell .claim-node--text-compact { gap: 6px; padding: 16px; }
-.experience-shell .claim-node--text-compact strong { font-size: clamp(12px, 11.5cqi, 16px); line-height: 1.12; }
+.experience-shell .claim-node--text-compact strong { inset-inline: 12%; font-size: clamp(12px, 11.5cqi, 16px); line-height: 1.12; }
 .experience-shell .claim-node--text-dense { gap: 5px; padding: 15px; }
-.experience-shell .claim-node--text-dense strong { font-size: clamp(11px, 10.5cqi, 15px); line-height: 1.1; }
+.experience-shell .claim-node--text-dense strong { inset-inline: 11%; font-size: clamp(11px, 10.5cqi, 15px); line-height: 1.1; }
 .experience-focus {
   position: absolute;
   left: 60%;

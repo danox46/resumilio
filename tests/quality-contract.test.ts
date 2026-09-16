@@ -59,7 +59,8 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.doesNotMatch(component, /<small>\{lifecycleLabel\}<\/small>/);
   assert.match(styles, /container-type: inline-size/);
   assert.match(styles, /place-content: center;\s*place-items: center/);
-  assert.match(styles, /width: 100%;\s*min-width: 0;[\s\S]*?justify-self: stretch;[\s\S]*?text-align: center/);
+  assert.match(styles, /position: absolute;\s*inset-inline: 14%;\s*top: 50%;[\s\S]*?transform: translateY\(-50%\);[\s\S]*?text-align: center/);
+  assert.match(readFileSync("scripts/verify-browser-quality.ts", "utf8"), /off-center node labels/);
   assert.match(styles, /width: clamp\(126px, 9\.8vw, 168px\)/);
   assert.match(styles, /width: clamp\(82px, 26vw, 108px\)/);
   assert.match(styles, /width: clamp\(80px, 25vw, 104px\)/);
