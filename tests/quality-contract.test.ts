@@ -62,6 +62,9 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /width: clamp\(82px, 26vw, 108px\)/);
   assert.match(styles, /width: clamp\(80px, 25vw, 104px\)/);
   assert.match(styles, /width: clamp\(76px, 24vw, 98px\)/);
+  assert.match(styles, /font-size: clamp\(12\.5px, 12\.5cqi, 17px\)/);
+  assert.match(styles, /font-size: clamp\(11\.5px, 12\.5cqi, 15\.5px\)/);
+  assert.match(styles, /width: clamp\(94px, 27vw, 112px\)/);
   assert.match(styles, /-webkit-line-clamp: 3/);
   assert.match(styles, /claim-detail h2 \{ -webkit-line-clamp: 2/);
   assert.match(styles, /claim-detail--dense/);

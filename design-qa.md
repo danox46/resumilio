@@ -18,7 +18,7 @@ The normalized annotated source and revised implementation were inspected togeth
 - Focus panel: the revised surface is wider and taller, carries a larger title, preserves organization and focused lifecycle state, and allows a three-line summary. It is now the strongest information object rather than a small overlay.
 - Avatar and face: the portrait is scaled to 90% and shifted slightly left/up. The face remains unobstructed at 390 x 844 and 320 x 568 while the card occupies the torso.
 - Active constellation: three title-only circles alternate from upper-right to left-middle to lower-right. One straight-segment SVG polyline connects the sequence and includes illuminated joints; it is decorative and does not alter graph semantics.
-- Preview readability: mobile circles now scale from 76-108px according to their hierarchy, tablet circles use a 118px target, and desktop/wide circles scale from 126-168px. Compact and dense labels gained proportional padding and type size without exposing lifecycle commentary.
+- Preview readability: mobile circles now use a 92-112px phone range, tablet circles use a 118px target, and desktop/wide circles scale from 126-168px. Preview type now scales from 11.5-15.5px on phones and 11-17px on larger displays; mobile titles may use three lines so the larger type does not force premature truncation.
 - Controls: the bottom dock remains fully visible and separate from the animated focus panel at both tested phone sizes.
 
 ## Required fidelity surfaces
@@ -44,6 +44,9 @@ The normalized annotated source and revised implementation were inspected togeth
 4. Preview scale pass: P2 side-node titles were technically bounded but unnecessarily small on both phones and wide screens.
    - Fix: raised the responsive circle sizes and compact/dense label scales across mobile, tablet, desktop, and wide breakpoints; moved the wide west slot 1.5 percentage points outward to preserve the avatar boundary.
    - Post-fix evidence: `mobile-space-usage-comparison.png` and `preview-node-scale-wide.png` show larger readable previews; the browser matrix reports no horizontal overflow, label overflow, or wide-avatar collision.
+5. Preview typography pass: P2 preview labels still read too cautiously inside the enlarged circles, while a first large-type attempt split long words at 320px.
+   - Fix: increased standard, compact, and dense preview typography; allowed three mobile lines; and added a 92-112px small-phone circle floor so `Integration Specialist` and `Backend Technical Lead` remain whole-word readable. A separate <=280px fallback preserves the bounded ultra-compact layout.
+   - Post-fix evidence: the final 320 x 568, 390 x 844, 1440 x 1024, and 2572 x 1233 captures show visibly larger labels with no reported label overflow, horizontal overflow, or avatar collision. English and Spanish long-label checks pass.
 
 ## Browser verification
 
@@ -52,6 +55,6 @@ The normalized annotated source and revised implementation were inspected togeth
 - Console and page errors: none.
 - Horizontal overflow and node-label overflow: none.
 - External runtime requests: none.
-- Remaining P3: very long mobile preview titles still truncate to two lines by design; the larger circle/type treatment improves scanability, while the full title remains available to assistive technology and through the element title.
+- Remaining P3: very long preview titles still truncate after three lines by design; the full title remains available to assistive technology and through the element title.
 
 final result: passed

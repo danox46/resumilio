@@ -521,13 +521,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  font-size: clamp(11px, 11cqi, 15px);
-  line-height: 1.16;
+  font-size: clamp(12.5px, 12.5cqi, 17px);
+  line-height: 1.13;
 }
 .experience-shell .claim-node--text-compact { gap: 6px; padding: 16px; }
-.experience-shell .claim-node--text-compact strong { font-size: clamp(11px, 10.5cqi, 14.5px); line-height: 1.14; }
+.experience-shell .claim-node--text-compact strong { font-size: clamp(12px, 11.5cqi, 16px); line-height: 1.12; }
 .experience-shell .claim-node--text-dense { gap: 5px; padding: 15px; }
-.experience-shell .claim-node--text-dense strong { font-size: clamp(10px, 9.5cqi, 13.5px); line-height: 1.12; }
+.experience-shell .claim-node--text-dense strong { font-size: clamp(11px, 10.5cqi, 15px); line-height: 1.1; }
 .experience-focus {
   position: absolute;
   left: 60%;
@@ -879,7 +879,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .claim-node:nth-child(1) { left: 84%; top: 29%; }
   .experience-shell .claim-node:nth-child(2) { left: 15%; top: 67%; width: clamp(80px, 25vw, 104px); }
   .experience-shell .claim-node:nth-child(3) { left: 63%; top: 81%; width: clamp(76px, 24vw, 98px); }
-  .experience-shell .claim-node strong { -webkit-line-clamp: 2; font-size: clamp(10px, 11.5cqi, 14px); line-height: 1.12; }
+  .experience-shell .claim-node strong { -webkit-line-clamp: 3; font-size: clamp(11.5px, 12.5cqi, 15.5px); line-height: 1.08; }
   .experience-shell .claim-node--initial { animation-name: mobile-node-arrival; }
   .experience-shell .claim-node::after { content: none; }
   .experience-shell .claim-node::before { content: none; }
@@ -933,6 +933,16 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 @keyframes mobile-node-promote { to { opacity: 1; transform: translate(-50%, -50%) scale(1.16); } }
 @keyframes mobile-feature-depart { to { opacity: .08; transform: scale(.82); } }
 @keyframes mobile-feature-arrival { from { opacity: .12; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+
+@media (min-width: 281px) and (max-width: 700px) {
+  .experience-shell .claim-node, .experience-shell .claim-node:hover, .experience-shell .claim-node:focus-visible { width: clamp(94px, 27vw, 112px); }
+  .experience-shell .claim-node:nth-child(2) { width: clamp(94px, 26vw, 108px); }
+  .experience-shell .claim-node:nth-child(3) { width: clamp(92px, 25vw, 102px); }
+}
+
+@media (max-width: 280px) {
+  .experience-shell .claim-node strong { font-size: clamp(10px, 12cqi, 11.5px); }
+}
 
 @media (max-width: 330px) {
   .constellation-header { padding-inline: 12px; }
