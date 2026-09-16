@@ -74,6 +74,8 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
   assert.match(styles, /\.experience-shell \.claim-node:nth-child\(n \+ 4\) \{ display: none; \}/);
   assert.match(styles, /@keyframes mobile-incoming-node-arrival/);
+  assert.match(styles, /incoming-node-label-arrival 162ms 351ms/);
+  assert.match(styles, /mobile-relation-arrival 120ms 393ms/);
   assert.match(component, /transition\.phase === "out" && transitionLayer && <div className="transition-reserves"/);
   assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);
 });

@@ -677,7 +677,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 }
 @keyframes incoming-node-arrival {
   from { left: var(--from-x); top: var(--from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
+  68% { opacity: .28; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(.78); }
   to { left: var(--x); top: var(--y); opacity: 1; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(1); }
+}
+@keyframes incoming-node-label-arrival {
+  from { opacity: 0; transform: translateY(calc(-50% + 4px)); }
+  to { opacity: 1; transform: translateY(-50%); }
 }
 @keyframes retired-node-arrival {
   from { opacity: .26; transform: translate(-50%, -50%) scale(.82); }
@@ -712,8 +717,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 243ms ease-in; }
 .graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 513ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 513ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .claim-node--incoming strong { animation: incoming-node-label-arrival 162ms 351ms ease-out both; }
 .graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 513ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .relationship-map { animation: relation-arrival 338ms 176ms ease-out both; }
+.graph-stage[data-transition-phase="out"] .mobile-relationship-map { opacity: 0; transition: opacity 180ms ease-in; }
+.graph-stage[data-transition-phase="in"] .mobile-relationship-map { animation: mobile-relation-arrival 120ms 393ms ease-out both; }
+@keyframes mobile-relation-arrival { from { opacity: 0; } to { opacity: 1; } }
 
 @media (min-width: 701px) {
   .experience-focus { width: clamp(410px, 35vw, 520px); aspect-ratio: 1; }
@@ -941,7 +950,11 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 @keyframes mobile-node-depart { to { opacity: .08; transform: translate(-50%, -50%) scale(.4); } }
 @keyframes mobile-node-promote { to { opacity: 1; transform: translate(-50%, -50%) scale(1.16); } }
 @keyframes mobile-previous-center-out { from { left: 60%; top: 54%; opacity: .18; transform: translate(-50%, -50%) scale(1.16); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-@keyframes mobile-incoming-node-arrival { from { left: var(--from-x); top: var(--from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes mobile-incoming-node-arrival {
+  from { left: var(--from-x); top: var(--from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
+  68% { opacity: .28; transform: translate(-50%, -50%) scale(.78); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 @keyframes mobile-feature-depart { to { opacity: .08; transform: scale(.82); } }
 @keyframes mobile-feature-arrival { from { opacity: .12; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
 
