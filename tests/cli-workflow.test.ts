@@ -41,10 +41,13 @@ test("all CLI commands complete a fresh-directory no-key workflow", async () => 
     };
     await writeFile(resolve(directory, "bundle.json"), JSON.stringify(bundle), "utf8");
     run(directory, "ingest", "bundle.json", "--profile", "resumilio.json");
-    run(directory, "validate");
+    const validation = JSON.parse(run(directory, "validate"));
+    assert.equal(validation.graphHealth.navigationGuaranteed, true);
+    assert.equal(validation.graphHealth.minimumReachableClaims, 2);
     run(directory, "preview", "--output", "preview", "--locale", "es");
     run(directory, "export", "--format", "markdown", "--output", "exports/profile.md", "--locale", "en");
-    run(directory, "doctor");
+    const doctor = JSON.parse(run(directory, "doctor"));
+    assert.equal(doctor.checks.find((check: { check: string }) => check.check === "constellation-navigation")?.ok, true);
     run(directory, "deploy", "--output", "deploy", "--locale", "en");
     assert.match(await readFile(resolve(directory, "preview/index.html"), "utf8"), /lang="es"/);
     assert.match(await readFile(resolve(directory, "exports/profile.md"), "utf8"), /Imported factual headline/);

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import type { ResumilioProfile } from "../src/profile.js";
-import { applySignal, emptyDiscoveryState, rankRecommendations } from "../src/discovery.js";
+import { applySignal, emptyDiscoveryState, rankConstellationRecommendations } from "../src/discovery.js";
 import { buildLayerPlan, buildSuccessorLayer, constellationSlots } from "../src/constellation-layers.js";
 
 const profile = JSON.parse(await readFile("profiles/daniel.json", "utf8")) as ResumilioProfile;
@@ -12,8 +12,7 @@ function neighborhood(selectedId: string) {
   const discovery = applySignal(emptyDiscoveryState(), "open", selected.tags, selected.id);
   return {
     discovery,
-    ids: rankRecommendations(profile, applySignal(discovery, "open", selected.tags, selected.id), selected.id)
-      .slice(0, constellationSlots.length)
+    ids: rankConstellationRecommendations(profile, applySignal(discovery, "open", selected.tags, selected.id), selected.id, constellationSlots.length)
       .map((result) => result.claim.id),
   };
 }

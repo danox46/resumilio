@@ -4,7 +4,16 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import type { ResumilioProfile } from "../src/profile.js";
-import { applySignal, emptyDiscoveryState, rankRecommendations, recommendationReason, searchClaims } from "../src/discovery.js";
+import { analyzeConstellationGraph } from "../src/graph-health.js";
+import {
+  applySignal,
+  emptyDiscoveryState,
+  rankConstellationRecommendations,
+  rankRecommendations,
+  recommendationReason,
+  searchClaims,
+  traversalSuccessorId,
+} from "../src/discovery.js";
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const profile = JSON.parse(await readFile(resolve(repository, "profiles/daniel.json"), "utf8")) as ResumilioProfile;
@@ -76,4 +85,49 @@ test("curated order favors recent work while historical roles remain discoverabl
   const contentIntent = applySignal(emptyDiscoveryState(), "search", ["content-marketing", "entrepreneurship"]);
   const contentRecommendations = rankRecommendations(profile, contentIntent).slice(0, 6).map((item) => item.claim.id);
   assert.ok(contentRecommendations.includes("claim-hivebound-founder"));
+});
+
+test("every constellation center exposes a stable path through the full claim graph", () => {
+  for (const center of profile.claims) {
+    const neighborhood = rankConstellationRecommendations(profile, emptyDiscoveryState(), center.id, 5)
+      .map((item) => item.claim.id);
+    assert.ok(neighborhood.includes(traversalSuccessorId(profile, center.id)!));
+  }
+
+  for (const start of profile.claims) {
+    const reached = new Set([start.id]);
+    let currentId = start.id;
+    for (let step = 0; step < profile.claims.length - 1; step += 1) {
+      currentId = traversalSuccessorId(profile, currentId)!;
+      reached.add(currentId);
+    }
+    assert.equal(reached.size, profile.claims.length);
+  }
+});
+
+test("an exhausted relevant neighborhood yields an unexplored frontier node", () => {
+  const center = profile.claims.find((claim) => claim.id === "claim-masglo-commercial-proposal")!;
+  const contextual = applySignal(emptyDiscoveryState(), "open", center.tags, center.id);
+  const firstNeighborhood = rankConstellationRecommendations(profile, contextual, center.id, 5).map((item) => item.claim.id);
+  const exhausted = {
+    ...contextual,
+    openedClaimIds: [center.id, ...firstNeighborhood],
+  };
+  const nextNeighborhood = rankConstellationRecommendations(profile, exhausted, center.id, 5).map((item) => item.claim.id);
+
+  assert.ok(nextNeighborhood.some((claimId) => !exhausted.openedClaimIds.includes(claimId)));
+  assert.ok(nextNeighborhood.includes(traversalSuccessorId(profile, center.id)!));
+});
+
+test("sparse contributor data remains navigable without invented semantic relationships", () => {
+  const sparse = structuredClone(profile);
+  sparse.claims = sparse.claims.slice(0, 8);
+  sparse.relationships = [];
+  const health = analyzeConstellationGraph(sparse);
+
+  assert.equal(health.semanticComponentCount, 8);
+  assert.equal(health.semanticOrphanClaimIds.length, 8);
+  assert.equal(health.minimumReachableClaims, 8);
+  assert.equal(health.navigationGuaranteed, true);
+  assert.equal(health.traversalStrategy, "deterministic-cycle-with-unexplored-frontier");
 });

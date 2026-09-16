@@ -37,7 +37,7 @@ export function createResumilioMcpServer(defaultProfilePath = "resumilio.json"):
   });
 
   server.registerTool("claims_validate", {
-    description: "Validate schema, lifecycle wording, bilingual copy, evidence reciprocity, and graph references.",
+    description: "Validate schema, lifecycle wording, bilingual copy, evidence reciprocity, graph references, and constellation navigation health.",
     inputSchema: { profilePath: z.string().default(defaultProfilePath) },
   }, async ({ profilePath }) => text(await validateClaims(profilePath)));
 

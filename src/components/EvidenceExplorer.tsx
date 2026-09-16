@@ -9,7 +9,7 @@ import {
   type ConstellationPoint,
   type SuccessorLayerPlan,
 } from "../constellation-layers.js";
-import { applySignal, emptyDiscoveryState, normalizeTerm, rankRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
+import { applySignal, emptyDiscoveryState, normalizeTerm, rankConstellationRecommendations, searchClaims, type DiscoveryState } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
 import { claimPath } from "../site.js";
@@ -269,7 +269,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       return searchClaims(profile, normalizedQuery).map((result) => result.claim).filter((claim) => claim.id !== selected.id).slice(0, visibleNeighborhoodSize);
     }
     const contextualState = applySignal(discovery, "open", selected.tags, selected.id);
-    return rankRecommendations(profile, contextualState, selected.id).slice(0, visibleNeighborhoodSize).map((result) => result.claim);
+    return rankConstellationRecommendations(profile, contextualState, selected.id, visibleNeighborhoodSize).map((result) => result.claim);
   }, [profile, query, selected.id, selected.tags, discovery]);
   const neighborhoodIds = useMemo(() => neighborhood.map((claim) => claim.id), [neighborhood]);
   const layerPlan = useMemo(
@@ -369,7 +369,9 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const moreLike = () => {
     const nextState = applySignal(discovery, "more-like-this", selected.tags, selected.id);
-    const recommendation = rankRecommendations(profile, nextState, selected.id)[0]?.claim;
+    const recommendations = rankConstellationRecommendations(profile, nextState, selected.id, visibleNeighborhoodSize);
+    const recommendation = recommendations.find((item) => !nextState.openedClaimIds.includes(item.claim.id))?.claim
+      ?? recommendations[0]?.claim;
     if (recommendation) requestSelection({
       claimId: recommendation.id,
       reaction: "smile",

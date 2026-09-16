@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import type { ResumilioProfile } from "./profile.js";
+import { analyzeConstellationGraph, type ConstellationGraphHealth } from "./graph-health.js";
 import { buildDeploymentArtifacts, buildPreview } from "./rendering.js";
 import { loadValidProfile, writeJson } from "./workspace.js";
 import { validateProfileDocument } from "./validation.js";
@@ -54,9 +55,9 @@ export async function linkPublicSource(
   return profile;
 }
 
-export async function validateClaims(profilePath: string): Promise<{ valid: true; claims: number; evidence: number }> {
+export async function validateClaims(profilePath: string): Promise<{ valid: true; claims: number; evidence: number; graphHealth: ConstellationGraphHealth }> {
   const profile = await loadValidProfile(resolve(profilePath));
-  return { valid: true, claims: profile.claims.length, evidence: profile.evidence.length };
+  return { valid: true, claims: profile.claims.length, evidence: profile.evidence.length, graphHealth: analyzeConstellationGraph(profile) };
 }
 
 export async function buildLocalPreview(profilePath: string, outputDirectory: string, locale: "en" | "es") {

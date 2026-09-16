@@ -129,6 +129,56 @@ export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryS
   return selected.map(({ directlyRelated: _, ...recommendation }) => recommendation);
 }
 
+export function traversalSuccessorId(profile: ResumilioProfile, claimId: string): string | undefined {
+  if (profile.claims.length < 2) return undefined;
+  const currentIndex = profile.claims.findIndex((claim) => claim.id === claimId);
+  if (currentIndex < 0) return profile.claims[0]?.id;
+  return profile.claims[(currentIndex + 1) % profile.claims.length]?.id;
+}
+
+export function rankConstellationRecommendations(
+  profile: ResumilioProfile,
+  state: DiscoveryState,
+  centerClaimId: string,
+  limit = 5,
+) {
+  if (limit <= 0) return [];
+  const ranked = rankRecommendations(profile, state, centerClaimId);
+  const selected = ranked.slice(0, limit);
+  const protectedIds = new Set<string>();
+
+  const include = (candidate: typeof ranked[number] | undefined, protect = false) => {
+    if (!candidate) return;
+    if (selected.some((item) => item.claim.id === candidate.claim.id)) {
+      if (protect) protectedIds.add(candidate.claim.id);
+      return;
+    }
+    if (selected.length < limit) selected.push(candidate);
+    else {
+      let replacementIndex = -1;
+      for (let index = selected.length - 1; index >= 0; index -= 1) {
+        if (!protectedIds.has(selected[index].claim.id)) { replacementIndex = index; break; }
+      }
+      if (replacementIndex < 0) return;
+      selected[replacementIndex] = candidate;
+    }
+    if (protect) protectedIds.add(candidate.claim.id);
+  };
+
+  // Every claim points to the next stable profile record. Following this one bridge
+  // from any center walks the entire graph and prevents disconnected recommendation islands.
+  const traversalId = traversalSuccessorId(profile, centerClaimId);
+  include(ranked.find((item) => item.claim.id === traversalId), true);
+
+  // Relevance may fill all five slots with records the visitor already opened. Keep
+  // one genuinely unexplored frontier available until the whole graph has been seen.
+  const openedIds = new Set(state.openedClaimIds);
+  const frontier = ranked.find((item) => !openedIds.has(item.claim.id));
+  include(frontier);
+
+  return selected;
+}
+
 function displayTopic(topic: string): string {
   const names: Record<string, string> = { hubspot: "HubSpot", openai: "OpenAI", sms: "SMS", "non ai": "non-AI" };
   return names[topic] ?? topic.replace(/\b\w/g, (letter) => letter.toUpperCase());

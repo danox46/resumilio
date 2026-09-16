@@ -3,6 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { mkdir } from "node:fs/promises";
 import type { Locale } from "./profile.js";
+import { analyzeConstellationGraph } from "./graph-health.js";
 import { buildDeploymentArtifacts, buildPreview, renderHtml, renderMarkdown } from "./rendering.js";
 import { guidanceFor, ingestDocument, initializeWorkspace, loadValidProfile, type ExperienceLevel } from "./workspace.js";
 
@@ -65,7 +66,14 @@ async function run(): Promise<void> {
   if (command === "validate") {
     const profilePath = profileOption();
     const profile = await loadValidProfile(profilePath);
-    console.log(JSON.stringify({ ok: true, command, profile: profile.profile.id, claims: profile.claims.length, evidence: profile.evidence.length }, null, 2));
+    console.log(JSON.stringify({
+      ok: true,
+      command,
+      profile: profile.profile.id,
+      claims: profile.claims.length,
+      evidence: profile.evidence.length,
+      graphHealth: analyzeConstellationGraph(profile),
+    }, null, 2));
     return;
   }
   if (command === "preview") {
@@ -95,6 +103,12 @@ async function run(): Promise<void> {
     checks.push({ check: "node", ok: Number(process.versions.node.split(".")[0]) >= 22, detail: process.version });
     const profile = await loadValidProfile(profilePath);
     checks.push({ check: "profile", ok: true, detail: profile.profile.id });
+    const graphHealth = analyzeConstellationGraph(profile);
+    checks.push({
+      check: "constellation-navigation",
+      ok: graphHealth.navigationGuaranteed,
+      detail: `${graphHealth.minimumReachableClaims}/${graphHealth.claimCount} claims reachable from every center via ${graphHealth.traversalStrategy}`,
+    });
     checks.push({ check: "model-key", ok: true, detail: "not required" });
     const ok = checks.every((check) => check.ok);
     console.log(JSON.stringify({ ok, command, checks }, null, 2));

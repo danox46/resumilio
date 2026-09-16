@@ -1,4 +1,4 @@
-import { applySignal, rankRecommendations, type DiscoveryState } from "./discovery.js";
+import { applySignal, rankConstellationRecommendations, type DiscoveryState } from "./discovery.js";
 import type { ResumilioProfile } from "./profile.js";
 
 export type ConstellationPoint = readonly [number, number];
@@ -114,8 +114,7 @@ export function buildSuccessorLayer(
   const targetSlot = currentSlots[targetId] ?? 0;
   const nextDiscovery = applySignal(discoveryBeforeOpen, "open", target.tags, target.id);
   const contextualState = applySignal(nextDiscovery, "open", target.tags, target.id);
-  const nextNeighborhoodIds = rankRecommendations(profile, contextualState, target.id)
-    .slice(0, constellationSlots.length)
+  const nextNeighborhoodIds = rankConstellationRecommendations(profile, contextualState, target.id, constellationSlots.length)
     .map((result) => result.claim.id);
   const currentIds = new Set(neighborhoodIds);
   const nextIds = new Set(nextNeighborhoodIds);
