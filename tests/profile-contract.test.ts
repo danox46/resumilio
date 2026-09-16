@@ -45,6 +45,11 @@ test("Daniel profile preserves approved truth distinctions and career breadth", 
   assert.equal(claims.get("claim-dnx-gaming-founder")?.type, "experience");
   assert.equal(claims.get("claim-leaf-town")?.lifecycle, "shipped");
   assert.equal(claims.get("claim-children-of-preservation")?.lifecycle, "shipped");
+  assert.match(claims.get("claim-leaf-town")?.summary.en ?? "", /predates Daniel's AI-assisted development workflow/);
+  assert.match(claims.get("claim-children-of-preservation")?.summary.en ?? "", /before Daniel adopted AI-assisted development/);
+  assert.ok(claims.get("claim-leaf-town")?.evidenceIds.includes("evidence-leaf-town-itch-release"));
+  assert.ok(claims.get("claim-children-of-preservation")?.evidenceIds.includes("evidence-children-preservation-itch-release"));
+  assert.ok(!claims.get("claim-leaf-town")?.tags.includes("artificial-intelligence"));
   assert.equal(claims.get("claim-resumilio-living-resume")?.lifecycle, "shipped");
   assert.ok(seed.profile.contacts.some((contact) => contact.id === "contact-itch" && contact.url === "https://dnxgaming.itch.io/"));
   const related = seed.relationships.filter((relationship) => relationship.type === "related-to");

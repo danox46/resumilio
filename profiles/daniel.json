@@ -926,19 +926,21 @@
         "es": "Leaf Town"
       },
       "summary": {
-        "en": "Built and published a Unity adventure game in 20 days for the Great Autumn Game Jam 2021, including custom physics behavior that synchronized cloth deformation with Rigidbody collisions.",
-        "es": "Creó y publicó un juego de aventura en Unity en 20 días para Great Autumn Game Jam 2021, incluyendo física personalizada que sincronizó deformación de tela con colisiones de Rigidbody."
+        "en": "Built and published a downloadable Unity adventure game in 20 days for the Great Autumn Game Jam 2021, including custom physics that synchronized cloth deformation with Rigidbody collisions. This predates Daniel's AI-assisted development workflow: the visuals are rough, but the Windows and macOS builds remain available to test.",
+        "es": "Creó y publicó en 20 días un juego de aventura descargable en Unity para Great Autumn Game Jam 2021, con física personalizada que sincronizó la deformación de tela con colisiones de Rigidbody. Es anterior al flujo de desarrollo asistido por IA de Daniel: el acabado visual es sencillo, pero las versiones para Windows y macOS siguen disponibles para probar."
       },
       "organizationId": "organization-dnx-gaming",
       "evidenceIds": [
-        "evidence-dnx-gaming-itch-profile"
+        "evidence-dnx-gaming-itch-profile",
+        "evidence-leaf-town-itch-release"
       ],
       "tags": [
         "unity",
         "c-sharp",
         "game-development",
         "physics",
-        "artificial-intelligence",
+        "downloadable-game",
+        "pre-ai-workflow",
         "itch-io"
       ]
     },
@@ -951,18 +953,21 @@
         "es": "Prototipo The Children of Preservation"
       },
       "summary": {
-        "en": "Published a playable Unity action-platformer prototype through DNX Gaming, demonstrating gameplay systems and collaborative game production.",
-        "es": "Publicó un prototipo jugable de plataformas y acción en Unity a través de DNX Gaming, demostrando sistemas de juego y producción colaborativa."
+        "en": "Published a downloadable Unity action-platformer prototype through DNX Gaming, exploring Steel Pushing, Iron Pulling, combat, and traversal systems. Built before Daniel adopted AI-assisted development, it is visibly an early prototype rather than a polished modern release, but the Windows and macOS builds remain playable and testable.",
+        "es": "Publicó a través de DNX Gaming un prototipo descargable de acción y plataformas en Unity que explora sistemas de empuje y atracción de metales, combate y desplazamiento. Creado antes de que Daniel adoptara el desarrollo asistido por IA, se ve como un prototipo temprano y no como un lanzamiento moderno pulido, pero las versiones para Windows y macOS siguen siendo jugables y comprobables."
       },
       "organizationId": "organization-dnx-gaming",
       "evidenceIds": [
-        "evidence-dnx-gaming-itch-profile"
+        "evidence-dnx-gaming-itch-profile",
+        "evidence-children-preservation-itch-release"
       ],
       "tags": [
         "unity",
         "c-sharp",
         "game-development",
         "prototype",
+        "downloadable-game",
+        "pre-ai-workflow",
         "itch-io"
       ]
     },
@@ -1221,7 +1226,51 @@
         },
         "visibility": "public-summary"
       },
-      "observedAt": "2026-09-15"
+      "observedAt": "2026-09-16"
+    },
+    {
+      "id": "evidence-leaf-town-itch-release",
+      "claimIds": [
+        "claim-leaf-town"
+      ],
+      "title": {
+        "en": "Leaf Town downloadable release",
+        "es": "Lanzamiento descargable de Leaf Town"
+      },
+      "evidenceType": "public-source",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Public itch.io release page with downloadable Windows and macOS builds, game-jam context, credits, and install instructions",
+          "es": "Página pública de lanzamiento en itch.io con versiones descargables para Windows y macOS, contexto de la game jam, créditos e instrucciones de instalación"
+        },
+        "visibility": "public",
+        "url": "https://dnxgaming.itch.io/leaf-town"
+      },
+      "observedAt": "2026-09-16"
+    },
+    {
+      "id": "evidence-children-preservation-itch-release",
+      "claimIds": [
+        "claim-children-of-preservation"
+      ],
+      "title": {
+        "en": "The Children of Preservation downloadable prototype",
+        "es": "Prototipo descargable The Children of Preservation"
+      },
+      "evidenceType": "public-source",
+      "strength": "primary",
+      "lifecycle": "available",
+      "source": {
+        "label": {
+          "en": "Public itch.io prototype page with downloadable Windows and macOS builds, gameplay description, install instructions, and development log",
+          "es": "Página pública del prototipo en itch.io con versiones descargables para Windows y macOS, descripción del juego, instrucciones de instalación y registro de desarrollo"
+        },
+        "visibility": "public",
+        "url": "https://dnxgaming.itch.io/the-children-of-preservation"
+      },
+      "observedAt": "2026-09-16"
     },
     {
       "id": "evidence-cloud-academy-training-record",
