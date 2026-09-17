@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import type { ResumilioProfile } from "../src/profile.js";
 import { applySignal, emptyDiscoveryState, mobileConstellationNeighborhoodSize, rankConstellationRecommendations, traversalSuccessorId } from "../src/discovery.js";
-import { buildLayerPlan, buildSuccessorLayer, constellationSlots, mobileConstellationSlots, mobileReservePool } from "../src/constellation-layers.js";
+import { buildLayerPlan, buildSuccessorLayer, constellationSlots, mobileApproachPoint, mobileConstellationSlots, mobileReservePool } from "../src/constellation-layers.js";
 
 const profile = JSON.parse(await readFile("profiles/daniel.json", "utf8")) as ResumilioProfile;
 
@@ -94,5 +94,15 @@ test("mobile successors preserve stable sectors and draw every incoming node fro
     }
     assert.equal(layer.mobileReserveNodes.length, nextMobileIds.filter((id) => !currentMobileIds.has(id)).length);
     assert.ok(layer.mobileReserveNodes.every((node) => pool.has(`${node.origin[0]}:${node.origin[1]}`)));
+    assert.deepEqual(new Set([...layer.mobileSharedIds, ...layer.mobileIncomingIds]), new Set(nextMobileIds));
+    assert.ok(layer.mobileReserveNodes.every((node) => node.destination === mobileConstellationSlots[node.destinationSlot].point));
+    assert.ok(layer.mobileReserveNodes.every((node) => Math.abs(node.approach[0] - node.destination[0]) <= 2));
+    assert.ok(layer.mobileReserveNodes.every((node) => Math.abs(node.approach[1] - node.destination[1]) <= 1.5));
   }
+});
+
+test("mobile approach math leaves only a bounded final reposition", () => {
+  assert.deepEqual(mobileApproachPoint([96, 13], [84, 29]), [84.84, 27.88]);
+  assert.deepEqual(mobileApproachPoint([5, 52], [15, 67]), [14.3, 65.95]);
+  assert.deepEqual(mobileApproachPoint([89, 72], [63, 81]), [64.82, 80.37]);
 });

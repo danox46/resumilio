@@ -77,7 +77,7 @@ async function nodeLabelCenterOffsets(page: Page) {
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, mobileTransitionSync: false, mobileSpatialContinuity: false, mobileSearchSpatialContinuity: false, mobileSimilarSpatialContinuity: false, mobileTransitionScreenshots: [] as string[], outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, mobileTransitionSync: false, mobileSpatialContinuity: false, mobileRepositionPhase: false, mobileRestingSlotMath: false, mobileSearchSpatialContinuity: false, mobileSimilarSpatialContinuity: false, mobileTransitionScreenshots: [] as string[], outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -551,11 +551,13 @@ try {
     return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
   })));
   await mobileMotionPage.locator(".claim-node").first().click();
-  const mobileTransitionSamples: Array<{ phase: string | null; incomingFrame: number | null; labeledNodes: number; advancingReserves: number; incomingLabelOpacity: number | null; mobileMapOpacity: number; incomingOrigins: string[] }> = [];
+  type MobileNodeGeometry = { claimId: string | null; distance: number; centerX: number; centerY: number; targetX: number; targetY: number };
+  const mobileTransitionSamples: Array<{ phase: string | null; incomingFrame: number | null; labeledNodes: number; advancingReserves: number; incomingLabelOpacity: number | null; mobileMapOpacity: number; incomingOrigins: string[]; nodeGeometry: MobileNodeGeometry[] }> = [];
   let incomingFrame = 0;
-  for (let sample = 0; sample < 18; sample += 1) {
+  for (let sample = 0; sample < 20; sample += 1) {
     const transitionSample = await mobileMotionPage.evaluate(() => {
       const incoming = document.querySelector<HTMLElement>('.claim-node[data-node-role="incoming"]');
+      const stageRect = document.querySelector<HTMLElement>(".graph-stage")!.getBoundingClientRect();
       return {
         phase: document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") ?? null,
         labeledNodes: [...document.querySelectorAll<HTMLElement>(".claim-node")].filter((node) => getComputedStyle(node).display !== "none").length,
@@ -568,6 +570,17 @@ try {
             const style = getComputedStyle(node);
             return `${style.getPropertyValue("--mobile-from-x").trim()}|${style.getPropertyValue("--mobile-from-y").trim()}`;
           }),
+        nodeGeometry: [...document.querySelectorAll<HTMLElement>(".claim-node")]
+          .filter((node) => getComputedStyle(node).display !== "none")
+          .map((node) => {
+            const style = getComputedStyle(node);
+            const rect = node.getBoundingClientRect();
+            const targetX = stageRect.left + stageRect.width * Number.parseFloat(style.getPropertyValue("--mobile-x")) / 100;
+            const targetY = stageRect.top + stageRect.height * Number.parseFloat(style.getPropertyValue("--mobile-y")) / 100;
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            return { claimId: node.getAttribute("data-claim-id"), distance: Math.hypot(centerX - targetX, centerY - targetY), centerX, centerY, targetX, targetY };
+          }),
       };
     });
     mobileTransitionSamples.push({ ...transitionSample, incomingFrame: transitionSample.phase === "in" ? incomingFrame++ : null });
@@ -575,6 +588,11 @@ try {
       const mobileTransitionIn = join(outputDirectory, "mobile-transition-in.png");
       await mobileMotionPage.screenshot({ path: mobileTransitionIn });
       report.mobileTransitionScreenshots.push(mobileTransitionIn);
+    }
+    if (transitionSample.phase === "reposition" && report.mobileTransitionScreenshots.length === 1) {
+      const mobileTransitionReposition = join(outputDirectory, "mobile-transition-reposition.png");
+      await mobileMotionPage.screenshot({ path: mobileTransitionReposition });
+      report.mobileTransitionScreenshots.push(mobileTransitionReposition);
     }
     await mobileMotionPage.waitForTimeout(60);
   }
@@ -588,10 +606,31 @@ try {
   const incomingOrigins = new Set(mobileTransitionSamples.flatMap((sample) => sample.incomingOrigins));
   report.mobileSpatialContinuity = incomingOrigins.size > 0 && [...incomingOrigins].every((origin) => mobileReserveOrigins.has(origin));
   if (!report.mobileSpatialContinuity) throw new Error(`Mobile incoming nodes did not originate at visible pre-click reserve bubbles: ${JSON.stringify({ mobileReserveOrigins: [...mobileReserveOrigins], incomingOrigins: [...incomingOrigins] })}.`);
+  const repositionSamples = mobileTransitionSamples.filter((sample) => sample.phase === "reposition");
+  const firstRepositionGeometry = repositionSamples[0]?.nodeGeometry ?? [];
+  const lastRepositionGeometry = repositionSamples.at(-1)?.nodeGeometry ?? [];
+  report.mobileRepositionPhase = repositionSamples.length >= 2
+    && firstRepositionGeometry.some((node) => node.distance > 1 && node.distance <= 18)
+    && lastRepositionGeometry.every((node) => node.distance <= 1.25);
+  if (!report.mobileRepositionPhase) throw new Error(`Mobile nodes did not use the bounded finishing slide: ${JSON.stringify(repositionSamples)}.`);
   await mobileMotionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
   await mobileMotionPage.waitForFunction(() => [...document.querySelectorAll<HTMLElement>(".claim-node")]
     .filter((node) => getComputedStyle(node).display !== "none")
     .every((node) => Number(getComputedStyle(node.querySelector("strong")!).opacity) > .9));
+  const settledGeometry = await mobileMotionPage.evaluate(() => {
+    const stageRect = document.querySelector<HTMLElement>(".graph-stage")!.getBoundingClientRect();
+    return [...document.querySelectorAll<HTMLElement>(".claim-node")]
+      .filter((node) => getComputedStyle(node).display !== "none")
+      .map((node) => {
+        const style = getComputedStyle(node);
+        const rect = node.getBoundingClientRect();
+        const targetX = stageRect.left + stageRect.width * Number.parseFloat(style.getPropertyValue("--mobile-x")) / 100;
+        const targetY = stageRect.top + stageRect.height * Number.parseFloat(style.getPropertyValue("--mobile-y")) / 100;
+        return { claimId: node.getAttribute("data-claim-id"), distance: Math.hypot(rect.left + rect.width / 2 - targetX, rect.top + rect.height / 2 - targetY) };
+      });
+  });
+  report.mobileRestingSlotMath = settledGeometry.length === 3 && settledGeometry.every((node) => node.distance <= 1.25);
+  if (!report.mobileRestingSlotMath) throw new Error(`Mobile nodes did not settle on their assigned slot centers: ${JSON.stringify(settledGeometry)}.`);
   const mobileTransitionSettled = join(outputDirectory, "mobile-transition-settled.png");
   await mobileMotionPage.screenshot({ path: mobileTransitionSettled });
   report.mobileTransitionScreenshots.push(mobileTransitionSettled);
@@ -710,7 +749,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.mobileTransitionSync || !report.mobileSpatialContinuity || !report.mobileSearchSpatialContinuity || !report.mobileSimilarSpatialContinuity || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.mobileTransitionSync || !report.mobileSpatialContinuity || !report.mobileRepositionPhase || !report.mobileRestingSlotMath || !report.mobileSearchSpatialContinuity || !report.mobileSimilarSpatialContinuity || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

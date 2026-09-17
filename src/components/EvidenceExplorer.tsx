@@ -30,7 +30,7 @@ const sessionKey = "resumilio:discovery:v1";
 const visibleNeighborhoodSize = constellationNeighborhoodSize;
 type Claim = ResumilioProfile["claims"][number];
 type InteractiveAvatarReaction = "nod" | "smile";
-type TransitionPhase = "idle" | "out" | "in";
+type TransitionPhase = "idle" | "out" | "in" | "reposition";
 type SelectionSignal = { kind: "search" | "more-like-this"; topics: string[]; claimId?: string };
 type SelectionIntent = { claimId: string; reaction: "guide" | "smile"; precedingSignal?: SelectionSignal };
 type ActiveTransition = {
@@ -43,7 +43,8 @@ type TransitionState = { phase: "idle" } | ActiveTransition;
 type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
 const transitionCommitMs = 432;
-const transitionSettleMs = 945;
+const transitionRepositionMs = 864;
+const transitionSettleMs = 1_104;
 const minimumBackgroundNodeCount = 15;
 
 const copy = {
@@ -364,6 +365,9 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         setTransition((current) => current.phase === "idle" ? current : { ...current, phase: "in" });
       }, transitionCommitMs),
       window.setTimeout(() => {
+        setTransition((current) => current.phase === "idle" ? current : { ...current, phase: "reposition" });
+      }, transitionRepositionMs),
+      window.setTimeout(() => {
         const nextRetired = layer.outgoingIds.map((claimId) => ({ claimId, point: layer.retreatPointByClaimId[claimId] }));
         if (!layer.previousCenterRetained) nextRetired.push({ claimId: selected.id, point: [96, 88] });
         setRetiredNodes(nextRetired);
@@ -483,19 +487,28 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     let mobileSlotIndex = layerPlan.mobileSlotByClaimId[claim.id] ?? index % mobileConstellationSlots.length;
     let drift: ConstellationDrift = layerPlan.driftByClaimId[claim.id] ?? [0, 0];
     let role = hasTransitioned ? "settled" : "initial";
+    const sharedIds = avatarLayout === "stacked" ? transitionLayer?.mobileSharedIds : transitionLayer?.sharedIds;
+    const incomingIds = avatarLayout === "stacked" ? transitionLayer?.mobileIncomingIds : transitionLayer?.incomingIds;
+    const outgoingIds = avatarLayout === "stacked" ? transitionLayer?.mobileOutgoingIds : transitionLayer?.outgoingIds;
+    const previousCenterRetained = avatarLayout === "stacked"
+      ? transitionLayer?.mobilePreviousCenterRetained
+      : transitionLayer?.previousCenterRetained;
     if (transition.phase === "out") {
       if (transition.layer.targetId === claim.id) role = "selected-target";
-      else if (transition.layer.outgoingIds.includes(claim.id)) role = "outgoing";
-      else if (transition.layer.sharedIds.includes(claim.id)) {
+      else if (outgoingIds?.includes(claim.id)) role = "outgoing";
+      else if (sharedIds?.includes(claim.id)) {
         role = "shared";
         slotIndex = transition.layer.nextSlotByClaimId[claim.id];
         mobileSlotIndex = transition.layer.nextMobileSlotByClaimId[claim.id] ?? mobileSlotIndex;
         drift = transition.layer.nextDriftByClaimId[claim.id];
       }
-    } else if (transition.phase === "in") {
-      if (transition.layer.previousCenterRetained && claim.id === transition.fromSelectedId) role = "previous-center";
-      else if (transition.layer.incomingIds.includes(claim.id)) role = "incoming";
-      else if (transition.layer.sharedIds.includes(claim.id)) role = "shared";
+    } else if (transition.phase === "in" || transition.phase === "reposition") {
+      slotIndex = transition.layer.nextSlotByClaimId[claim.id] ?? slotIndex;
+      mobileSlotIndex = transition.layer.nextMobileSlotByClaimId[claim.id] ?? mobileSlotIndex;
+      drift = transition.layer.nextDriftByClaimId[claim.id] ?? drift;
+      if (previousCenterRetained && claim.id === transition.fromSelectedId) role = "previous-center";
+      else if (incomingIds?.includes(claim.id)) role = "incoming";
+      else if (sharedIds?.includes(claim.id)) role = "shared";
     }
     const slot = constellationSlots[slotIndex] ?? constellationSlots[index];
     const mobileSlot = mobileConstellationSlots[mobileSlotIndex] ?? mobileConstellationSlots[index % mobileConstellationSlots.length];
@@ -633,10 +646,12 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 ...(retreat ? { "--retreat-x": `${retreat[0]}%`, "--retreat-y": `${retreat[1]}%` } : {}),
                 ...(reserveSource ? {
                   "--from-x": `${reserveSource.origin[0]}%`, "--from-y": `${reserveSource.origin[1]}%`,
+                  "--approach-x": `${reserveSource.approach[0]}%`, "--approach-y": `${reserveSource.approach[1]}%`,
                   "--reserve-scale": reserveSource.scale,
                 } : {}),
                 ...(mobileReserveSource ? {
                   "--mobile-from-x": `${mobileReserveSource.origin[0]}%`, "--mobile-from-y": `${mobileReserveSource.origin[1]}%`,
+                  "--mobile-approach-x": `${mobileReserveSource.approach[0]}%`, "--mobile-approach-y": `${mobileReserveSource.approach[1]}%`,
                   "--reserve-scale": mobileReserveSource.scale,
                 } : {}),
               } as CSSProperties;
