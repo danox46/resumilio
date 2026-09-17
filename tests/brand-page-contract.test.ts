@@ -47,8 +47,11 @@ test("the brand page offers a real profile and public source", () => {
 test("the identity is native, responsive, and motion-safe", () => {
   assert.match(component, /class="brand-mark"/);
   assert.match(component, /class="brand-mark-line brand-mark-line--spine"/);
-  assert.equal(component.match(/class="brand-mark-taper"/g)?.length, 5);
+  assert.match(component, /class="brand-mark-line brand-mark-line--fold"/);
+  assert.equal(component.match(/class="brand-mark-taper"/g)?.length, 4);
   assert.match(styles, /\.brand-mark \.brand-mark-taper \{[^}]*fill: var\(--brand-amber\);/s);
+  assert.match(styles, /\.brand-mark-line--spine \{[^}]*stroke-width: 1\.45;/s);
+  assert.match(styles, /\.brand-mark-line--fold \{[^}]*stroke-width: \.68;/s);
   assert.doesNotMatch(styles, /brand-mark-depth/);
   assert.match(styles, /--brand-amber:/);
   assert.match(styles, /@media \(max-width: 760px\)/);

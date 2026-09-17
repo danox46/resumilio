@@ -23,7 +23,8 @@ a:focus-visible { outline: 2px solid var(--brand-amber); outline-offset: 4px; }
 .brand-mark { width: 42px; height: 42px; overflow: visible; }
 .brand-mark path { fill: none; stroke: var(--brand-amber); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .brand-mark-line { stroke-width: .8; opacity: .64; }
-.brand-mark-line--spine { stroke-width: .72; opacity: .5; }
+.brand-mark-line--spine { stroke-width: 1.45; opacity: .78; }
+.brand-mark-line--fold { stroke-width: .68; opacity: .5; }
 .brand-mark .brand-mark-taper { fill: var(--brand-amber); stroke: none; opacity: .78; }
 .brand-mark circle { fill: var(--brand-amber); }
 .brand-header nav { display: flex; align-items: center; gap: clamp(22px, 3vw, 48px); }
