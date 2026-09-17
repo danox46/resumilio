@@ -29,6 +29,18 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(entryPages, /client:load/);
 });
 
+test("shareable resume pages expose a complete large social preview", () => {
+  const classicResume = readFileSync("src/components/ClassicResume.astro", "utf8");
+  assert.ok(existsSync("public/og.png"));
+  assert.ok(statSync("public/og.png").size > 0);
+  assert.equal(entryPages.match(/property="og:image" content=\{socialImage\}/g)?.length, 2);
+  assert.equal(entryPages.match(/name="twitter:card" content="summary_large_image"/g)?.length, 2);
+  assert.match(classicResume, /property="og:image" content=\{socialImage\}/);
+  assert.match(classicResume, /property="og:image:width" content="1200"/);
+  assert.match(classicResume, /property="og:image:height" content="630"/);
+  assert.match(classicResume, /name="twitter:card" content="summary_large_image"/);
+});
+
 test("visual motion and focus have accessible alternatives", () => {
   assert.match(styles, /:focus-visible/);
   assert.match(styles, /prefers-reduced-motion: reduce/);

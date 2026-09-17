@@ -9,6 +9,7 @@ import "../styles/global.css";
 const publicProfile = profile as ResumilioProfile;
 const canonical = absoluteUrl("/");
 const alternate = absoluteUrl("/es/");
+const socialImage = absoluteUrl("/og.png");
 const jsonLd = buildProfileJsonLd(publicProfile, "en");
 ---
 
@@ -29,11 +30,19 @@ const jsonLd = buildProfileJsonLd(publicProfile, "en");
     <meta property="og:title" content={`Daniel Rosales — ${publicProfile.profile.headline.en}`} />
     <meta property="og:description" content={publicProfile.profile.summary.en} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:secure_url" content={socialImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Daniel Rosales — CRM Integration Specialist and Automation Engineer" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="es_CO" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={`Daniel Rosales — ${publicProfile.profile.headline.en}`} />
     <meta name="twitter:description" content={publicProfile.profile.summary.en} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content="Daniel Rosales — CRM Integration Specialist and Automation Engineer" />
     <title>Daniel Rosales — {publicProfile.profile.headline.en}</title>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>
