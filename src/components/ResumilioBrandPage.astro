@@ -127,7 +127,12 @@ const jsonLd = {
   <body class="brand-body">
     <header class="brand-header">
       <a class="brand-wordmark" href={canonicalPath} aria-label="Resumilio">
-        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 9 21 18m0 0 13-10M21 18l2 15M8 9l-1 23m0 0 16 1m11-25 3 22m0 0-14 3"/><circle cx="8" cy="9" r="3"/><circle cx="21" cy="18" r="4"/><circle cx="34" cy="8" r="3"/><circle cx="7" cy="32" r="3"/><circle cx="23" cy="33" r="3"/><circle cx="37" cy="30" r="3"/></svg>
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="brand-mark-line brand-mark-line--spine" d="M8 9 7 32M34 8 37 30"/>
+          <path class="brand-mark-line" d="M8 9 21 18M34 8 21 18M7 32 23 33M37 30 23 33M21 18 23 33"/>
+          <path class="brand-mark-depth" d="M14 13 21 18M28 13 21 18M15 32.5 23 33M30 31.5 23 33M22 25 23 33"/>
+          <circle cx="8" cy="9" r="3"/><circle cx="21" cy="18" r="4"/><circle cx="34" cy="8" r="3"/><circle cx="7" cy="32" r="3"/><circle cx="23" cy="33" r="3"/><circle cx="37" cy="30" r="3"/>
+        </svg>
         <span>resumilio</span>
       </a>
       <nav aria-label={isEnglish ? "Product" : "Producto"}>

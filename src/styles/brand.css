@@ -21,7 +21,10 @@ a:focus-visible { outline: 2px solid var(--brand-amber); outline-offset: 4px; }
 .brand-header { max-width: 1500px; min-height: 86px; margin: 0 auto; padding: 16px clamp(22px, 5vw, 76px); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 28px; }
 .brand-wordmark { display: inline-flex; width: max-content; align-items: center; gap: 12px; color: var(--brand-ink); font-size: 23px; font-weight: 700; letter-spacing: -.045em; text-decoration: none; }
 .brand-mark { width: 42px; height: 42px; overflow: visible; }
-.brand-mark path { fill: none; stroke: var(--brand-amber); stroke-width: 1.2; }
+.brand-mark path { fill: none; stroke: var(--brand-amber); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.brand-mark-line { stroke-width: .8; opacity: .64; }
+.brand-mark-line--spine { stroke-width: .72; opacity: .5; }
+.brand-mark-depth { stroke-width: 1.85; opacity: .78; }
 .brand-mark circle { fill: var(--brand-amber); }
 .brand-header nav { display: flex; align-items: center; gap: clamp(22px, 3vw, 48px); }
 .brand-header nav a, .brand-profile-link { font-size: 13px; font-weight: 600; text-decoration: none; }
