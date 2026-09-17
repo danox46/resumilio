@@ -53,7 +53,13 @@ test("the identity is native, responsive, and motion-safe", () => {
   assert.match(styles, /\.brand-mark-line--spine \{[^}]*stroke-width: 1\.45;/s);
   assert.match(styles, /\.brand-mark-line--fold \{[^}]*stroke-width: 1\.18;/s);
   assert.doesNotMatch(styles, /brand-mark-depth/);
-  assert.match(styles, /--brand-amber:/);
+  assert.match(styles, /--brand-paper: #f6f2e9;/);
+  assert.match(styles, /--brand-ink: #1c2433;/);
+  assert.match(styles, /--brand-amber: #c17a12;/);
+  assert.match(styles, /--brand-orbit: #5573a7;/);
+  assert.match(styles, /--brand-leaf: #426b50;/);
+  assert.match(styles, /--brand-line: #d3d8e1;/);
+  assert.match(styles, /\.proof-lines path \{[^}]*stroke: var\(--brand-orbit\);/s);
   assert.match(styles, /@media \(max-width: 760px\)/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
   assert.doesNotMatch(component, /<img|stock|unsplash/i);
