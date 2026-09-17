@@ -527,7 +527,7 @@ try {
   await queuePage.locator(".claim-node").nth(1).click();
   await queuePage.waitForFunction((claimId) => document.querySelector(".graph-stage")?.getAttribute("data-queued-claim") === claimId, latestQueuedTarget);
   await queuePage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId
-    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle", latestQueuedTarget, { timeout: 3000 });
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle", latestQueuedTarget, { timeout: 6000 });
   report.latestSelectionQueue = Boolean(firstQueuedTarget && latestQueuedTarget && firstQueuedTarget !== latestQueuedTarget);
   await queueContext.close();
 
@@ -554,7 +554,7 @@ try {
   type MobileNodeGeometry = { claimId: string | null; distance: number; centerX: number; centerY: number; targetX: number; targetY: number };
   const mobileTransitionSamples: Array<{ phase: string | null; incomingFrame: number | null; labeledNodes: number; advancingReserves: number; incomingLabelOpacity: number | null; mobileMapOpacity: number; incomingOrigins: string[]; nodeGeometry: MobileNodeGeometry[] }> = [];
   let incomingFrame = 0;
-  for (let sample = 0; sample < 20; sample += 1) {
+  for (let sample = 0; sample < 30; sample += 1) {
     const transitionSample = await mobileMotionPage.evaluate(() => {
       const incoming = document.querySelector<HTMLElement>('.claim-node[data-node-role="incoming"]');
       const stageRect = document.querySelector<HTMLElement>(".graph-stage")!.getBoundingClientRect();
@@ -594,7 +594,7 @@ try {
       await mobileMotionPage.screenshot({ path: mobileTransitionReposition });
       report.mobileTransitionScreenshots.push(mobileTransitionReposition);
     }
-    await mobileMotionPage.waitForTimeout(60);
+    await mobileMotionPage.waitForTimeout(80);
   }
   report.mobileTransitionNodeCeiling = mobileTransitionSamples.every((sample) => sample.labeledNodes === 3)
     && mobileTransitionSamples.every((sample) => sample.phase !== "in" || sample.advancingReserves === 0);

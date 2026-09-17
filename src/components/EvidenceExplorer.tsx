@@ -42,9 +42,9 @@ type ActiveTransition = {
 type TransitionState = { phase: "idle" } | ActiveTransition;
 type RetiredNode = { claimId: string; point: ConstellationPoint };
 const stackedAvatarQuery = "(max-width: 700px)";
-const transitionCommitMs = 432;
-const transitionRepositionMs = 864;
-const transitionSettleMs = 1_104;
+const transitionCommitMs = 864;
+const transitionRepositionMs = 1_728;
+const transitionSettleMs = 2_208;
 const minimumBackgroundNodeCount = 15;
 
 const copy = {
@@ -565,13 +565,13 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
                 key={edge.key}
                 className="background-edge background-edge--reserve"
                 x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
-                style={{ "--edge-delay": `${122 + edge.branchIndex * 18 + edge.nodeIndex * 12}ms` } as CSSProperties}
+                style={{ "--edge-delay": `${244 + edge.branchIndex * 36 + edge.nodeIndex * 24}ms` } as CSSProperties}
               />)}
               {backgroundEchoEdges.map((edge) => <line
                 key={edge.key}
                 className="background-edge background-edge--echo"
                 x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]}
-                style={{ "--edge-delay": `${176 + edge.nodeIndex * 14}ms` } as CSSProperties}
+                style={{ "--edge-delay": `${352 + edge.nodeIndex * 28}ms` } as CSSProperties}
               />)}
             </svg>
             <div className="reserve-layers" aria-hidden="true">

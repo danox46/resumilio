@@ -455,14 +455,14 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .retired-node {
   width: clamp(54px, 6vw, 104px);
   opacity: .16;
-  animation: retired-node-arrival 513ms cubic-bezier(.2,.78,.22,1) both;
+  animation: retired-node-arrival 1026ms cubic-bezier(.2,.78,.22,1) both;
 }
 .reserve-node--advancing {
   left: var(--from-x);
   top: var(--from-y);
   z-index: 4;
   border-color: rgb(242 175 75 / 44%);
-  animation: reserve-ready 432ms cubic-bezier(.18,.8,.26,1) both;
+  animation: reserve-ready 864ms cubic-bezier(.18,.8,.26,1) both;
 }
 .queued-target-node {
   left: var(--from-x);
@@ -470,7 +470,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   z-index: 5;
   width: clamp(112px, 9.2vw, 148px);
   opacity: .14;
-  animation: queued-target-advance 432ms cubic-bezier(.18,.8,.26,1) both;
+  animation: queued-target-advance 864ms cubic-bezier(.18,.8,.26,1) both;
 }
 .experience-shell .relationship-map { z-index: 1; }
 .mobile-relationship-map { display: none; }
@@ -500,7 +500,7 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   box-shadow: 0 0 0 5px rgb(242 175 75 / 3%), 0 12px 36px rgb(0 0 0 / 25%);
   text-align: center;
   transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px)));
-  transition: left 432ms cubic-bezier(.18,.8,.26,1), top 432ms cubic-bezier(.18,.8,.26,1), transform 432ms cubic-bezier(.18,.8,.26,1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: left 864ms cubic-bezier(.18,.8,.26,1), top 864ms cubic-bezier(.18,.8,.26,1), transform 864ms cubic-bezier(.18,.8,.26,1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 .experience-shell .claim-node--initial { animation: node-arrival 360ms both; animation-delay: calc(var(--order) * 45ms); }
 .experience-shell .claim-node--initial strong { animation: node-label-arrival 594ms 122ms both; }
@@ -709,30 +709,30 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   from { opacity: 0; stroke-dashoffset: 14; }
   to { stroke-dashoffset: 0; }
 }
-.graph-stage[data-transition-phase="out"] .constellation-depth-field { animation: constellation-field-recede 432ms cubic-bezier(.3,.05,.4,1) both; }
-.graph-stage[data-transition-phase="in"] .constellation-depth-field { animation: constellation-field-align 432ms cubic-bezier(.18,.8,.26,1) both; }
+.graph-stage[data-transition-phase="out"] .constellation-depth-field { animation: constellation-field-recede 864ms cubic-bezier(.3,.05,.4,1) both; }
+.graph-stage[data-transition-phase="in"] .constellation-depth-field { animation: constellation-field-align 864ms cubic-bezier(.18,.8,.26,1) both; }
 .graph-stage[data-transition-phase="in"] .reserve-layers .reserve-node,
-.graph-stage[data-transition-phase="reposition"] .reserve-layers .reserve-node { animation: background-node-materialize 594ms calc(var(--order) * 12ms) ease-out both; }
+.graph-stage[data-transition-phase="reposition"] .reserve-layers .reserve-node { animation: background-node-materialize 1188ms calc(var(--order) * 24ms) ease-out both; }
 .graph-stage[data-transition-phase="in"] .depth-echo-node,
-.graph-stage[data-transition-phase="reposition"] .depth-echo-node { animation: background-node-materialize 594ms calc(var(--order) * 10ms) ease-out both; }
+.graph-stage[data-transition-phase="reposition"] .depth-echo-node { animation: background-node-materialize 1188ms calc(var(--order) * 20ms) ease-out both; }
 .graph-stage[data-transition-phase="in"] .background-edge--reserve,
 .graph-stage[data-transition-phase="in"] .background-edge--echo,
 .graph-stage[data-transition-phase="reposition"] .background-edge--reserve,
-.graph-stage[data-transition-phase="reposition"] .background-edge--echo { stroke-dasharray: 14 7; animation: background-edge-arrival 513ms var(--edge-delay, 122ms) ease-out both; }
-.graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 243ms ease-in both; }
-.graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 432ms cubic-bezier(.18,.8,.26,1) both; }
-.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 432ms ease-in both; }
-.graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 243ms ease-in; }
-.graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 432ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 432ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="reposition"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-reposition 200ms cubic-bezier(.2,.78,.22,1) both; }
-.graph-stage[data-transition-phase="in"] .claim-node--incoming strong { animation: incoming-node-label-arrival 140ms 292ms ease-out both; }
-.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 432ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="reposition"] .background-edge--echo { stroke-dasharray: 14 7; animation: background-edge-arrival 1026ms var(--edge-delay, 244ms) ease-out both; }
+.graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 486ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 864ms cubic-bezier(.18,.8,.26,1) both; }
+.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 864ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 486ms ease-in; }
+.graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 864ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 864ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="reposition"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-reposition 400ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .claim-node--incoming strong { animation: incoming-node-label-arrival 280ms 584ms ease-out both; }
+.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 864ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .relationship-map,
-.graph-stage[data-transition-phase="reposition"] .relationship-map { animation: relation-arrival 338ms 94ms ease-out both; }
-.graph-stage[data-transition-phase="out"] .mobile-relationship-map { opacity: 0; transition: opacity 180ms ease-in; }
+.graph-stage[data-transition-phase="reposition"] .relationship-map { animation: relation-arrival 676ms 188ms ease-out both; }
+.graph-stage[data-transition-phase="out"] .mobile-relationship-map { opacity: 0; transition: opacity 360ms ease-in; }
 .graph-stage[data-transition-phase="in"] .mobile-relationship-map,
-.graph-stage[data-transition-phase="reposition"] .mobile-relationship-map { animation: mobile-relation-arrival 120ms 312ms ease-out both; }
+.graph-stage[data-transition-phase="reposition"] .mobile-relationship-map { animation: mobile-relation-arrival 240ms 624ms ease-out both; }
 @keyframes mobile-relation-arrival { from { opacity: 0; } to { opacity: 1; } }
 
 @media (min-width: 701px) {
@@ -953,8 +953,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation-name: mobile-node-depart; }
   .graph-stage[data-transition-phase="out"] .claim-node--selected-target { animation-name: mobile-node-promote; }
   .graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation-name: mobile-previous-center-out; }
-  .graph-stage[data-transition-phase="in"] .claim-node.claim-node--incoming:not(.claim-node--previous-center) { animation: mobile-incoming-node-arrival 432ms cubic-bezier(.2,.78,.22,1) both; }
-  .graph-stage[data-transition-phase="reposition"] .claim-node.claim-node--incoming:not(.claim-node--previous-center) { animation: mobile-incoming-node-reposition 200ms cubic-bezier(.2,.78,.22,1) both; }
+  .graph-stage[data-transition-phase="in"] .claim-node.claim-node--incoming:not(.claim-node--previous-center) { animation: mobile-incoming-node-arrival 864ms cubic-bezier(.2,.78,.22,1) both; }
+  .graph-stage[data-transition-phase="reposition"] .claim-node.claim-node--incoming:not(.claim-node--previous-center) { animation: mobile-incoming-node-reposition 400ms cubic-bezier(.2,.78,.22,1) both; }
   .graph-stage[data-transition-phase="out"] .experience-focus { animation-name: mobile-feature-depart; }
   .graph-stage[data-transition-phase="in"] .experience-focus { animation-name: mobile-feature-arrival; }
 }

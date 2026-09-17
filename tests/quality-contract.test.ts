@@ -38,9 +38,9 @@ test("visual motion and focus have accessible alternatives", () => {
 });
 
 test("the constellation preloads semantic reserve layers with a quiet mobile presentation", () => {
-  assert.match(component, /transitionCommitMs = 432/);
-  assert.match(component, /transitionRepositionMs = 864/);
-  assert.match(component, /transitionSettleMs = 1_104/);
+  assert.match(component, /transitionCommitMs = 864/);
+  assert.match(component, /transitionRepositionMs = 1_728/);
+  assert.match(component, /transitionSettleMs = 2_208/);
   assert.match(component, /minimumBackgroundNodeCount = 15/);
   assert.match(component, /mobilePoolReserves = mobileReservePool\.map/);
   assert.match(component, /backgroundLayers\.flatMap\(\(layer\) => layer\.reserveNodes\)/);
@@ -52,8 +52,8 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(component, /data-node-role=\{role\}/);
   assert.match(styles, /@keyframes reserve-ready/);
   assert.match(styles, /@keyframes previous-center-out/);
-  assert.match(styles, /constellation-field-recede 432ms/);
-  assert.match(styles, /constellation-field-align 432ms/);
+  assert.match(styles, /constellation-field-recede 864ms/);
+  assert.match(styles, /constellation-field-align 864ms/);
   assert.match(component, /claim-node--text-\$\{textDensity\}/);
   assert.match(component, /previewText\(title, 44\)/);
   assert.match(component, /previewText\(summary, 126\)/);
@@ -77,14 +77,14 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /\.experience-shell \.claim-node:nth-child\(n \+ 4\) \{ display: none; \}/);
   assert.match(styles, /@keyframes mobile-incoming-node-arrival/);
   assert.match(styles, /@keyframes mobile-incoming-node-reposition/);
-  assert.match(styles, /claim-node\.claim-node--incoming:not\(\.claim-node--previous-center\) \{ animation: mobile-incoming-node-arrival 432ms/);
-  assert.match(styles, /claim-node\.claim-node--incoming:not\(\.claim-node--previous-center\) \{ animation: mobile-incoming-node-reposition 200ms/);
+  assert.match(styles, /claim-node\.claim-node--incoming:not\(\.claim-node--previous-center\) \{ animation: mobile-incoming-node-arrival 864ms/);
+  assert.match(styles, /claim-node\.claim-node--incoming:not\(\.claim-node--previous-center\) \{ animation: mobile-incoming-node-reposition 400ms/);
   assert.match(styles, /left: var\(--mobile-from-x\); top: var\(--mobile-from-y\)/);
   assert.match(styles, /left: var\(--mobile-approach-x\); top: var\(--mobile-approach-y\)/);
   assert.match(styles, /left: var\(--mobile-x\); top: var\(--mobile-y\)/);
   assert.doesNotMatch(styles, /claim-node:nth-child\(1\) \{ left:/);
-  assert.match(styles, /incoming-node-label-arrival 140ms 292ms/);
-  assert.match(styles, /mobile-relation-arrival 120ms 312ms/);
+  assert.match(styles, /incoming-node-label-arrival 280ms 584ms/);
+  assert.match(styles, /mobile-relation-arrival 240ms 624ms/);
   assert.match(styles, /data-transition-phase="reposition"/);
   assert.match(component, /transition\.phase === "out" && transitionLayer && <div className="transition-reserves"/);
   assert.equal(component.match(/size: (144|210|310), tone:/g)?.length, 3);
