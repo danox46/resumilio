@@ -2,7 +2,7 @@
 import type { Locale, ResumilioProfile } from "../profile";
 import { marketClaimSummary } from "../presentation";
 import { claimShowcases } from "../showcase";
-import { absoluteUrl, classicClaimPath, classicPath, localeRoot, meetingUrl, publicPath } from "../site";
+import { absoluteUrl, classicClaimPath, classicPath, localeRoot, meetingUrl, publicPath, resumilioUrl } from "../site";
 import { buildProfileJsonLd } from "../structured-data";
 import "../styles/classic-resume.css";
 
@@ -11,6 +11,7 @@ const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const copy = locale === "en" ? {
   back: "Interactive resume",
   meeting: "Book a meeting",
+  poweredBy: "Powered by Resumilio",
   loadMore: "Load more",
   sections: {
     experience: "Experience",
@@ -23,6 +24,7 @@ const copy = locale === "en" ? {
 } : {
   back: "Currículum interactivo",
   meeting: "Agendar una reunión",
+  poweredBy: "Creado con Resumilio",
   loadMore: "Cargar más",
   sections: {
     experience: "Experiencia",
@@ -137,6 +139,9 @@ const pageSize = 3;
           </button>}
         </div>
       </details>)}
+      <footer class="resume-attribution">
+        <a href={resumilioUrl} target="_blank" rel="noopener noreferrer">{copy.poweredBy}</a>
+      </footer>
     </main>
     <script is:inline>
       const pageSize = 3;

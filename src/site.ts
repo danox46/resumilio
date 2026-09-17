@@ -6,6 +6,7 @@ const nodeEnvironment = (globalThis as typeof globalThis & { process?: { env?: R
 export const siteOrigin = (viteEnvironment?.PUBLIC_SITE_ORIGIN ?? nodeEnvironment?.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
 export const basePath = `/${String(viteEnvironment?.PUBLIC_BASE_PATH ?? nodeEnvironment?.PUBLIC_BASE_PATH ?? "").replace(/^\/+|\/+$/g, "")}`.replace(/^\/$/, "");
 export const meetingUrl = "https://calendar.app.google/cYk39Z5KxyPobwMg7";
+export const resumilioUrl = "https://resumilio.danienremoto.com/";
 
 export function publicPath(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

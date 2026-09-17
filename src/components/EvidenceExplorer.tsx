@@ -24,7 +24,7 @@ import {
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle } from "../presentation.js";
 import { claimShowcase, claimShowcases } from "../showcase.js";
-import { classicClaimPath, localeRoot, meetingUrl } from "../site.js";
+import { classicClaimPath, localeRoot, meetingUrl, resumilioUrl } from "../site.js";
 import AvatarGuide from "./AvatarGuide.js";
 
 const sessionKey = "resumilio:discovery:v1";
@@ -57,6 +57,7 @@ const copy = {
     view: "Classic View",
     more: "Similar Work",
     contact: "Let's Talk",
+    poweredBy: "Powered by Resumilio",
     reset: "Reset",
     empty: "No experience matches that search. Try a skill, company, or project.",
     graphHelp: "A small set of related experience appears at a time. Select a circle to reform the constellation around it. Use arrow keys to move between visible circles.",
@@ -70,6 +71,7 @@ const copy = {
     view: "Vista clásica",
     more: "Trabajo similar",
     contact: "Hablemos",
+    poweredBy: "Creado con Resumilio",
     reset: "Reiniciar",
     empty: "No encontramos experiencia con esa búsqueda. Prueba una habilidad, empresa o proyecto.",
     graphHelp: "Mostramos un grupo pequeño de experiencia relacionada. Elige un círculo para reorganizar la constelación. Usa las flechas para recorrer los círculos visibles.",
@@ -529,7 +531,10 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
 
   return <div className="experience-shell">
     <header className="constellation-header">
-      <a className="constellation-wordmark" href={localeRoot(locale)}><strong>{profile.profile.name[locale]}</strong><span>{profile.profile.headline[locale]}</span></a>
+      <div className="constellation-identity">
+        <a className="constellation-wordmark" href={localeRoot(locale)}><strong>{profile.profile.name[locale]}</strong><span>{profile.profile.headline[locale]}</span></a>
+        <a className="resumilio-attribution" href={resumilioUrl} target="_blank" rel="noopener noreferrer">{t.poweredBy}</a>
+      </div>
       <form className={`search-controls${mobileSearchOpen ? " search-controls--open" : ""}`} role="search" onSubmit={(event) => { submitSearch(event); setMobileSearchOpen(false); }}>
         <button className="mobile-search-toggle" type="button" aria-label={t.search} aria-expanded={mobileSearchOpen} onClick={() => setMobileSearchOpen((current) => !current)}><SearchIcon/></button>
         <label className="search-field"><span className="sr-only">{t.search}</span><SearchIcon/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder}/></label>

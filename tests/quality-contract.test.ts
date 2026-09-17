@@ -41,6 +41,16 @@ test("shareable resume pages expose a complete large social preview", () => {
   assert.match(classicResume, /name="twitter:card" content="summary_large_image"/);
 });
 
+test("interactive and classic resumes credit the Resumilio engine", () => {
+  const classicResume = readFileSync("src/components/ClassicResume.astro", "utf8");
+  assert.match(siteSource, /resumilioUrl = "https:\/\/resumilio\.danienremoto\.com\/"/);
+  assert.match(component, /className="resumilio-attribution" href=\{resumilioUrl\}/);
+  assert.match(component, /poweredBy: "Powered by Resumilio"/);
+  assert.match(component, /poweredBy: "Creado con Resumilio"/);
+  assert.match(classicResume, /class="resume-attribution"/);
+  assert.match(classicResume, /href=\{resumilioUrl\}/);
+});
+
 test("visual motion and focus have accessible alternatives", () => {
   assert.match(styles, /:focus-visible/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
