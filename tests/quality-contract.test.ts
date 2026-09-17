@@ -54,6 +54,8 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /@keyframes previous-center-out/);
   assert.match(styles, /constellation-field-recede 864ms/);
   assert.match(styles, /constellation-field-align 864ms/);
+  assert.match(styles, /experience-focus \{ animation: feature-depart 432ms/);
+  assert.match(styles, /experience-focus \{ animation: feature-arrival 432ms/);
   assert.match(component, /claim-node--text-\$\{textDensity\}/);
   assert.match(component, /previewText\(title, 44\)/);
   assert.match(component, /previewText\(summary, 126\)/);

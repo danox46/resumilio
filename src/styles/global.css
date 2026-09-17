@@ -721,13 +721,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .graph-stage[data-transition-phase="reposition"] .background-edge--echo { stroke-dasharray: 14 7; animation: background-edge-arrival 1026ms var(--edge-delay, 244ms) ease-out both; }
 .graph-stage[data-transition-phase="out"] .claim-node--outgoing { animation: node-depart 486ms ease-in both; }
 .graph-stage[data-transition-phase="out"] .claim-node--selected-target { z-index: 9; animation: node-promote 864ms cubic-bezier(.18,.8,.26,1) both; }
-.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 864ms ease-in both; }
+.graph-stage[data-transition-phase="out"] .experience-focus { animation: feature-depart 432ms ease-in both; }
 .graph-stage[data-transition-phase="out"] .relationship-map { opacity: 0; transition: opacity 486ms ease-in; }
 .graph-stage[data-transition-phase="in"] .claim-node--previous-center { animation: previous-center-out 864ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-arrival 864ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="reposition"] .claim-node--incoming:not(.claim-node--previous-center) { animation: incoming-node-reposition 400ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .claim-node--incoming strong { animation: incoming-node-label-arrival 280ms 584ms ease-out both; }
-.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 864ms cubic-bezier(.2,.78,.22,1) both; }
+.graph-stage[data-transition-phase="in"] .experience-focus { animation: feature-arrival 432ms cubic-bezier(.2,.78,.22,1) both; }
 .graph-stage[data-transition-phase="in"] .relationship-map,
 .graph-stage[data-transition-phase="reposition"] .relationship-map { animation: relation-arrival 676ms 188ms ease-out both; }
 .graph-stage[data-transition-phase="out"] .mobile-relationship-map { opacity: 0; transition: opacity 360ms ease-in; }
