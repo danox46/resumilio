@@ -1,0 +1,245 @@
+---
+import { absoluteUrl } from "../site";
+import "../styles/brand.css";
+
+interface Props { locale: "en" | "es"; }
+const { locale } = Astro.props;
+const isEnglish = locale === "en";
+const canonicalPath = isEnglish ? "/about/" : "/es/acerca/";
+const alternatePath = isEnglish ? "/es/acerca/" : "/about/";
+const canonical = absoluteUrl(canonicalPath);
+const profilePath = isEnglish ? "/" : "/es/";
+const howToPath = isEnglish ? "/how-to/" : "/es/como-usar/";
+
+const copy = isEnglish ? {
+  description: "Resumilio is an open-source, person-first living resume that keeps claims connected to evidence and lets agents help without taking over the story.",
+  navExperience: "Experience",
+  navHowTo: "How to use it",
+  navOpen: "Open source",
+  profile: "Live profile",
+  eyebrow: "A more human career profile",
+  titleLead: "Your career,",
+  titleAccent: "in motion.",
+  intro: "A living, visual resume that connects your work, proof, and possibilities — then adapts as people explore.",
+  explore: "Explore a live profile",
+  github: "View on GitHub",
+  quietly: "Explore visually. Export traditionally. Keep one source of truth.",
+  orbitLabel: "One person. Connected proof.",
+  focusItems: [
+    ["Your story", "Owned by you", "person"],
+    ["Open source", "Built for everyone", "source"],
+    ["Evidence connected", "Proof, not promises", "evidence"],
+    ["Agent assisted", "Help without takeover", "agents"],
+    ["Always current", "Grows with your work", "growth"],
+  ],
+  featureEyebrow: "What Resumilio gives you",
+  featureTitle: "One career. More ways to understand it.",
+  features: [
+    ["01", "A new visual experience", "Explore roles, projects, and proof as a connected constellation that reveals the shape of your work."],
+    ["02", "A classic resume, ready", "Keep a familiar, application-ready version beside the visual profile — without maintaining two stories."],
+    ["03", "Recommendations that react", "As someone explores, Resumilio surfaces the most relevant connected work and explains why it belongs."],
+  ],
+  principlesEyebrow: "Built on a few simple principles",
+  principles: [
+    ["Person first", "You are more than a list of skills. Resumilio keeps the person at the center — always."],
+    ["Evidence attached", "Claims mean more with proof. Link the work, outcomes, and sources directly."],
+    ["Useful without AI", "A strong profile stands on its own. Agents can help maintain it, but your story does not depend on them."],
+  ],
+  openEyebrow: "Open source by design",
+  openTitle: "Fork the engine. Keep your identity.",
+  openBody: "Resumilio is a public-good project with an MIT-licensed codebase and a separate trademark policy. The complete profile, search, validation, and local workflow work without a model key.",
+  source: "Read the source",
+  footer: "An open-source project for a more human job market.",
+} : {
+  description: "Resumilio es una hoja de vida viva, de código abierto y centrada en la persona, que conecta cada afirmación con evidencia y permite que los agentes ayuden sin adueñarse de la historia.",
+  navExperience: "Experiencia",
+  navHowTo: "Cómo usarlo",
+  navOpen: "Código abierto",
+  profile: "Perfil real",
+  eyebrow: "Un perfil profesional más humano",
+  titleLead: "Tu carrera,",
+  titleAccent: "en movimiento.",
+  intro: "Una hoja de vida viva y visual que conecta tu trabajo, evidencia y posibilidades, y se adapta a medida que la exploran.",
+  explore: "Explora un perfil real",
+  github: "Ver en GitHub",
+  quietly: "Explora visualmente. Exporta en formato clásico. Mantén una sola fuente de verdad.",
+  orbitLabel: "Una persona. Evidencia conectada.",
+  focusItems: [
+    ["Tu historia", "Te pertenece", "person"],
+    ["Código abierto", "Creado para todos", "source"],
+    ["Evidencia conectada", "Pruebas, no promesas", "evidence"],
+    ["Con agentes", "Ayuda sin tomar el control", "agents"],
+    ["Siempre al día", "Crece con tu trabajo", "growth"],
+  ],
+  featureEyebrow: "Lo que Resumilio te ofrece",
+  featureTitle: "Una carrera. Más formas de entenderla.",
+  features: [
+    ["01", "Una nueva experiencia visual", "Explora roles, proyectos y evidencia como una constelación conectada que revela la forma de tu trabajo."],
+    ["02", "Una hoja de vida clásica, lista", "Conserva una versión familiar y lista para aplicar junto al perfil visual, sin mantener dos historias."],
+    ["03", "Recomendaciones que reaccionan", "A medida que alguien explora, Resumilio muestra el trabajo conectado más relevante y explica por qué aparece."],
+  ],
+  principlesEyebrow: "Construido sobre principios sencillos",
+  principles: [
+    ["La persona primero", "Eres más que una lista de habilidades. Resumilio mantiene a la persona en el centro, siempre."],
+    ["Evidencia conectada", "Las afirmaciones dicen más con pruebas. Conecta directamente el trabajo, los resultados y las fuentes."],
+    ["Útil sin IA", "Un buen perfil se sostiene por sí mismo. Los agentes pueden ayudar a mantenerlo, pero tu historia no depende de ellos."],
+  ],
+  openEyebrow: "Código abierto por diseño",
+  openTitle: "Adapta el motor. Conserva tu identidad.",
+  openBody: "Resumilio es un proyecto de utilidad pública con código bajo licencia MIT y una política de marca separada. El perfil, la búsqueda, la validación y el flujo local completos funcionan sin una clave de modelo.",
+  source: "Lee el código",
+  footer: "Un proyecto de código abierto para un mercado laboral más humano.",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  name: "Resumilio",
+  description: copy.description,
+  codeRepository: "https://github.com/danox46/resumilio",
+  license: "https://github.com/danox46/resumilio/blob/main/LICENSE",
+  programmingLanguage: ["TypeScript", "Astro"],
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={copy.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={absoluteUrl("/about/")} />
+    <link rel="alternate" hreflang="es" href={absoluteUrl("/es/acerca/")} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl("/about/")} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Resumilio" />
+    <meta property="og:title" content={`${copy.titleLead} ${copy.titleAccent} — Resumilio`} />
+    <meta property="og:description" content={copy.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={isEnglish ? "en_US" : "es_CO"} />
+    <meta name="twitter:card" content="summary" />
+    <title>{copy.titleLead} {copy.titleAccent} — Resumilio</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body class="brand-body">
+    <header class="brand-header">
+      <a class="brand-wordmark" href={canonicalPath} aria-label="Resumilio">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="brand-mark-line brand-mark-line--spine" d="M8 9 7 32M34 8 37 30"/>
+          <path class="brand-mark-taper" d="M7.29 10.03 20.74 18.37 21.26 17.63 8.71 7.97Z"/>
+          <path class="brand-mark-taper" d="M33.24 7.01 20.73 17.64 21.27 18.36 34.76 8.99Z"/>
+          <path class="brand-mark-taper" d="M6.92 33.25 22.97 33.45 23.03 32.55 7.08 30.75Z"/>
+          <path class="brand-mark-taper" d="M36.74 28.78 22.91 32.56 23.09 33.44 37.26 31.22Z"/>
+          <path class="brand-mark-line brand-mark-line--fold" d="M21 18 23 33"/>
+          <circle cx="8" cy="9" r="3"/><circle cx="21" cy="18" r="4"/><circle cx="34" cy="8" r="3"/><circle cx="7" cy="32" r="3"/><circle cx="23" cy="33" r="3"/><circle cx="37" cy="30" r="3"/>
+        </svg>
+        <span>resumilio</span>
+      </a>
+      <nav aria-label={isEnglish ? "Product" : "Producto"}>
+        <a href="#experience">{copy.navExperience}</a><a href={howToPath}>{copy.navHowTo}</a><a href="#open-source">{copy.navOpen}</a>
+      </nav>
+      <div class="brand-actions">
+        <a class="brand-profile-link" href={profilePath}>{copy.profile}</a>
+        <a class="brand-locale" href={alternatePath} aria-label={isEnglish ? "Cambiar a español" : "Switch to English"}><strong class:list={{ active: isEnglish }}>EN</strong><span>/</span><strong class:list={{ active: !isEnglish }}>ES</strong></a>
+      </div>
+    </header>
+
+    <main>
+      <section class="brand-hero">
+        <div class="brand-hero-copy">
+          <p class="brand-eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.titleLead}<br/><em>{copy.titleAccent}</em></h1>
+          <p class="brand-intro">{copy.intro}</p>
+          <div class="brand-ctas"><a class="brand-button brand-button--primary" href={profilePath}>{copy.explore}<span aria-hidden="true">↗</span></a><a class="brand-button" href="https://github.com/danox46/resumilio">{copy.github}<span aria-hidden="true">↗</span></a></div>
+          <p class="brand-quiet">{copy.quietly}</p>
+        </div>
+
+        <div class="proof-orbit" aria-label={copy.orbitLabel} data-proof-orbit>
+          <svg class="proof-lines" viewBox="0 0 640 570" aria-hidden="true">
+            <ellipse class="proof-orbit-ring" cx="320" cy="285" rx="216" ry="182"/>
+            <ellipse class="proof-orbit-ring proof-orbit-ring--inner" cx="320" cy="285" rx="118" ry="100"/>
+            <path class="proof-spokes" d="M320 285 96 88M320 285 544 88M320 285 544 474M320 285 96 474"/>
+            <path class="proof-constellation" d="M96 88C220 26 420 26 544 88M544 88C602 190 602 370 544 474M544 474C412 536 228 536 96 474M96 474C38 366 38 196 96 88"/>
+            <g class="proof-anchors"><circle cx="96" cy="88" r="4"/><circle cx="544" cy="88" r="4"/><circle cx="544" cy="474" r="4"/><circle cx="96" cy="474" r="4"/></g>
+          </svg>
+          {copy.focusItems.map(([title, line, icon], index) => (
+            <div
+              class="proof-card"
+              data-proof-card
+              data-index={index}
+              data-icon={icon}
+              data-role={index === 0 ? "focus" : "orbit"}
+              data-position={index === 0 ? undefined : index}
+            >
+              <span class="proof-symbol" aria-hidden="true">
+                {icon === "person" && <svg viewBox="0 0 40 40"><circle cx="20" cy="13" r="6"/><path d="M9 32c1-8 5-12 11-12s10 4 11 12"/></svg>}
+                {icon === "source" && <svg viewBox="0 0 40 40"><circle cx="11" cy="10" r="3"/><circle cx="29" cy="20" r="3"/><circle cx="11" cy="30" r="3"/><path d="M14 10h3c7 0 9 4 9 10M14 30h3c7 0 9-4 9-10"/></svg>}
+                {icon === "evidence" && <svg viewBox="0 0 40 40"><path d="M16 12h-3a8 8 0 0 0 0 16h6M24 12h3a8 8 0 0 1 0 16h-6M14 20h12"/><path class="proof-symbol-accent" d="m17 25 3 3 7-8"/></svg>}
+                {icon === "agents" && <svg viewBox="0 0 40 40"><circle cx="10" cy="13" r="3"/><circle cx="30" cy="13" r="3"/><circle cx="20" cy="29" r="4"/><path d="m13 15 5 10m9-10-5 10"/><path class="proof-symbol-accent" d="m20 7 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>}
+                {icon === "growth" && <svg viewBox="0 0 40 40"><path d="M30 18a11 11 0 1 1-5-8"/><path d="m25 6 2 6 6-2"/><path class="proof-symbol-accent" d="M20 27c0-7 3-11 9-12-1 7-4 11-9 12Zm0 0c0-5-2-8-7-9 0 5 2 8 7 9Z"/></svg>}
+              </span>
+              <span class="proof-card-copy"><strong>{title}</strong><small>{line}</small></span>
+            </div>
+          ))}
+          <span class="ambient-dot ambient-dot--1" aria-hidden="true"></span><span class="ambient-dot ambient-dot--2" aria-hidden="true"></span><span class="ambient-dot ambient-dot--3" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <section class="brand-how" id="experience">
+        <div class="brand-section-heading"><p class="brand-eyebrow">{copy.featureEyebrow}</p><h2>{copy.featureTitle}</h2></div>
+        <div class="brand-steps">{copy.features.map(([number, title, body]) => <article><span>{number}</span><h3>{title}</h3><p>{body}</p></article>)}</div>
+      </section>
+
+      <section class="brand-principles" id="principles">
+        <p class="brand-eyebrow">{copy.principlesEyebrow}</p>
+        <div class="brand-principle-grid">{copy.principles.map(([title, body], index) => <article><span class={`principle-icon principle-icon--${index + 1}`} aria-hidden="true"></span><h3>{title}</h3><p>{body}</p></article>)}</div>
+      </section>
+
+      <section class="brand-open" id="open-source">
+        <div><p class="brand-eyebrow">{copy.openEyebrow}</p><h2>{copy.openTitle}</h2></div>
+        <div><p>{copy.openBody}</p><a class="brand-button brand-button--dark" href="https://github.com/danox46/resumilio">{copy.source}<span aria-hidden="true">↗</span></a></div>
+      </section>
+    </main>
+
+    <footer class="brand-footer"><a class="brand-wordmark" href={canonicalPath}><span>resumilio</span></a><p>{copy.footer}</p><a href="https://github.com/danox46/resumilio">GitHub ↗</a></footer>
+    <script>
+      const orbit = document.querySelector<HTMLElement>("[data-proof-orbit]");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      if (orbit && !reducedMotion.matches) {
+        const cards = Array.from(orbit.querySelectorAll<HTMLElement>("[data-proof-card]"));
+        let focusIndex = 0;
+        let loopTimer: number | undefined;
+
+        const updateRoles = () => {
+          cards.forEach((card, index) => {
+            const offset = (index - focusIndex + cards.length) % cards.length;
+            card.dataset.role = offset === 0 ? "focus" : "orbit";
+            if (offset === 0) {
+              delete card.dataset.position;
+            } else {
+              card.dataset.position = String(offset);
+            }
+          });
+        };
+
+        const advanceFocus = () => {
+          focusIndex = (focusIndex + 1) % cards.length;
+          updateRoles();
+        };
+
+        const startTimer = window.setTimeout(() => {
+          advanceFocus();
+          loopTimer = window.setInterval(advanceFocus, 6200);
+        }, 3600);
+
+        window.addEventListener("pagehide", () => {
+          window.clearTimeout(startTimer);
+          if (loopTimer) window.clearInterval(loopTimer);
+        }, { once: true });
+      }
+    </script>
+  </body>
+</html>

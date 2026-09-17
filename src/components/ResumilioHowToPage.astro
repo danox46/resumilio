@@ -1,0 +1,137 @@
+---
+import { absoluteUrl } from "../site";
+import "../styles/brand.css";
+
+interface Props { locale: "en" | "es"; }
+const { locale } = Astro.props;
+const isEnglish = locale === "en";
+const canonicalPath = isEnglish ? "/how-to/" : "/es/como-usar/";
+const alternatePath = isEnglish ? "/es/como-usar/" : "/how-to/";
+const overviewPath = isEnglish ? "/about/" : "/es/acerca/";
+const profilePath = isEnglish ? "/" : "/es/";
+
+const copy = isEnglish ? {
+  description: "Learn how to create, validate, preview, and export a Resumilio living resume.",
+  navOverview: "Overview",
+  navExperience: "Experience",
+  navOpen: "Open source",
+  profile: "Live profile",
+  eyebrow: "How to use Resumilio",
+  title: "From your experience to a living profile.",
+  intro: "Start with a valid bilingual profile, add your real work and evidence, then preview the visual experience and export the classic formats you need.",
+  start: "Start the guide",
+  source: "View on GitHub",
+  levelsEyebrow: "Guidance that adapts to you",
+  levelsTitle: "Choose how technical the instructions should feel.",
+  levels: [
+    ["Nontechnical", "Plain-language prompts and concrete editing steps. This is the default."],
+    ["Intermediate", "Introduces the profile graph and reusable claim bundles."],
+    ["Advanced", "Uses stable IDs, deterministic automation, and the local MCP interface."],
+  ],
+  stepsEyebrow: "The workflow",
+  stepsTitle: "One profile from first draft to every format.",
+  steps: [
+    ["01", "Create your profile", "Install Resumilio and initialize a new workspace. Add --level nontechnical, intermediate, or advanced if you want different guidance.", ["npm install -g resumilio", "resumilio init my-profile", "cd my-profile"]],
+    ["02", "Add your experience", "Edit the bilingual resumilio.json file, or ingest a validated profile or claim bundle. Keep the facts, their stage, and their supporting evidence distinct.", ["resumilio ingest claims.json"]],
+    ["03", "Check and explore", "Validate the profile, then open a local preview to experience the constellation before sharing anything.", ["resumilio validate", "resumilio preview"]],
+    ["04", "Export what you need", "Create a classic Markdown, HTML, or JSON resume, or build sanitized static artifacts for a host you choose.", ["resumilio export --format markdown", "resumilio deploy"]],
+  ],
+  localTitle: "Deploy stays local on purpose.",
+  localBody: "The deploy command builds sanitized static artifacts. It does not publish them, request credentials, or choose a host for you.",
+  back: "Back to Resumilio",
+  footer: "An open-source project for a more human job market.",
+} : {
+  description: "Aprende a crear, validar, previsualizar y exportar una hoja de vida viva con Resumilio.",
+  navOverview: "Resumen",
+  navExperience: "Experiencia",
+  navOpen: "Código abierto",
+  profile: "Perfil real",
+  eyebrow: "Cómo usar Resumilio",
+  title: "De tu experiencia a un perfil vivo.",
+  intro: "Comienza con un perfil bilingüe válido, agrega tu trabajo real y su evidencia, explora la experiencia visual y exporta los formatos clásicos que necesites.",
+  start: "Comenzar la guía",
+  source: "Ver en GitHub",
+  levelsEyebrow: "Orientación que se adapta a ti",
+  levelsTitle: "Elige qué tan técnicas deben sentirse las instrucciones.",
+  levels: [
+    ["No técnico", "Indicaciones en lenguaje sencillo y pasos concretos de edición. Es la opción predeterminada."],
+    ["Intermedio", "Introduce el grafo del perfil y paquetes reutilizables de experiencia."],
+    ["Avanzado", "Usa identificadores estables, automatización determinista y la interfaz MCP local."],
+  ],
+  stepsEyebrow: "El flujo",
+  stepsTitle: "Un perfil, desde el primer borrador hasta cada formato.",
+  steps: [
+    ["01", "Crea tu perfil", "Instala Resumilio e inicia un espacio de trabajo. Agrega --level nontechnical, intermediate o advanced si quieres otra forma de orientación.", ["npm install -g resumilio", "resumilio init my-profile", "cd my-profile"]],
+    ["02", "Agrega tu experiencia", "Edita el archivo bilingüe resumilio.json o importa un perfil o paquete de experiencia validado. Mantén separados los hechos, su etapa y la evidencia que los respalda.", ["resumilio ingest claims.json"]],
+    ["03", "Comprueba y explora", "Valida el perfil y abre una vista previa local para experimentar la constelación antes de compartir algo.", ["resumilio validate", "resumilio preview"]],
+    ["04", "Exporta lo que necesites", "Crea una hoja de vida clásica en Markdown, HTML o JSON, o genera archivos estáticos sanitizados para el alojamiento que elijas.", ["resumilio export --format markdown", "resumilio deploy"]],
+  ],
+  localTitle: "Deploy permanece local a propósito.",
+  localBody: "El comando deploy genera archivos estáticos sanitizados. No publica nada, no solicita credenciales ni elige un servicio de alojamiento por ti.",
+  back: "Volver a Resumilio",
+  footer: "Un proyecto de código abierto para un mercado laboral más humano.",
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={copy.description} />
+    <link rel="canonical" href={absoluteUrl(canonicalPath)} />
+    <link rel="alternate" hreflang="en" href={absoluteUrl("/how-to/")} />
+    <link rel="alternate" hreflang="es" href={absoluteUrl("/es/como-usar/")} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl("/how-to/")} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Resumilio" />
+    <meta property="og:title" content={`${copy.title} — Resumilio`} />
+    <meta property="og:description" content={copy.description} />
+    <meta property="og:url" content={absoluteUrl(canonicalPath)} />
+    <meta property="og:locale" content={isEnglish ? "en_US" : "es_CO"} />
+    <title>{copy.title} — Resumilio</title>
+  </head>
+  <body class="brand-body howto-body">
+    <header class="brand-header">
+      <a class="brand-wordmark" href={overviewPath} aria-label="Resumilio">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="brand-mark-line brand-mark-line--spine" d="M8 9 7 32M34 8 37 30"/>
+          <path class="brand-mark-taper" d="M7.29 10.03 20.74 18.37 21.26 17.63 8.71 7.97Z"/><path class="brand-mark-taper" d="M33.24 7.01 20.73 17.64 21.27 18.36 34.76 8.99Z"/><path class="brand-mark-taper" d="M6.92 33.25 22.97 33.45 23.03 32.55 7.08 30.75Z"/><path class="brand-mark-taper" d="M36.74 28.78 22.91 32.56 23.09 33.44 37.26 31.22Z"/>
+          <path class="brand-mark-line brand-mark-line--fold" d="M21 18 23 33"/>
+          <circle cx="8" cy="9" r="3"/><circle cx="21" cy="18" r="4"/><circle cx="34" cy="8" r="3"/><circle cx="7" cy="32" r="3"/><circle cx="23" cy="33" r="3"/><circle cx="37" cy="30" r="3"/>
+        </svg>
+        <span>resumilio</span>
+      </a>
+      <nav aria-label={isEnglish ? "Product" : "Producto"}>
+        <a href={overviewPath}>{copy.navOverview}</a><a href={`${overviewPath}#experience`}>{copy.navExperience}</a><a href={`${overviewPath}#open-source`}>{copy.navOpen}</a>
+      </nav>
+      <div class="brand-actions">
+        <a class="brand-profile-link" href={profilePath}>{copy.profile}</a>
+        <a class="brand-locale" href={alternatePath} aria-label={isEnglish ? "Cambiar a español" : "Switch to English"}><strong class:list={{ active: isEnglish }}>EN</strong><span>/</span><strong class:list={{ active: !isEnglish }}>ES</strong></a>
+      </div>
+    </header>
+
+    <main>
+      <section class="howto-hero">
+        <p class="brand-eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.title}</h1>
+        <p>{copy.intro}</p>
+        <div class="brand-ctas"><a class="brand-button brand-button--primary" href="#start">{copy.start}<span aria-hidden="true">↓</span></a><a class="brand-button" href="https://github.com/danox46/resumilio">{copy.source}<span aria-hidden="true">↗</span></a></div>
+      </section>
+
+      <section class="howto-levels">
+        <div><p class="brand-eyebrow">{copy.levelsEyebrow}</p><h2>{copy.levelsTitle}</h2></div>
+        <div class="howto-level-list">{copy.levels.map(([title, body], index) => <article><span>0{index + 1}</span><div><h3>{title}</h3><p>{body}</p></div></article>)}</div>
+      </section>
+
+      <section class="howto-workflow" id="start">
+        <div class="howto-workflow-heading"><p class="brand-eyebrow">{copy.stepsEyebrow}</p><h2>{copy.stepsTitle}</h2></div>
+        <div class="howto-step-list">{copy.steps.map(([number, title, body, commands]) => <article><span class="howto-step-number">{number}</span><div class="howto-step-copy"><h2>{title}</h2><p>{body}</p></div><pre>{commands.map((command) => <code>{command}</code>)}</pre></article>)}</div>
+        <aside class="howto-local-note"><span aria-hidden="true">◎</span><div><h2>{copy.localTitle}</h2><p>{copy.localBody}</p></div></aside>
+      </section>
+    </main>
+
+    <footer class="brand-footer"><a class="brand-wordmark" href={overviewPath}><span>resumilio</span></a><p>{copy.footer}</p><a href={overviewPath}>{copy.back} ↗</a></footer>
+  </body>
+</html>
