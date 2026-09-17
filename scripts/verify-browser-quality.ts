@@ -78,6 +78,7 @@ async function nodeLabelCenterOffsets(page: Page) {
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
 const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, mobileTransitionSync: false, mobileSpatialContinuity: false, mobileRepositionPhase: false, mobileRestingSlotMath: false, mobileSearchSpatialContinuity: false, mobileSimilarSpatialContinuity: false, mobileTransitionScreenshots: [] as string[], outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+let showcasePresentation = false;
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -747,6 +748,41 @@ try {
     && Boolean(document.querySelector(".graph-stage")?.getAttribute("data-transition-target")));
   report.similarWorkLayerTransition = true;
   await similarContext.close();
+
+  const showcaseContext = await browser.newContext({ viewport: { width: 744, height: 554 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+  const showcasePage = await showcaseContext.newPage();
+  await showcasePage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  const initialShowcase = await showcasePage.locator(".experience-focus .detail-status").first().evaluate((node) => ({
+    kind: node.getAttribute("data-showcase-kind"),
+    label: node.textContent?.trim(),
+    tag: node.tagName,
+    href: node.getAttribute("href"),
+  }));
+  const initialBorderColors = new Set(await showcasePage.locator(".claim-node:visible").evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).borderColor)));
+  await showcasePage.locator(".search-field input").fill("Leaf Town");
+  await showcasePage.locator(".search-controls").press("Enter");
+  await showcasePage.waitForFunction(() => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === "claim-leaf-town"
+    && document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  const liveShowcase = await showcasePage.locator(".experience-focus .detail-status").first().evaluate((node) => ({
+    kind: node.getAttribute("data-showcase-kind"),
+    label: node.textContent?.trim(),
+    tag: node.tagName,
+    href: node.getAttribute("href"),
+  }));
+  const showcaseScreenshot = join(outputDirectory, "showcase-live-demo-744x554.png");
+  await showcasePage.screenshot({ path: showcaseScreenshot });
+  showcasePresentation = initialShowcase.kind === "professional-role"
+    && initialShowcase.label === "Professional role"
+    && initialShowcase.tag === "A"
+    && initialShowcase.href?.startsWith("https://") === true
+    && initialBorderColors.size >= 2
+    && liveShowcase.kind === "live-demo"
+    && liveShowcase.label === "Live demo"
+    && liveShowcase.tag === "A"
+    && liveShowcase.href === "https://dnxgaming.itch.io/leaf-town";
+  Object.assign(report, { showcasePresentation, showcaseScreenshot });
+  if (!showcasePresentation) throw new Error(`Showcase states were not useful, linked, or color-distinct: ${JSON.stringify({ initialShowcase, initialBorderColors: [...initialBorderColors], liveShowcase })}.`);
+  await showcaseContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
   if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.mobileTransitionSync || !report.mobileSpatialContinuity || !report.mobileRepositionPhase || !report.mobileRestingSlotMath || !report.mobileSearchSpatialContinuity || !report.mobileSimilarSpatialContinuity || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");

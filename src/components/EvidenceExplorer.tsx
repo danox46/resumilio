@@ -22,7 +22,8 @@ import {
   type DiscoveryState,
 } from "../discovery.js";
 import type { Locale, ResumilioProfile } from "../profile.js";
-import { marketClaimSummary, marketEvidenceTitle, marketLabel } from "../presentation.js";
+import { marketClaimSummary, marketEvidenceTitle } from "../presentation.js";
+import { claimShowcase, claimShowcases } from "../showcase.js";
 import { claimPath } from "../site.js";
 import AvatarGuide from "./AvatarGuide.js";
 
@@ -143,6 +144,9 @@ function SearchIcon() {
 function ResetIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v5h5"/><path d="M5.8 17.2A8 8 0 1 0 4.3 9"/></svg>;
 }
+function ExternalLinkIcon() {
+  return <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 6 10"/><path d="M11 9v4H3V5h4"/></svg>;
+}
 function ClaimActions({ claim, locale, onMoreLike, mobile = false }: {
   claim: Claim; locale: Locale; onMoreLike: () => void; mobile?: boolean;
 }) {
@@ -163,10 +167,13 @@ function ClaimDetail({ profile, claim, locale, onMoreLike, showActions = true }:
   const previewTitle = previewText(title, 44);
   const previewSummary = previewText(summary, 126);
   const detailDensity = title.length > 28 || summary.length > 190 ? " claim-detail--dense" : "";
+  const showcases = claimShowcases(profile, claim, locale);
   return <section className={`claim-detail${detailDensity}`} aria-label={`${t.selected}: ${claim.title[locale]}`} aria-live="polite">
     <h2 aria-label={title} title={title}>{previewTitle}</h2>
     {organization && <p className="detail-organization">{organization.name[locale]}</p>}
-    <p className="detail-status">{marketLabel(claim.lifecycle, locale)}</p>
+    <div className="detail-statuses">{showcases.map((showcase) => showcase.href
+      ? <a key={`${showcase.kind}:${showcase.href}`} className="detail-status detail-status--linked" data-showcase-kind={showcase.kind} href={showcase.href} target="_blank" rel="noopener noreferrer">{showcase.label}<ExternalLinkIcon/></a>
+      : <span key={showcase.kind} className="detail-status" data-showcase-kind={showcase.kind}>{showcase.label}</span>)}</div>
     <p className="detail-summary" aria-label={summary} title={summary}>{previewSummary}</p>
     {showActions && <ClaimActions claim={claim} locale={locale} onMoreLike={onMoreLike}/>}
   </section>;
@@ -638,6 +645,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               const fullTitle = graphTitle(claim.title[locale]);
               const visibleTitle = nodeTitle(claim.title[locale]);
               const textDensity = visibleTitle.length > 34 ? "dense" : visibleTitle.length > 24 ? "compact" : "standard";
+              const showcase = claimShowcase(profile, claim, locale);
               const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
               const claimStyle = {
                 "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index,
@@ -657,7 +665,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               } as CSSProperties;
               return <button
                 key={claim.id}
-                className={`claim-node claim-node--${slot.className} claim-node--${role} claim-node--text-${textDensity}`}
+                className={`claim-node claim-node--${slot.className} claim-node--${role} claim-node--text-${textDensity} showcase--${showcase.kind}`}
                 id={`claim-node-${claim.id}`}
                 data-claim-id={claim.id}
                 data-node-role={role}
@@ -672,7 +680,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               ><strong title={fullTitle}>{visibleTitle}</strong></button>;
             })}
           </div>
-          <div className="experience-focus" key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike} showActions={avatarLayout !== "stacked"}/></div>
+          <div className={`experience-focus showcase--${claimShowcase(profile, selected, locale).kind}`} key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike} showActions={avatarLayout !== "stacked"}/></div>
           {avatarLayout === "stacked" && <ClaimActions claim={selected} locale={locale} onMoreLike={moreLike} mobile/>}
           {query && neighborhood.length === 0 && <p className="empty-state" aria-live="polite">{t.empty}</p>}
         </div>

@@ -1,4 +1,5 @@
 import type { ResumilioProfile } from "./profile.js";
+import { claimShowcaseKind, showcaseRecommendationWeight } from "./showcase.js";
 
 export type SignalKind = "search" | "open" | "filter" | "dwell" | "source-visit" | "more-like-this";
 export type TopicVector = Record<string, number>;
@@ -114,22 +115,27 @@ export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryS
     .map((claim) => ({
       claim,
       directlyRelated: relatedClaimIds.has(claim.id),
-      score: recommendationScore(claim, state) + curationBias(claim.id) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
+      showcaseKind: claimShowcaseKind(profile, claim),
+      score: recommendationScore(claim, state) + curationBias(claim.id) + showcaseRecommendationWeight(profile, claim) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
     }))
     .sort((a, b) => Number(b.directlyRelated) - Number(a.directlyRelated) || b.score - a.score || a.claim.id.localeCompare(b.claim.id));
   const selected: typeof remaining = [];
   const representedTags = new Set<string>();
+  const representedShowcases = new Set<string>();
   while (remaining.length) {
     remaining.sort((a, b) => {
       if (a.directlyRelated !== b.directlyRelated) return Number(b.directlyRelated) - Number(a.directlyRelated);
-      const adjusted = (item: typeof a) => item.score - item.claim.tags.filter((tag) => representedTags.has(tag)).length * .75;
+      const adjusted = (item: typeof a) => item.score
+        - item.claim.tags.filter((tag) => representedTags.has(tag)).length * .75
+        - (representedShowcases.has(item.showcaseKind) ? .9 : 0);
       return adjusted(b) - adjusted(a) || a.claim.id.localeCompare(b.claim.id);
     });
     const next = remaining.shift()!;
     selected.push(next);
     next.claim.tags.forEach((tag) => representedTags.add(tag));
+    representedShowcases.add(next.showcaseKind);
   }
-  return selected.map(({ directlyRelated: _, ...recommendation }) => recommendation);
+  return selected.map(({ directlyRelated: _, showcaseKind: __, ...recommendation }) => recommendation);
 }
 
 export function traversalSuccessorId(profile: ResumilioProfile, claimId: string): string | undefined {

@@ -162,3 +162,14 @@ test("public labels use job-market language while internal contracts stay unchan
     assert.doesNotMatch(component, new RegExp(internalLabel));
   }
 });
+
+test("constellation showcase states replace generic lifecycle copy", () => {
+  assert.match(component, /data-showcase-kind=\{showcase\.kind\}/);
+  assert.match(component, /showcase--\$\{showcase\.kind\}/);
+  assert.match(component, /detail-status--linked/);
+  assert.doesNotMatch(component, /marketLabel\(claim\.lifecycle/);
+  assert.doesNotMatch(readFileSync("src/components/EvidenceRecord.astro", "utf8"), /marketLabel\(claim\.lifecycle/);
+  for (const state of ["professional-role", "live-demo", "public-source", "external-preview", "certificate", "nda-protected", "private-context"]) {
+    assert.match(styles, new RegExp(`showcase--${state}`));
+  }
+});
