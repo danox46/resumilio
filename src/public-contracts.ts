@@ -1,5 +1,5 @@
 import type { Locale, ResumilioProfile } from "./profile.js";
-import { absoluteUrl, classicClaimPath, classicEvidencePath, localeRoot, localizedPath, siteOrigin } from "./site.js";
+import { absoluteUrl, classicClaimPath, classicEvidencePath, localeRoot, localizedPath } from "./site.js";
 
 const schemaVersion = "1.0.0" as const;
 const publicCache = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
@@ -183,7 +183,7 @@ export function buildLlmsText(profile: ResumilioProfile, locale: Locale, full = 
     `- Evidence: ${endpoints.evidence}`,
     `- Graph: ${endpoints.graph}`,
     `- Search index: ${endpoints.searchIndex}`,
-    `- Discovery: ${siteOrigin}/.well-known/resumilio.json`,
+    `- Discovery: ${absoluteUrl("/.well-known/resumilio.json")}`,
     "",
     `## ${t.claims}`,
     "",
