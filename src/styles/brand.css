@@ -110,11 +110,37 @@ a:focus-visible { outline: 2px solid var(--brand-amber); outline-offset: 4px; }
 .brand-open > div:last-child p { max-width: 600px; margin: 0; color: #c7c3ba; font-size: 16px; line-height: 1.7; }
 .brand-footer { min-height: 92px; max-width: 1500px; margin: 0 auto; padding: 20px clamp(22px, 5vw, 76px); display: flex; align-items: center; gap: 25px; color: var(--brand-muted); font-size: 12px; }
 .brand-footer .brand-wordmark { font-size: 18px; }.brand-footer p { margin: 0; }.brand-footer > a:last-child { margin-left: auto; font-weight: 700; text-decoration: none; }
+.howto-hero { max-width: 1500px; margin: 0 auto; padding: clamp(80px, 10vw, 150px) clamp(22px, 8vw, 132px) clamp(95px, 11vw, 165px); border-bottom: 1px solid var(--brand-line); }
+.howto-hero h1 { max-width: 1050px; margin: 25px 0 28px; font-size: clamp(62px, 8.5vw, 132px); font-weight: 600; line-height: .88; letter-spacing: -.075em; }
+.howto-hero > p:not(.brand-eyebrow) { max-width: 760px; margin: 0; color: var(--brand-muted); font-size: clamp(18px, 1.7vw, 25px); line-height: 1.5; letter-spacing: -.025em; }
+.howto-levels { max-width: 1500px; margin: 0 auto; padding: 105px clamp(22px, 5vw, 76px); display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(60px, 10vw, 160px); }
+.howto-levels h2, .howto-workflow-heading h2 { max-width: 620px; margin: 23px 0 0; font-size: clamp(40px, 5vw, 72px); line-height: .98; letter-spacing: -.06em; }
+.howto-level-list { border-top: 1px solid var(--brand-line); }
+.howto-level-list article { display: grid; grid-template-columns: 45px 1fr; gap: 18px; padding: 24px 0; border-bottom: 1px solid var(--brand-line); }
+.howto-level-list article > span { color: var(--brand-amber); font-size: 11px; font-weight: 800; }
+.howto-level-list h3 { margin: -4px 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 500; }
+.howto-level-list p { margin: 0; color: var(--brand-muted); font-size: 14px; line-height: 1.6; }
+.howto-workflow { padding: 110px max(clamp(22px, 5vw, 76px), calc((100vw - 1500px) / 2 + 76px)); background: #ece9e3; }
+.howto-workflow-heading { display: grid; grid-template-columns: .55fr 1.45fr; gap: 40px; align-items: start; margin-bottom: 75px; }
+.howto-step-list { border-top: 1px solid #c9ced6; }
+.howto-step-list article { min-height: 225px; display: grid; grid-template-columns: 70px minmax(280px, .92fr) minmax(340px, 1.08fr); gap: clamp(25px, 5vw, 75px); align-items: center; padding: 32px 0; border-bottom: 1px solid #c9ced6; }
+.howto-step-number { align-self: start; padding-top: 8px; color: var(--brand-amber); font-size: 12px; font-weight: 800; }
+.howto-step-copy h2 { margin: 0 0 12px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(26px, 2.4vw, 36px); font-weight: 500; }
+.howto-step-copy p { max-width: 550px; margin: 0; color: var(--brand-muted); font-size: 14px; line-height: 1.65; }
+.howto-step-list pre { min-width: 0; margin: 0; padding: 20px 23px; overflow-x: auto; border: 1px solid rgb(255 255 255 / 9%); border-radius: 6px; background: var(--brand-ink); box-shadow: 0 16px 36px rgb(28 36 51 / 12%); color: #f6f2e9; font: 12px/1.8 "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+.howto-step-list code { display: block; }
+.howto-step-list code::before { content: "$ "; color: #d8a756; }
+.howto-local-note { margin-top: 64px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; padding: 30px 34px; border: 1px solid rgb(193 122 18 / 40%); background: rgb(246 242 233 / 68%); }
+.howto-local-note > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-amber); color: #fffaf0; font-size: 20px; }
+.howto-local-note h2 { margin: 0 0 7px; font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 500; }
+.howto-local-note p { margin: 0; color: var(--brand-muted); font-size: 14px; line-height: 1.6; }
 
 @media (max-width: 980px) {
   .brand-header { grid-template-columns: 1fr auto; }.brand-header nav { display: none; }
   .brand-hero { grid-template-columns: 1fr; padding-top: 60px; }.brand-hero-copy { max-width: 720px; }.proof-orbit { width: min(100%, 650px); }
   .brand-section-heading { grid-template-columns: 1fr; }.brand-steps { margin-top: 55px; }
+  .howto-levels { grid-template-columns: 1fr; }.howto-workflow-heading { grid-template-columns: 1fr; }
+  .howto-step-list article { grid-template-columns: 48px 1fr; }.howto-step-list pre { grid-column: 2; width: 100%; }
 }
 @media (max-width: 760px) {
   .brand-header { min-height: 68px; padding-block: 10px; }.brand-wordmark { font-size: 20px; }.brand-mark { width: 35px; height: 35px; }.brand-profile-link { display: none; }
@@ -126,9 +152,13 @@ a:focus-visible { outline: 2px solid var(--brand-amber); outline-offset: 4px; }
   .brand-principles { padding-block: 75px; }.brand-principle-grid { grid-template-columns: 1fr; gap: 45px; }.brand-principle-grid article { padding: 0; border: 0; }
   .brand-open { grid-template-columns: 1fr; gap: 45px; padding-block: 80px; }.brand-open .brand-button { width: max-content; }
   .brand-footer { align-items: flex-start; flex-wrap: wrap; }.brand-footer p { width: 100%; order: 3; }.brand-footer > a:last-child { margin-left: auto; }
+  .howto-hero { padding-top: 75px; padding-bottom: 95px; }.howto-hero h1 { font-size: clamp(58px, 17vw, 82px); }.howto-hero > p:not(.brand-eyebrow) { font-size: 18px; }
+  .howto-levels, .howto-workflow { padding-block: 75px; }.howto-workflow-heading { margin-bottom: 50px; }
+  .howto-step-list article { grid-template-columns: 1fr; gap: 14px; padding: 30px 0; }.howto-step-number { padding: 0; }.howto-step-list pre { grid-column: 1; margin-top: 10px; padding: 17px; font-size: 11px; }
+  .howto-local-note { margin-top: 45px; padding: 24px; }
 }
 @media (max-width: 380px) {
-  .brand-header, .brand-hero, .brand-how, .brand-footer { padding-inline: 14px; }.brand-principles, .brand-open { padding-inline: 14px; }
+  .brand-header, .brand-hero, .brand-how, .brand-footer, .howto-hero, .howto-levels, .howto-workflow { padding-inline: 14px; }.brand-principles, .brand-open { padding-inline: 14px; }
   .brand-actions { gap: 12px; }.proof-orbit { --proof-node-width: 112px; }
 }
 @media (prefers-reduced-motion: reduce) {

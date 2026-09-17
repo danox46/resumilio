@@ -8,6 +8,8 @@ const routes = [
   { path: "/es/", type: "text/html", language: null },
   { path: "/about/", type: "text/html", language: null },
   { path: "/es/acerca/", type: "text/html", language: null },
+  { path: "/how-to/", type: "text/html", language: null },
+  { path: "/es/como-usar/", type: "text/html", language: null },
   { path: "/resume.json", type: "application/json", language: "en" },
   { path: "/es/resume.json", type: "application/json", language: "es" },
   { path: "/evidence.json", type: "application/json", language: "en" },

@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 const publicOrigin = "https://resumilio.danielx9.workers.dev";
 const reservedOrigin = "https://resumilio.example";
-const files = ["index.html", "es/index.html", "about/index.html", "es/acerca/index.html", "sitemap.xml", "resume.json", "es/resume.json", ".well-known/resumilio.json"];
+const files = ["index.html", "es/index.html", "about/index.html", "es/acerca/index.html", "how-to/index.html", "es/como-usar/index.html", "sitemap.xml", "resume.json", "es/resume.json", ".well-known/resumilio.json"];
 
 for (const file of files) {
   const content = readFileSync(join("site-dist", file), "utf8");

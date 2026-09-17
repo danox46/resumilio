@@ -1,25 +1,52 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const component = readFileSync("src/components/ResumilioBrandPage.astro", "utf8");
 const englishPage = readFileSync("src/pages/about/index.astro", "utf8");
 const spanishPage = readFileSync("src/pages/es/acerca/index.astro", "utf8");
 const styles = readFileSync("src/styles/brand.css", "utf8");
+const sitemap = readFileSync("src/pages/sitemap.xml.ts", "utf8");
 const deploymentVerifier = readFileSync("scripts/verify-deployment.ts", "utf8");
 const releaseVerifier = readFileSync("scripts/verify-release-build.ts", "utf8");
 
 test("the product page keeps the person ahead of the engine", () => {
-  assert.match(component, /titleLead: "Your experience,"/);
-  assert.match(component, /titleAccent: "still yours\."/);
-  assert.match(component, /titleLead: "Tu experiencia"/);
-  assert.match(component, /titleAccent: "sigue siendo tuya\."/);
+  assert.match(component, /titleLead: "Your career,"/);
+  assert.match(component, /titleAccent: "in motion\."/);
+  assert.match(component, /titleLead: "Tu carrera,"/);
+  assert.match(component, /titleAccent: "en movimiento\."/);
+  assert.doesNotMatch(component, /still yours|sigue siendo tuya/i);
   assert.match(component, /Person first/);
   assert.match(component, /La persona primero/);
   assert.match(component, /Useful without AI/);
   assert.match(component, /Útil sin IA/);
-  assert.match(component, /agents can help maintain/);
-  assert.match(component, /agentes pueden ayudar a mantener/);
+  assert.match(component, /Agent assisted/);
+  assert.match(component, /Con agentes/);
+});
+
+test("the landing page sells outcomes while setup lives on its own bilingual page", () => {
+  assert.match(component, /A new visual experience/);
+  assert.match(component, /A classic resume, ready/);
+  assert.match(component, /Recommendations that react/);
+  assert.match(component, /Una nueva experiencia visual/);
+  assert.match(component, /Una hoja de vida clásica, lista/);
+  assert.match(component, /Recomendaciones que reaccionan/);
+  assert.match(component, /\/how-to\//);
+  assert.match(component, /\/es\/como-usar\//);
+  assert.ok(existsSync("src/pages/how-to/index.astro"));
+  assert.ok(existsSync("src/pages/es/como-usar/index.astro"));
+  assert.ok(existsSync("src/components/ResumilioHowToPage.astro"));
+  const howTo = readFileSync("src/components/ResumilioHowToPage.astro", "utf8");
+  assert.match(howTo, /resumilio init my-profile/);
+  assert.match(howTo, /resumilio validate/);
+  assert.match(howTo, /resumilio preview/);
+  assert.match(howTo, /resumilio export --format markdown/);
+  assert.match(howTo, /does not publish|no publica/i);
+  assert.match(deploymentVerifier, /path: "\/how-to\/"/);
+  assert.match(deploymentVerifier, /path: "\/es\/como-usar\/"/);
+  assert.match(releaseVerifier, /"how-to\/index\.html"/);
+  assert.match(releaseVerifier, /"es\/como-usar\/index\.html"/);
+  assert.match(sitemap, /howToPath/);
 });
 
 test("English and Spanish pages have symmetric discovery metadata", () => {

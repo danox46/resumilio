@@ -9,20 +9,21 @@ const canonicalPath = isEnglish ? "/about/" : "/es/acerca/";
 const alternatePath = isEnglish ? "/es/acerca/" : "/about/";
 const canonical = absoluteUrl(canonicalPath);
 const profilePath = isEnglish ? "/" : "/es/";
+const howToPath = isEnglish ? "/how-to/" : "/es/como-usar/";
 
 const copy = isEnglish ? {
   description: "Resumilio is an open-source, person-first living resume that keeps claims connected to evidence and lets agents help without taking over the story.",
-  navHow: "How it works",
+  navExperience: "Experience",
+  navHowTo: "How to use it",
   navOpen: "Open source",
-  navPrinciples: "Principles",
   profile: "Live profile",
   eyebrow: "A more human career profile",
-  titleLead: "Your experience,",
-  titleAccent: "still yours.",
-  intro: "A living resume that agents can help maintain — without flattening the person into keywords.",
+  titleLead: "Your career,",
+  titleAccent: "in motion.",
+  intro: "A living, visual resume that connects your work, proof, and possibilities — then adapts as people explore.",
   explore: "Explore a live profile",
   github: "View on GitHub",
-  quietly: "The person stays visible. Resumilio works quietly underneath.",
+  quietly: "Explore visually. Export traditionally. Keep one source of truth.",
   orbitLabel: "One person. Connected proof.",
   focusItems: [
     ["Your story", "Owned by you", "person"],
@@ -31,12 +32,12 @@ const copy = isEnglish ? {
     ["Agent assisted", "Help without takeover", "agents"],
     ["Always current", "Grows with your work", "growth"],
   ],
-  howEyebrow: "How it works",
-  howTitle: "A profile that can grow without losing its memory.",
-  steps: [
-    ["01", "Write the truth", "Capture roles, projects, outcomes, and the real stage of each claim in structured files you control."],
-    ["02", "Attach the proof", "Connect public sources or bounded evidence so readers — and agents — can understand why a claim is trustworthy."],
-    ["03", "Let agents assist", "Use files, the CLI, or bounded tools to keep the profile current. Suggestions stay unpublished until they pass the same truth checks."],
+  featureEyebrow: "What Resumilio gives you",
+  featureTitle: "One career. More ways to understand it.",
+  features: [
+    ["01", "A new visual experience", "Explore roles, projects, and proof as a connected constellation that reveals the shape of your work."],
+    ["02", "A classic resume, ready", "Keep a familiar, application-ready version beside the visual profile — without maintaining two stories."],
+    ["03", "Recommendations that react", "As someone explores, Resumilio surfaces the most relevant connected work and explains why it belongs."],
   ],
   principlesEyebrow: "Built on a few simple principles",
   principles: [
@@ -51,17 +52,17 @@ const copy = isEnglish ? {
   footer: "An open-source project for a more human job market.",
 } : {
   description: "Resumilio es una hoja de vida viva, de código abierto y centrada en la persona, que conecta cada afirmación con evidencia y permite que los agentes ayuden sin adueñarse de la historia.",
-  navHow: "Cómo funciona",
+  navExperience: "Experiencia",
+  navHowTo: "Cómo usarlo",
   navOpen: "Código abierto",
-  navPrinciples: "Principios",
   profile: "Perfil real",
   eyebrow: "Un perfil profesional más humano",
-  titleLead: "Tu experiencia",
-  titleAccent: "sigue siendo tuya.",
-  intro: "Una hoja de vida viva que los agentes pueden ayudar a mantener, sin reducir a la persona a palabras clave.",
+  titleLead: "Tu carrera,",
+  titleAccent: "en movimiento.",
+  intro: "Una hoja de vida viva y visual que conecta tu trabajo, evidencia y posibilidades, y se adapta a medida que la exploran.",
   explore: "Explora un perfil real",
   github: "Ver en GitHub",
-  quietly: "La persona permanece visible. Resumilio trabaja discretamente por debajo.",
+  quietly: "Explora visualmente. Exporta en formato clásico. Mantén una sola fuente de verdad.",
   orbitLabel: "Una persona. Evidencia conectada.",
   focusItems: [
     ["Tu historia", "Te pertenece", "person"],
@@ -70,12 +71,12 @@ const copy = isEnglish ? {
     ["Con agentes", "Ayuda sin tomar el control", "agents"],
     ["Siempre al día", "Crece con tu trabajo", "growth"],
   ],
-  howEyebrow: "Cómo funciona",
-  howTitle: "Un perfil que puede crecer sin perder su memoria.",
-  steps: [
-    ["01", "Escribe la verdad", "Registra roles, proyectos, resultados y la etapa real de cada afirmación en archivos estructurados bajo tu control."],
-    ["02", "Conecta la evidencia", "Vincula fuentes públicas o evidencia delimitada para que lectores y agentes entiendan por qué una afirmación es confiable."],
-    ["03", "Deja que los agentes ayuden", "Usa archivos, la CLI o herramientas delimitadas para mantener el perfil al día. Las sugerencias no se publican hasta pasar las mismas comprobaciones de veracidad."],
+  featureEyebrow: "Lo que Resumilio te ofrece",
+  featureTitle: "Una carrera. Más formas de entenderla.",
+  features: [
+    ["01", "Una nueva experiencia visual", "Explora roles, proyectos y evidencia como una constelación conectada que revela la forma de tu trabajo."],
+    ["02", "Una hoja de vida clásica, lista", "Conserva una versión familiar y lista para aplicar junto al perfil visual, sin mantener dos historias."],
+    ["03", "Recomendaciones que reaccionan", "A medida que alguien explora, Resumilio muestra el trabajo conectado más relevante y explica por qué aparece."],
   ],
   principlesEyebrow: "Construido sobre principios sencillos",
   principles: [
@@ -137,7 +138,7 @@ const jsonLd = {
         <span>resumilio</span>
       </a>
       <nav aria-label={isEnglish ? "Product" : "Producto"}>
-        <a href="#how">{copy.navHow}</a><a href="#open-source">{copy.navOpen}</a><a href="#principles">{copy.navPrinciples}</a>
+        <a href="#experience">{copy.navExperience}</a><a href={howToPath}>{copy.navHowTo}</a><a href="#open-source">{copy.navOpen}</a>
       </nav>
       <div class="brand-actions">
         <a class="brand-profile-link" href={profilePath}>{copy.profile}</a>
@@ -186,9 +187,9 @@ const jsonLd = {
         </div>
       </section>
 
-      <section class="brand-how" id="how">
-        <div class="brand-section-heading"><p class="brand-eyebrow">{copy.howEyebrow}</p><h2>{copy.howTitle}</h2></div>
-        <div class="brand-steps">{copy.steps.map(([number, title, body]) => <article><span>{number}</span><h3>{title}</h3><p>{body}</p></article>)}</div>
+      <section class="brand-how" id="experience">
+        <div class="brand-section-heading"><p class="brand-eyebrow">{copy.featureEyebrow}</p><h2>{copy.featureTitle}</h2></div>
+        <div class="brand-steps">{copy.features.map(([number, title, body]) => <article><span>{number}</span><h3>{title}</h3><p>{body}</p></article>)}</div>
       </section>
 
       <section class="brand-principles" id="principles">
