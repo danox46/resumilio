@@ -22,6 +22,15 @@ profile JSON
 4. **Interfaces** — `src/cli.ts` and `src/mcp.ts` call the same operations.
 5. **Rendering** — `src/rendering.ts` creates portable, code-native public artifacts.
 
+## Constellation graph health
+
+Author-provided `related-to` relationships remain factual semantic edges; Resumilio never invents them merely to make the interface connected. The constellation renderer overlays two deterministic navigation guarantees instead:
+
+1. Every claim exposes a stable traversal bridge to the next claim in profile order, wrapping the final claim back to the first. Following that bridge can visit the complete profile from any starting claim.
+2. When relevance would fill the visible neighborhood with already-opened claims, one slot is reserved for the highest-ranked unexplored claim.
+
+This traversal backbone is presentation metadata, not a public factual relationship. `resumilio validate`, `resumilio doctor`, and the MCP `claims_validate` tool report both the authored semantic topology and the effective navigation guarantee. Sparse or clustered profiles remain navigable while contributors can still see semantic components and orphan claims that may benefit from truthful relationship data.
+
 No interface may weaken the contract. A renderer can omit information for a particular view, but it cannot change stable IDs, upgrade lifecycle, invent provenance, or expose a restricted source.
 
 ## Trust model

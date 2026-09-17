@@ -42,9 +42,10 @@ test("English and Spanish exports preserve stable IDs and one-hop evidence citat
   assert.deepEqual(english.claims.map((item) => item.id), spanish.claims.map((item) => item.id));
   assert.deepEqual(english.claims.flatMap((item) => item.evidence.map((evidence) => evidence.id)), spanish.claims.flatMap((item) => item.evidence.map((evidence) => evidence.id)));
   for (const claim of english.claims) {
-    assert.match(claim.url, new RegExp(`/evidence/${claim.id}/$`));
-    for (const evidence of claim.evidence) assert.match(evidence.url, new RegExp(`/evidence/${claim.id}/#${evidence.id}$`));
+    assert.match(claim.url, new RegExp(`/classic/#${claim.id}$`));
+    for (const evidence of claim.evidence) assert.match(evidence.url, new RegExp(`/classic/#${evidence.id}$`));
   }
+  for (const claim of spanish.claims) assert.match(claim.url, new RegExp(`/es/clasico/#${claim.id}$`));
 });
 
 test("machine responses advertise cache, language, and safe content headers", async () => {

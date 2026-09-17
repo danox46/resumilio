@@ -7,10 +7,13 @@ import * as chromeLauncher from "chrome-launcher";
 const mimeTypes: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
+  ".jpg": "image/jpeg",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
+  ".webp": "image/webp",
   ".xml": "application/xml; charset=utf-8",
 };
 
@@ -25,7 +28,7 @@ const server = createServer((request, response) => {
   }
   response.writeHead(200, {
     "content-type": mimeTypes[extname(path)] ?? "application/octet-stream",
-    "cache-control": path.includes(`${join("site-dist", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=0, must-revalidate",
+    "cache-control": path.includes(`${join("site-dist", "assets")}`) || path.includes(`${join("site-dist", "media")}`) ? "public, max-age=31536000, immutable" : "public, max-age=0, must-revalidate",
   });
   response.end(readFileSync(path));
 });

@@ -1,0 +1,7 @@
+---
+import ClassicResume from "../../../components/ClassicResume.astro";
+import profileDocument from "../../../../profiles/daniel.json";
+import type { ResumilioProfile } from "../../../profile";
+const profile = profileDocument as ResumilioProfile;
+---
+<ClassicResume profile={profile} locale="es" />

@@ -1,7 +1,11 @@
 import type { ResumilioProfile } from "./profile.js";
+import { claimShowcaseKind, showcaseRecommendationWeight } from "./showcase.js";
 
 export type SignalKind = "search" | "open" | "filter" | "dwell" | "source-visit" | "more-like-this";
 export type TopicVector = Record<string, number>;
+
+export const constellationNeighborhoodSize = 5;
+export const mobileConstellationNeighborhoodSize = 3;
 
 export interface DiscoveryState {
   topics: TopicVector;
@@ -90,22 +94,105 @@ export function recommendationScore(claim: ResumilioProfile["claims"][number], s
   return topical + novelty;
 }
 
+const directRelationshipBoost = 8;
+
 export function rankRecommendations(profile: ResumilioProfile, state: DiscoveryState, excludeClaimId?: string) {
+  // Profile order is a small editorial freshness signal; direct relationships and demonstrated intent can override it.
+  const profileOrder = new Map(profile.claims.map((claim, index) => [claim.id, index]));
+  const lastProfileIndex = Math.max(profile.claims.length - 1, 1);
+  const curationBias = (claimId: string) => {
+    const index = profileOrder.get(claimId) ?? lastProfileIndex;
+    return 1.2 * (1 - index / lastProfileIndex);
+  };
+  const relatedClaimIds = new Set(profile.relationships.flatMap((relationship) => {
+    if (relationship.type !== "related-to" || !excludeClaimId) return [];
+    if (relationship.sourceId === excludeClaimId) return [relationship.targetId];
+    if (relationship.targetId === excludeClaimId) return [relationship.sourceId];
+    return [];
+  }));
   const remaining = profile.claims
     .filter((claim) => claim.id !== excludeClaimId)
-    .map((claim) => ({ claim, score: recommendationScore(claim, state) }))
-    .sort((a, b) => b.score - a.score || a.claim.id.localeCompare(b.claim.id));
+    .map((claim) => ({
+      claim,
+      directlyRelated: relatedClaimIds.has(claim.id),
+      showcaseKind: claimShowcaseKind(profile, claim),
+      score: recommendationScore(claim, state) + curationBias(claim.id) + showcaseRecommendationWeight(profile, claim) + (relatedClaimIds.has(claim.id) ? directRelationshipBoost : 0),
+    }))
+    .sort((a, b) => Number(b.directlyRelated) - Number(a.directlyRelated) || b.score - a.score || a.claim.id.localeCompare(b.claim.id));
   const selected: typeof remaining = [];
   const representedTags = new Set<string>();
+  const representedShowcases = new Set<string>();
   while (remaining.length) {
     remaining.sort((a, b) => {
-      const adjusted = (item: typeof a) => item.score - item.claim.tags.filter((tag) => representedTags.has(tag)).length * .75;
+      if (a.directlyRelated !== b.directlyRelated) return Number(b.directlyRelated) - Number(a.directlyRelated);
+      const adjusted = (item: typeof a) => item.score
+        - item.claim.tags.filter((tag) => representedTags.has(tag)).length * .75
+        - (representedShowcases.has(item.showcaseKind) ? .9 : 0);
       return adjusted(b) - adjusted(a) || a.claim.id.localeCompare(b.claim.id);
     });
     const next = remaining.shift()!;
     selected.push(next);
     next.claim.tags.forEach((tag) => representedTags.add(tag));
+    representedShowcases.add(next.showcaseKind);
   }
+  return selected.map(({ directlyRelated: _, showcaseKind: __, ...recommendation }) => recommendation);
+}
+
+export function traversalSuccessorId(profile: ResumilioProfile, claimId: string): string | undefined {
+  if (profile.claims.length < 2) return undefined;
+  const currentIndex = profile.claims.findIndex((claim) => claim.id === claimId);
+  if (currentIndex < 0) return profile.claims[0]?.id;
+  return profile.claims[(currentIndex + 1) % profile.claims.length]?.id;
+}
+
+export function rankConstellationRecommendations(
+  profile: ResumilioProfile,
+  state: DiscoveryState,
+  centerClaimId: string,
+  limit = constellationNeighborhoodSize,
+) {
+  if (limit <= 0) return [];
+  const ranked = rankRecommendations(profile, state, centerClaimId);
+  const selected = ranked.slice(0, limit);
+  const protectedIds = new Set<string>();
+  const priorityWindowSize = Math.min(selected.length, mobileConstellationNeighborhoodSize);
+
+  const includeInPriorityWindow = (candidate: typeof ranked[number] | undefined) => {
+    if (!candidate || priorityWindowSize <= 0) return;
+    const candidateIndex = selected.findIndex((item) => item.claim.id === candidate.claim.id);
+    if (candidateIndex >= 0 && candidateIndex < priorityWindowSize) {
+      protectedIds.add(candidate.claim.id);
+      return;
+    }
+
+    let replacementIndex = -1;
+    for (let index = priorityWindowSize - 1; index >= 0; index -= 1) {
+      if (!protectedIds.has(selected[index].claim.id)) { replacementIndex = index; break; }
+    }
+    if (replacementIndex < 0) return;
+
+    if (candidateIndex >= 0) {
+      const displaced = selected[replacementIndex];
+      selected[replacementIndex] = candidate;
+      selected[candidateIndex] = displaced;
+    } else {
+      selected[replacementIndex] = candidate;
+    }
+    protectedIds.add(candidate.claim.id);
+  };
+
+  // Every claim points to the next stable profile record. Following this one bridge
+  // from any center walks the entire graph and prevents disconnected recommendation islands.
+  // Keep it in the first three slots so the four-record mobile presentation can use it too.
+  const traversalId = traversalSuccessorId(profile, centerClaimId);
+  includeInPriorityWindow(ranked.find((item) => item.claim.id === traversalId));
+
+  // Relevance may fill the visible slots with records the visitor already opened. Keep
+  // one genuinely unexplored frontier inside the mobile window until the graph is exhausted.
+  const openedIds = new Set(state.openedClaimIds);
+  const frontier = ranked.find((item) => !openedIds.has(item.claim.id));
+  includeInPriorityWindow(frontier);
+
   return selected;
 }
 

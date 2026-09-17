@@ -39,7 +39,9 @@ test("local MCP exposes bounded profile tools and builds sanitized artifacts", a
     const validation = await client.callTool({ name: "claims_validate", arguments: {} });
     const content = validation.content as Array<{ type: string; text?: string }>;
     const validationText = content.find((item) => item.type === "text")?.text ?? "{}";
-    assert.equal(JSON.parse(validationText).valid, true);
+    const validationResult = JSON.parse(validationText);
+    assert.equal(validationResult.valid, true);
+    assert.equal(validationResult.graphHealth.navigationGuaranteed, true);
     await client.callTool({ name: "preview_build", arguments: { outputDirectory: resolve(directory, "preview"), locale: "es" } });
     await client.callTool({ name: "deployment_artifacts_build", arguments: { outputDirectory: resolve(directory, "deploy"), locale: "en" } });
     assert.match(await readFile(resolve(directory, "preview/index.html"), "utf8"), /lang="es"/);

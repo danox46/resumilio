@@ -1,6 +1,9 @@
 import type { Locale } from "./profile.js";
 
-export const siteOrigin = (process.env.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
+const viteEnvironment = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
+const nodeEnvironment = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env;
+
+export const siteOrigin = (viteEnvironment?.PUBLIC_SITE_ORIGIN ?? nodeEnvironment?.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
 
 export function localeRoot(locale: Locale): string {
   return locale === "en" ? "/" : "/es/";
@@ -8,6 +11,18 @@ export function localeRoot(locale: Locale): string {
 
 export function claimPath(claimId: string, locale: Locale): string {
   return locale === "en" ? `/evidence/${claimId}/` : `/es/evidencia/${claimId}/`;
+}
+
+export function classicPath(locale: Locale): string {
+  return locale === "en" ? "/classic/" : "/es/clasico/";
+}
+
+export function classicClaimPath(claimId: string, locale: Locale): string {
+  return `${classicPath(locale)}#${claimId}`;
+}
+
+export function classicEvidencePath(evidenceId: string, locale: Locale): string {
+  return `${classicPath(locale)}#${evidenceId}`;
 }
 
 export function localizedPath(path: string, locale: Locale): string {

@@ -30,7 +30,7 @@ Until the package is published to npm, clone this repository, run `npm ci && npm
 | --- | --- |
 | `init` | Create a valid bilingual starter profile and experience-level guidance. |
 | `ingest` | Replace a profile with valid JSON or merge a validated `claim-bundle`. |
-| `validate` | Check schema, graph integrity, evidence reciprocity, and lifecycle wording. |
+| `validate` | Check schema, graph integrity, evidence reciprocity, lifecycle wording, and constellation reachability. |
 | `preview` | Create a local HTML preview. |
 | `export` | Export JSON, Markdown, or HTML. |
 | `doctor` | Check the runtime and profile without requiring a model key. |
@@ -51,6 +51,8 @@ node dist/mcp-server.js --profile ./resumilio.json
 ```
 
 The stdio server exposes bounded tools to read and update claims, link public sources, validate the graph, preview, and build local deployment artifacts. See `docs/mcp.md`.
+
+The adaptive constellation cannot become trapped in an authored relationship cluster. Resumilio preserves truthful semantic links, then adds a deterministic presentation-only traversal cycle and an unexplored-frontier guard. Validation reports semantic components separately from the guaranteed navigable graph; see [Architecture](docs/architecture.md#constellation-graph-health).
 
 ## Development
 

@@ -3,6 +3,7 @@ import type { Locale, ResumilioProfile } from "../profile";
 import { absoluteUrl, claimPath, localeRoot } from "../site";
 import { buildClaimJsonLd } from "../structured-data";
 import { marketClaimSummary, marketEvidenceTitle, marketLabel, marketSourceSummary } from "../presentation";
+import { claimShowcases } from "../showcase";
 import "../styles/global.css";
 
 interface Props {
@@ -13,14 +14,15 @@ interface Props {
 
 const { profile, claim, locale } = Astro.props;
 const evidence = claim.evidenceIds.map((id) => profile.evidence.find((item) => item.id === id)!);
+const showcases = claimShowcases(profile, claim, locale);
 const organization = claim.organizationId ? profile.organizations.find((item) => item.id === claim.organizationId) : undefined;
 const path = claimPath(claim.id, locale);
 const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const text = locale === "en" ? {
-  back: "Back to career highlights", record: "Career highlight", status: "Career status", organization: "Company or provider", proof: "Career details",
+  back: "Back to career highlights", record: "Career highlight", status: "Available views", organization: "Company or provider", proof: "Career details",
   strength: "How it's documented", visibility: "Available details", observed: "Last updated", publicSource: "Open public link", attribution: "Built with Resumilio",
 } : {
-  back: "Volver a la experiencia", record: "Experiencia destacada", status: "Estado profesional", organization: "Empresa o institución", proof: "Detalles profesionales",
+  back: "Volver a la experiencia", record: "Experiencia destacada", status: "Vistas disponibles", organization: "Empresa o institución", proof: "Detalles profesionales",
   strength: "Cómo está documentado", visibility: "Detalles disponibles", observed: "Última actualización", publicSource: "Abrir enlace público", attribution: "Creado con Resumilio",
 };
 const description = marketClaimSummary(claim, locale);
@@ -66,7 +68,9 @@ const jsonLd = buildClaimJsonLd(profile, claim, locale);
         <h1>{claim.title[locale]}</h1>
         <p class="record-summary">{description}</p>
         <dl class="record-meta">
-          <div><dt>{text.status}</dt><dd>{marketLabel(claim.lifecycle, locale)}</dd></div>
+          <div><dt>{text.status}</dt><dd class="record-showcases">{showcases.map((showcase) => showcase.href
+            ? <a href={showcase.href} target="_blank" rel="noopener noreferrer">{showcase.label}</a>
+            : <span>{showcase.label}</span>)}</dd></div>
           {organization && <div><dt>{text.organization}</dt><dd>{organization.name[locale]}</dd></div>}
         </dl>
       </article>

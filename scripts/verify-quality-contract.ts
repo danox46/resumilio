@@ -3,17 +3,19 @@ import { readFileSync, readdirSync } from "node:fs";
 import { extname, join } from "node:path";
 
 const browserSource = readFileSync("src/components/EvidenceExplorer.tsx", "utf8");
+const browserSiteSource = readFileSync("src/site.ts", "utf8");
 const englishPage = readFileSync("src/pages/index.astro", "utf8");
 const spanishPage = readFileSync("src/pages/es/index.astro", "utf8");
 const styles = readFileSync("src/styles/global.css", "utf8");
 
 const forbiddenRuntimeApis = ["fetch(", "XMLHttpRequest", "WebSocket", "sendBeacon", "localStorage", "indexedDB", "document.cookie"];
 for (const api of forbiddenRuntimeApis) {
-  if (browserSource.includes(api)) throw new Error(`Browser source uses forbidden runtime API: ${api}`);
+  if (`${browserSource}\n${browserSiteSource}`.includes(api)) throw new Error(`Browser source uses forbidden runtime API: ${api}`);
 }
+if (/\bprocess\.env\b/.test(browserSiteSource)) throw new Error("Browser-imported site helpers must not reference a bare Node process global.");
 
 for (const [label, page] of [["English", englishPage], ["Spanish", spanishPage]] as const) {
-  if (!page.includes("client:idle")) throw new Error(`${label} experience must defer hydration with client:idle.`);
+  if (!page.includes("client:load")) throw new Error(`${label} experience must hydrate on load so the primary constellation interaction is immediately available.`);
 }
 
 const requiredAccessibilitySignals = [
