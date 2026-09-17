@@ -4,6 +4,7 @@ const viteEnvironment = (import.meta as ImportMeta & { env?: Record<string, stri
 const nodeEnvironment = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env;
 
 export const siteOrigin = (viteEnvironment?.PUBLIC_SITE_ORIGIN ?? nodeEnvironment?.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
+export const meetingUrl = "https://calendar.app.google/cYk39Z5KxyPobwMg7";
 
 export function localeRoot(locale: Locale): string {
   return locale === "en" ? "/" : "/es/";

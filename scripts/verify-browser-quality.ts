@@ -505,7 +505,7 @@ try {
   await motionPage.waitForFunction(() => !matchMedia("(max-width: 700px)").matches
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
-  await motionPage.locator(".detail-actions--dock .button--secondary").click();
+  await motionPage.locator(".detail-actions--dock button.button--secondary").click();
   await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "smile"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
@@ -698,7 +698,7 @@ try {
     const style = getComputedStyle(node as HTMLElement);
     return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
   })));
-  await mobileSimilarPage.locator(".detail-actions--dock .button--secondary").click();
+  await mobileSimilarPage.locator(".detail-actions--dock button.button--secondary").click();
   await mobileSimilarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "in");
   const similarIncomingOrigins = await mobileSimilarPage.locator('.claim-node[data-node-role="incoming"]:visible').evaluateAll((nodes) => nodes.map((node) => {
     const style = getComputedStyle(node as HTMLElement);
@@ -766,7 +766,7 @@ try {
   const similarContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const similarPage = await similarContext.newPage();
   await similarPage.goto(`${origin}/`, { waitUntil: "networkidle" });
-  await similarPage.locator(".detail-actions--dock .button--secondary").click();
+  await similarPage.locator(".detail-actions--dock button.button--secondary").click();
   await similarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
     && Boolean(document.querySelector(".graph-stage")?.getAttribute("data-transition-target")));
   report.similarWorkLayerTransition = true;

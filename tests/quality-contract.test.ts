@@ -152,7 +152,7 @@ test("personalization remains session-local and network-independent", () => {
 });
 
 test("public labels use job-market language while internal contracts stay unchanged", () => {
-  for (const label of ["Constellation of experience", "Related experience", "Classic View", "Similar Work"]) {
+  for (const label of ["Constellation of experience", "Related experience", "Classic View", "Similar Work", "Let's Talk"]) {
     assert.match(component + readFileSync("src/presentation.ts", "utf8"), new RegExp(label));
   }
   for (const retiredLabel of ["Now exploring", "View experience", "Show similar work"]) {
@@ -180,6 +180,9 @@ test("focused constellation actions stay outside the main display node", () => {
   assert.match(component, /detail-actions detail-actions--dock/);
   assert.doesNotMatch(component, /showActions|detail-actions--mobile/);
   assert.match(styles, /\.experience-shell \.detail-actions--dock \{[\s\S]*position: fixed;[\s\S]*bottom:/);
+  assert.match(component, /className="button button--secondary button--contact" href=\{meetingUrl\}/);
+  assert.match(styles, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.experience-shell \.button \{[^}]*display: flex; align-items: center; justify-content: center;[^}]*text-align: center;/);
 });
 
 test("classic view targets one anchored print-ready resume instead of node pages", () => {
@@ -193,6 +196,9 @@ test("classic view targets one anchored print-ready resume instead of node pages
   assert.match(classicResume, /section instanceof HTMLDetailsElement[\s\S]*section\.open = true/);
   assert.match(classicResume, /loadMore: "Load more"/);
   assert.match(classicResume, /loadMore: "Cargar más"/);
+  assert.match(classicResume, /meeting: "Book a meeting"/);
+  assert.match(classicResume, /meeting: "Agendar una reunión"/);
+  assert.match(classicResume, /href=\{meetingUrl\}/);
   assert.match(classicResume, /const pageSize = 3/);
   assert.match(classicResume, /data-resume-load-more/);
   assert.match(classicResume, /<noscript><style>\.resume-entry\[hidden\]/);

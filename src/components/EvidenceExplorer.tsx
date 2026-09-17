@@ -24,7 +24,7 @@ import {
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle } from "../presentation.js";
 import { claimShowcase, claimShowcases } from "../showcase.js";
-import { classicClaimPath } from "../site.js";
+import { classicClaimPath, meetingUrl } from "../site.js";
 import AvatarGuide from "./AvatarGuide.js";
 
 const sessionKey = "resumilio:discovery:v1";
@@ -56,6 +56,7 @@ const copy = {
     selected: "Selected experience",
     view: "Classic View",
     more: "Similar Work",
+    contact: "Let's Talk",
     reset: "Reset",
     empty: "No experience matches that search. Try a skill, company, or project.",
     graphHelp: "A small set of related experience appears at a time. Select a circle to reform the constellation around it. Use arrow keys to move between visible circles.",
@@ -68,6 +69,7 @@ const copy = {
     selected: "Experiencia seleccionada",
     view: "Vista clásica",
     more: "Trabajo similar",
+    contact: "Hablemos",
     reset: "Reiniciar",
     empty: "No encontramos experiencia con esa búsqueda. Prueba una habilidad, empresa o proyecto.",
     graphHelp: "Mostramos un grupo pequeño de experiencia relacionada. Elige un círculo para reorganizar la constelación. Usa las flechas para recorrer los círculos visibles.",
@@ -154,6 +156,7 @@ function ClaimActions({ claim, locale, onMoreLike }: {
   return <div className="detail-actions detail-actions--dock" aria-label={t.selected}>
     <a className="button button--primary" href={classicClaimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}</a>
     <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
+    <a className="button button--secondary button--contact" href={meetingUrl} target="_blank" rel="noopener noreferrer">{t.contact}</a>
   </div>;
 }
 

@@ -2,7 +2,7 @@
 import type { Locale, ResumilioProfile } from "../profile";
 import { marketClaimSummary } from "../presentation";
 import { claimShowcases } from "../showcase";
-import { absoluteUrl, classicClaimPath, classicPath, localeRoot } from "../site";
+import { absoluteUrl, classicClaimPath, classicPath, localeRoot, meetingUrl } from "../site";
 import { buildProfileJsonLd } from "../structured-data";
 import "../styles/classic-resume.css";
 
@@ -10,6 +10,7 @@ const { profile, locale } = Astro.props as { profile: ResumilioProfile; locale: 
 const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const copy = locale === "en" ? {
   back: "Interactive resume",
+  meeting: "Book a meeting",
   loadMore: "Load more",
   sections: {
     experience: "Experience",
@@ -21,6 +22,7 @@ const copy = locale === "en" ? {
   },
 } : {
   back: "Currículum interactivo",
+  meeting: "Agendar una reunión",
   loadMore: "Cargar más",
   sections: {
     experience: "Experiencia",
@@ -69,6 +71,7 @@ const pageSize = 3;
         </div>
         <address class="resume-contact-list">
           {profile.profile.contacts.map((contact) => <a href={contact.url}>{contact.label[locale]}</a>)}
+          <a href={meetingUrl} target="_blank" rel="noopener noreferrer">{copy.meeting}</a>
         </address>
         <p class="resume-summary">{profile.profile.summary[locale]}</p>
       </header>
