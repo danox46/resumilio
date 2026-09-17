@@ -339,6 +339,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 .experience-shell .search-field input { color: var(--constellation-ink); }
 .experience-shell .search-field input::placeholder { color: #8f8c86; }
 .constellation-actions { display: flex; align-items: center; gap: 20px; }
+.resumilio-about-link { color: var(--constellation-muted); font-size: 12px; font-weight: 650; text-decoration: none; }
+.resumilio-about-link:hover { color: var(--amber); }
 .experience-shell .locale-control, .experience-shell .reset-control { color: var(--constellation-muted); }
 .experience-shell .locale-control strong { color: inherit; }
 .experience-shell .locale-control .is-active { color: var(--constellation-ink); text-decoration: underline; text-decoration-color: var(--amber); text-decoration-thickness: 2px; text-underline-offset: 7px; }
@@ -957,6 +959,10 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .graph-stage[data-transition-phase="reposition"] .claim-node.claim-node--incoming:not(.claim-node--previous-center) { animation: mobile-incoming-node-reposition 400ms cubic-bezier(.2,.78,.22,1) both; }
   .graph-stage[data-transition-phase="out"] .experience-focus { animation-name: mobile-feature-depart; }
   .graph-stage[data-transition-phase="in"] .experience-focus { animation-name: mobile-feature-arrival; }
+}
+
+@media (max-width: 340px) {
+  .resumilio-about-link { display: none; }
 }
 
 @keyframes mobile-node-arrival { from { opacity: .18; transform: translate(-50%, -50%) scale(.42); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }

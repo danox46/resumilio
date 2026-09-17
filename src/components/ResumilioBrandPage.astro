@@ -1,0 +1,178 @@
+---
+import { absoluteUrl } from "../site";
+import "../styles/brand.css";
+
+interface Props { locale: "en" | "es"; }
+const { locale } = Astro.props;
+const isEnglish = locale === "en";
+const canonicalPath = isEnglish ? "/about/" : "/es/acerca/";
+const alternatePath = isEnglish ? "/es/acerca/" : "/about/";
+const canonical = absoluteUrl(canonicalPath);
+const profilePath = isEnglish ? "/" : "/es/";
+
+const copy = isEnglish ? {
+  description: "Resumilio is an open-source, person-first living resume that keeps claims connected to evidence and lets agents help without taking over the story.",
+  navHow: "How it works",
+  navOpen: "Open source",
+  navPrinciples: "Principles",
+  profile: "Live profile",
+  eyebrow: "A more human career profile",
+  titleLead: "Your experience,",
+  titleAccent: "still yours.",
+  intro: "A living resume that agents can help maintain — without flattening the person into keywords.",
+  explore: "Explore a live profile",
+  github: "View on GitHub",
+  quietly: "The person stays visible. Resumilio works quietly underneath.",
+  orbitLabel: "One person. Connected proof.",
+  centerName: "Your story",
+  centerNote: "Owned by you",
+  nodes: [
+    ["Product work", "Verified"],
+    ["Open source", "Working"],
+    ["New direction", "Prelaunch"],
+    ["Selected concept", "Proposal"],
+  ],
+  howEyebrow: "How it works",
+  howTitle: "A profile that can grow without losing its memory.",
+  steps: [
+    ["01", "Write the truth", "Capture roles, projects, outcomes, and the real stage of each claim in structured files you control."],
+    ["02", "Attach the proof", "Connect public sources or bounded evidence so readers — and agents — can understand why a claim is trustworthy."],
+    ["03", "Let agents assist", "Use files, the CLI, or bounded tools to keep the profile current. Suggestions stay unpublished until they pass the same truth checks."],
+  ],
+  principlesEyebrow: "Built on a few simple principles",
+  principles: [
+    ["Person first", "You are more than a list of skills. Resumilio keeps the person at the center — always."],
+    ["Evidence attached", "Claims mean more with proof. Link the work, outcomes, and sources directly."],
+    ["Useful without AI", "A strong profile stands on its own. Agents can help maintain it, but your story does not depend on them."],
+  ],
+  openEyebrow: "Open source by design",
+  openTitle: "Fork the engine. Keep your identity.",
+  openBody: "Resumilio is a public-good project with an MIT-licensed codebase and a separate trademark policy. The complete profile, search, validation, and local workflow work without a model key.",
+  source: "Read the source",
+  footer: "An open-source project for a more human job market.",
+} : {
+  description: "Resumilio es una hoja de vida viva, de código abierto y centrada en la persona, que conecta cada afirmación con evidencia y permite que los agentes ayuden sin adueñarse de la historia.",
+  navHow: "Cómo funciona",
+  navOpen: "Código abierto",
+  navPrinciples: "Principios",
+  profile: "Perfil real",
+  eyebrow: "Un perfil profesional más humano",
+  titleLead: "Tu experiencia",
+  titleAccent: "sigue siendo tuya.",
+  intro: "Una hoja de vida viva que los agentes pueden ayudar a mantener, sin reducir a la persona a palabras clave.",
+  explore: "Explora un perfil real",
+  github: "Ver en GitHub",
+  quietly: "La persona permanece visible. Resumilio trabaja discretamente por debajo.",
+  orbitLabel: "Una persona. Evidencia conectada.",
+  centerName: "Tu historia",
+  centerNote: "Te pertenece",
+  nodes: [
+    ["Trabajo de producto", "Verificado"],
+    ["Código abierto", "En curso"],
+    ["Nueva dirección", "Prelanzamiento"],
+    ["Concepto seleccionado", "Propuesta"],
+  ],
+  howEyebrow: "Cómo funciona",
+  howTitle: "Un perfil que puede crecer sin perder su memoria.",
+  steps: [
+    ["01", "Escribe la verdad", "Registra roles, proyectos, resultados y la etapa real de cada afirmación en archivos estructurados bajo tu control."],
+    ["02", "Conecta la evidencia", "Vincula fuentes públicas o evidencia delimitada para que lectores y agentes entiendan por qué una afirmación es confiable."],
+    ["03", "Deja que los agentes ayuden", "Usa archivos, la CLI o herramientas delimitadas para mantener el perfil al día. Las sugerencias no se publican hasta pasar las mismas comprobaciones de veracidad."],
+  ],
+  principlesEyebrow: "Construido sobre principios sencillos",
+  principles: [
+    ["La persona primero", "Eres más que una lista de habilidades. Resumilio mantiene a la persona en el centro, siempre."],
+    ["Evidencia conectada", "Las afirmaciones dicen más con pruebas. Conecta directamente el trabajo, los resultados y las fuentes."],
+    ["Útil sin IA", "Un buen perfil se sostiene por sí mismo. Los agentes pueden ayudar a mantenerlo, pero tu historia no depende de ellos."],
+  ],
+  openEyebrow: "Código abierto por diseño",
+  openTitle: "Adapta el motor. Conserva tu identidad.",
+  openBody: "Resumilio es un proyecto de utilidad pública con código bajo licencia MIT y una política de marca separada. El perfil, la búsqueda, la validación y el flujo local completos funcionan sin una clave de modelo.",
+  source: "Lee el código",
+  footer: "Un proyecto de código abierto para un mercado laboral más humano.",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  name: "Resumilio",
+  description: copy.description,
+  codeRepository: "https://github.com/danox46/resumilio",
+  license: "https://github.com/danox46/resumilio/blob/main/LICENSE",
+  programmingLanguage: ["TypeScript", "Astro"],
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={copy.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={absoluteUrl("/about/")} />
+    <link rel="alternate" hreflang="es" href={absoluteUrl("/es/acerca/")} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl("/about/")} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Resumilio" />
+    <meta property="og:title" content={`${copy.titleLead} ${copy.titleAccent} — Resumilio`} />
+    <meta property="og:description" content={copy.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={isEnglish ? "en_US" : "es_CO"} />
+    <meta name="twitter:card" content="summary" />
+    <title>{copy.titleLead} {copy.titleAccent} — Resumilio</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body class="brand-body">
+    <header class="brand-header">
+      <a class="brand-wordmark" href={canonicalPath} aria-label="Resumilio">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 9 21 18m0 0 13-10M21 18l2 15M8 9l-1 23m0 0 16 1m11-25 3 22m0 0-14 3"/><circle cx="8" cy="9" r="3"/><circle cx="21" cy="18" r="4"/><circle cx="34" cy="8" r="3"/><circle cx="7" cy="32" r="3"/><circle cx="23" cy="33" r="3"/><circle cx="37" cy="30" r="3"/></svg>
+        <span>resumilio</span>
+      </a>
+      <nav aria-label={isEnglish ? "Product" : "Producto"}>
+        <a href="#how">{copy.navHow}</a><a href="#open-source">{copy.navOpen}</a><a href="#principles">{copy.navPrinciples}</a>
+      </nav>
+      <div class="brand-actions">
+        <a class="brand-profile-link" href={profilePath}>{copy.profile}</a>
+        <a class="brand-locale" href={alternatePath} aria-label={isEnglish ? "Cambiar a español" : "Switch to English"}><strong class:list={{ active: isEnglish }}>EN</strong><span>/</span><strong class:list={{ active: !isEnglish }}>ES</strong></a>
+      </div>
+    </header>
+
+    <main>
+      <section class="brand-hero">
+        <div class="brand-hero-copy">
+          <p class="brand-eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.titleLead}<br/><em>{copy.titleAccent}</em></h1>
+          <p class="brand-intro">{copy.intro}</p>
+          <div class="brand-ctas"><a class="brand-button brand-button--primary" href={profilePath}>{copy.explore}<span aria-hidden="true">↗</span></a><a class="brand-button" href="https://github.com/danox46/resumilio">{copy.github}<span aria-hidden="true">↗</span></a></div>
+          <p class="brand-quiet">{copy.quietly}</p>
+        </div>
+
+        <div class="proof-orbit" aria-label={copy.orbitLabel}>
+          <svg class="proof-lines" viewBox="0 0 640 570" aria-hidden="true"><path d="M320 282 137 108M320 282 512 102M320 282 535 365M320 282 132 436"/><path class="proof-line--soft" d="M137 108 512 102M512 102 535 365M535 365 132 436"/></svg>
+          <div class="proof-center"><span class="proof-person" aria-hidden="true"><i></i></span><strong>{copy.centerName}</strong><small>{copy.centerNote}</small></div>
+          {copy.nodes.map(([title, status], index) => <div class={`proof-node proof-node--${index + 1}`}><span class="proof-dot" aria-hidden="true"></span><strong>{title}</strong><small>{status}</small></div>)}
+          <span class="ambient-dot ambient-dot--1" aria-hidden="true"></span><span class="ambient-dot ambient-dot--2" aria-hidden="true"></span><span class="ambient-dot ambient-dot--3" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <section class="brand-how" id="how">
+        <div class="brand-section-heading"><p class="brand-eyebrow">{copy.howEyebrow}</p><h2>{copy.howTitle}</h2></div>
+        <div class="brand-steps">{copy.steps.map(([number, title, body]) => <article><span>{number}</span><h3>{title}</h3><p>{body}</p></article>)}</div>
+      </section>
+
+      <section class="brand-principles" id="principles">
+        <p class="brand-eyebrow">{copy.principlesEyebrow}</p>
+        <div class="brand-principle-grid">{copy.principles.map(([title, body], index) => <article><span class={`principle-icon principle-icon--${index + 1}`} aria-hidden="true"></span><h3>{title}</h3><p>{body}</p></article>)}</div>
+      </section>
+
+      <section class="brand-open" id="open-source">
+        <div><p class="brand-eyebrow">{copy.openEyebrow}</p><h2>{copy.openTitle}</h2></div>
+        <div><p>{copy.openBody}</p><a class="brand-button brand-button--dark" href="https://github.com/danox46/resumilio">{copy.source}<span aria-hidden="true">↗</span></a></div>
+      </section>
+    </main>
+
+    <footer class="brand-footer"><a class="brand-wordmark" href={canonicalPath}><span>resumilio</span></a><p>{copy.footer}</p><a href="https://github.com/danox46/resumilio">GitHub ↗</a></footer>
+  </body>
+</html>

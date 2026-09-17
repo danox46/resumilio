@@ -59,6 +59,7 @@ const copy = {
     empty: "No experience matches that search. Try a skill, company, or project.",
     graphHelp: "A small set of related experience appears at a time. Select a circle to reform the constellation around it. Use arrow keys to move between visible circles.",
     neighborhood: "Related experience",
+    about: "About Resumilio",
   },
   es: {
     eyebrow: "Constelación de experiencia",
@@ -71,6 +72,7 @@ const copy = {
     empty: "No encontramos experiencia con esa búsqueda. Prueba una habilidad, empresa o proyecto.",
     graphHelp: "Mostramos un grupo pequeño de experiencia relacionada. Elige un círculo para reorganizar la constelación. Usa las flechas para recorrer los círculos visibles.",
     neighborhood: "Experiencia relacionada",
+    about: "Sobre Resumilio",
   },
 } as const;
 
@@ -526,6 +528,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         <label className="search-field"><span className="sr-only">{t.search}</span><SearchIcon/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder}/></label>
       </form>
       <div className="constellation-actions">
+        <a className="resumilio-about-link" href={locale === "en" ? "/about/" : "/es/acerca/"}>{t.about}</a>
         <a className="locale-control" href={locale === "en" ? "/es/" : "/"} onClick={(event) => { event.preventDefault(); setLocale(locale === "en" ? "es" : "en"); }} aria-label={locale === "en" ? "Cambiar a español" : "Switch to English"}><strong className={locale === "en" ? "is-active" : ""}>EN</strong><span>/</span><strong className={locale === "es" ? "is-active" : ""}>ES</strong></a>
         <button className="reset-control" type="button" onClick={reset}><ResetIcon/><span>{t.reset}</span></button>
       </div>

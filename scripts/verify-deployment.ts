@@ -6,6 +6,8 @@ if (origins.length === 0) throw new Error("Pass one or more deployment origins t
 const routes = [
   { path: "/", type: "text/html", language: null },
   { path: "/es/", type: "text/html", language: null },
+  { path: "/about/", type: "text/html", language: null },
+  { path: "/es/acerca/", type: "text/html", language: null },
   { path: "/resume.json", type: "application/json", language: "en" },
   { path: "/es/resume.json", type: "application/json", language: "es" },
   { path: "/evidence.json", type: "application/json", language: "en" },
