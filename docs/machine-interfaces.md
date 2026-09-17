@@ -19,7 +19,7 @@ JSON and text responses declare language, safe content type, and shared-cache po
 
 ## Canonical origin
 
-The release build uses the verified public origin `https://resumilio.danielx9.workers.dev`. `PUBLIC_SITE_ORIGIN` may override it only for an intentional alternate deployment; the Phase 6 build gate rejects the reserved pre-publication origin.
+The release build uses the verified public origin `https://resumilio.danienremoto.com`. `PUBLIC_SITE_ORIGIN` may override it only for an intentional alternate deployment; the Phase 6 build gate rejects the reserved pre-publication origin.
 
 ## Structured evidence pages
 

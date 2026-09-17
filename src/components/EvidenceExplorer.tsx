@@ -188,7 +188,6 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [discovery, setDiscovery] = useState<DiscoveryState>(emptyDiscoveryState);
   const [storageReady, setStorageReady] = useState(false);
-  const [pageLoaded, setPageLoaded] = useState(false);
   const [avatarLayout, setAvatarLayout] = useState<AvatarLayout>("wide");
   const [avatar, setAvatar] = useState<AvatarPlayback>({ reaction: "idle", sequence: 0, mode: "loading" });
   const avatarRef = useRef(avatar);
@@ -268,7 +267,6 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     let listening = true;
     const announceReady = () => {
       if (!listening) return;
-      setPageLoaded(true);
       const handled = welcomeHandled.current;
       welcomeHandled.current = true;
       if (shouldStartWelcome(avatarRef.current, handled)) commitAvatar("smile", "welcome");
@@ -641,7 +639,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
             <circle cx="63" cy="81" r=".72"/>
             <circle cx="89" cy="72" r=".55"/>
           </svg>
-          <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} onComplete={completeAvatarReaction}/>
+          <AvatarGuide playback={avatar} layout={avatarLayout} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
             {visibleRenderedNodes.map(({ claim, slot, mobileSlot, drift, role, reserveSource, mobileReserveSource }, index) => {
               const fullTitle = graphTitle(claim.title[locale]);

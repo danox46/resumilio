@@ -1,0 +1,26 @@
+name: Feature idea
+description: Propose an improvement to the open-source experience.
+title: "[Idea]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What should become easier?
+      description: Describe the person and the outcome before proposing an interface.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested experience
+      description: How could Resumilio help while preserving person ownership, evidence, and no-key use?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Main surface
+      options: [Visual profile, Classic resume, CLI, MCP, Public schema, Documentation, Other]
+    validations:
+      required: true

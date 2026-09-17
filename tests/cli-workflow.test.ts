@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import packageJson from "../package.json" with { type: "json" };
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const resumilioCli = resolve(repository, "dist/cli.js");
@@ -14,6 +15,10 @@ function run(cwd: string, ...args: string[]) {
   assert.equal(result.status, 0, `${args.join(" ")} failed:\n${result.stdout}\n${result.stderr}`);
   return result.stdout;
 }
+
+test("the CLI reports the package release version", () => {
+  assert.equal(run(repository, "--version").trim(), packageJson.version);
+});
 
 test("all CLI commands complete a fresh-directory no-key workflow", async () => {
   const directory = await mkdtemp(resolve(tmpdir(), "resumilio-cli-"));

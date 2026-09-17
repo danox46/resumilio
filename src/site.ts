@@ -3,7 +3,7 @@ import type { Locale } from "./profile.js";
 const viteEnvironment = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
 const nodeEnvironment = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env;
 
-export const siteOrigin = (viteEnvironment?.PUBLIC_SITE_ORIGIN ?? nodeEnvironment?.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danielx9.workers.dev").replace(/\/+$/, "");
+export const siteOrigin = (viteEnvironment?.PUBLIC_SITE_ORIGIN ?? nodeEnvironment?.PUBLIC_SITE_ORIGIN ?? "https://resumilio.danienremoto.com").replace(/\/+$/, "");
 
 export function localeRoot(locale: Locale): string {
   return locale === "en" ? "/" : "/es/";

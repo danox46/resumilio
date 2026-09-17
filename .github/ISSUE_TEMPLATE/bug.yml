@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible Resumilio problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Resumilio. Please do not disclose security vulnerabilities here; use GitHub private vulnerability reporting instead.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Give the smallest profile or sequence that reproduces the issue. Remove private information.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Resumilio version
+      placeholder: 0.8.0
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Node version, browser, and locale when relevant.
+    validations:
+      required: true

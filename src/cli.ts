@@ -6,6 +6,7 @@ import type { Locale } from "./profile.js";
 import { analyzeConstellationGraph } from "./graph-health.js";
 import { buildDeploymentArtifacts, buildPreview, renderHtml, renderMarkdown } from "./rendering.js";
 import { guidanceFor, ingestDocument, initializeWorkspace, loadValidProfile, type ExperienceLevel } from "./workspace.js";
+import { RESUMILIO_VERSION } from "./version.js";
 
 const args = process.argv.slice(2);
 const command = args.shift() ?? "help";
@@ -45,6 +46,10 @@ No model key is required.`);
 }
 
 async function run(): Promise<void> {
+  if (command === "--version" || command === "-v" || command === "version") {
+    console.log(RESUMILIO_VERSION);
+    return;
+  }
   if (command === "help" || command === "--help" || command === "-h") return printHelp();
   if (command === "init") {
     const level = option("--level", "nontechnical") as ExperienceLevel;

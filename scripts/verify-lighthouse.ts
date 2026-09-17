@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, isAbsolute, join, normalize, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import lighthouse from "lighthouse";
 import * as chromeLauncher from "chrome-launcher";
 
@@ -26,11 +27,15 @@ const server = createServer((request, response) => {
     response.writeHead(404).end("Not found");
     return;
   }
+  const body = readFileSync(path);
+  const compressible = /(?:text|javascript|json|svg|xml)/.test(mimeTypes[extname(path)] ?? "");
+  const useGzip = compressible && request.headers["accept-encoding"]?.includes("gzip");
   response.writeHead(200, {
     "content-type": mimeTypes[extname(path)] ?? "application/octet-stream",
     "cache-control": path.includes(`${join("site-dist", "assets")}`) || path.includes(`${join("site-dist", "media")}`) ? "public, max-age=31536000, immutable" : "public, max-age=0, must-revalidate",
+    ...(useGzip ? { "content-encoding": "gzip", vary: "Accept-Encoding" } : {}),
   });
-  response.end(readFileSync(path));
+  response.end(useGzip ? gzipSync(body) : body);
 });
 
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));

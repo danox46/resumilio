@@ -9,6 +9,7 @@ const canonicalPath = isEnglish ? "/how-to/" : "/es/como-usar/";
 const alternatePath = isEnglish ? "/es/como-usar/" : "/how-to/";
 const overviewPath = isEnglish ? "/about/" : "/es/acerca/";
 const profilePath = isEnglish ? "/" : "/es/";
+const socialImage = absoluteUrl("/media/resumilio-v0.8.0-social.png");
 
 const copy = isEnglish ? {
   description: "Learn how to create, validate, preview, and export a Resumilio living resume.",
@@ -89,7 +90,10 @@ const copy = isEnglish ? {
     <meta property="og:title" content={`${copy.title} — Resumilio`} />
     <meta property="og:description" content={copy.description} />
     <meta property="og:url" content={absoluteUrl(canonicalPath)} />
+    <meta property="og:image" content={socialImage} />
     <meta property="og:locale" content={isEnglish ? "en_US" : "es_CO"} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImage} />
     <title>{copy.title} — Resumilio</title>
   </head>
   <body class="brand-body howto-body">

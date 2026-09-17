@@ -2,11 +2,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod/v4";
 import type { ResumilioProfile } from "./profile.js";
 import { buildLocalDeployment, buildLocalPreview, linkPublicSource, readProfile, updateClaim, validateClaims } from "./operations.js";
+import { RESUMILIO_VERSION } from "./version.js";
 
 const text = (value: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] });
 
 export function createResumilioMcpServer(defaultProfilePath = "resumilio.json"): McpServer {
-  const server = new McpServer({ name: "resumilio", version: "0.4.0" });
+  const server = new McpServer({ name: "resumilio", version: RESUMILIO_VERSION });
 
   server.registerTool("profile_read", {
     description: "Read a validated, public Resumilio profile graph.",

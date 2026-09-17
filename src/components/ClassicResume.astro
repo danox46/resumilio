@@ -35,6 +35,7 @@ const sectionOrder = ["experience", "project", "education", "certification", "pu
 const groups = sectionOrder.map((type) => ({ type, claims: profile.claims.filter((claim) => claim.type === type) })).filter((group) => group.claims.length);
 const canonical = absoluteUrl(classicPath(locale));
 const alternate = absoluteUrl(classicPath(alternateLocale));
+const socialImage = absoluteUrl("/media/resumilio-v0.8.0-social.png");
 const jsonLd = buildProfileJsonLd(profile, locale);
 const organizationFor = (organizationId?: string) => organizationId ? profile.organizations.find((item) => item.id === organizationId) : undefined;
 const titleFor = (value: string) => value.split(" — ")[0];
@@ -52,6 +53,13 @@ const pageSize = 3;
     <link rel="alternate" hreflang={alternateLocale} href={alternate} />
     <link rel="alternate" hreflang="x-default" href={absoluteUrl(classicPath("en"))} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={`${profile.profile.name[locale]} — ${profile.profile.headline[locale]}`} />
+    <meta property="og:description" content={profile.profile.summary[locale]} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImage} />
     <title>{profile.profile.name[locale]} — {profile.profile.headline[locale]}</title>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <noscript><style>.resume-entry[hidden] { display: block !important; } .resume-load-more { display: none !important; }</style></noscript>

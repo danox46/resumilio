@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "release": "v0.8.0",
+  "status": "candidate-preparation",
+  "scheduledFor": "2026-09-21T12:00:00-05:00",
+  "hardGate": {
+    "websiteHealthy": null,
+    "githubReleaseHealthy": null,
+    "npmBlocksLaunch": false
+  },
+  "source": {
+    "repository": "https://github.com/danox46/resumilio",
+    "commit": null,
+    "tag": null
+  },
+  "cloudflare": {
+    "hostname": "resumilio.danienremoto.com",
+    "previewVersion": null,
+    "productionVersion": null,
+    "rollbackVersion": null
+  },
+  "githubRelease": {
+    "draftUrl": null,
+    "publishedUrl": null
+  },
+  "npm": {
+    "package": "resumilio@0.8.0",
+    "published": false,
+    "integrity": null,
+    "provenanceUrl": null
+  },
+  "assets": {
+    "tarball": "release-artifacts/resumilio-0.8.0.tgz",
+    "checksums": "release-artifacts/SHA256SUMS.txt",
+    "sbom": "release-artifacts/resumilio-0.8.0.cdx.json",
+    "desktopScreenshot": "docs/release/resumilio-v0.8.0-desktop.png",
+    "mobileScreenshot": "docs/release/resumilio-v0.8.0-mobile.png",
+    "socialCard": "docs/release/resumilio-v0.8.0-social.png"
+  },
+  "verification": {
+    "phase6": {
+      "status": "passed",
+      "lighthouse": {
+        "performance": 99,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcpMs": 1803,
+        "cls": 0
+      },
+      "tests": 55,
+      "publicFilesScanned": 158,
+      "historyCommitsScanned": 64
+    },
+    "browserQuality": {
+      "status": "passed",
+      "viewports": ["240x240", "320x568", "390x844", "768x1024", "1440x1024", "1920x1080", "2572x1233", "3840x2160"],
+      "overflow": 0,
+      "externalRequests": 0,
+      "keyboard": true,
+      "reducedMotion": true,
+      "noJavaScript": true
+    },
+    "packedPackage": {
+      "status": "passed",
+      "commands": ["init", "validate", "preview", "export", "deploy"],
+      "binaries": ["resumilio", "resumilio-mcp"],
+      "noKey": true
+    },
+    "previewParity": null,
+    "productionReadback": null
+  },
+  "notes": [
+    "Prepared release receipt. Publication fields must be filled only from verified provider readback.",
+    "Launch-post drafts are review-only and are not authorized for publication."
+  ]
+}

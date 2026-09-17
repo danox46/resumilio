@@ -10,6 +10,7 @@ const alternatePath = isEnglish ? "/es/acerca/" : "/about/";
 const canonical = absoluteUrl(canonicalPath);
 const profilePath = isEnglish ? "/" : "/es/";
 const howToPath = isEnglish ? "/how-to/" : "/es/como-usar/";
+const socialImage = absoluteUrl("/media/resumilio-v0.8.0-social.png");
 
 const copy = isEnglish ? {
   description: "Resumilio is an open-source, person-first living resume that keeps claims connected to evidence and lets agents help without taking over the story.",
@@ -118,8 +119,10 @@ const jsonLd = {
     <meta property="og:title" content={`${copy.titleLead} ${copy.titleAccent} — Resumilio`} />
     <meta property="og:description" content={copy.description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
     <meta property="og:locale" content={isEnglish ? "en_US" : "es_CO"} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImage} />
     <title>{copy.titleLead} {copy.titleAccent} — Resumilio</title>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
   </head>

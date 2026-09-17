@@ -1,6 +1,6 @@
 {
   "name": "resumilio",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "description": "Person-first, evidence-backed living resume engine.",
   "license": "MIT",
@@ -35,6 +35,8 @@
     "verify:browser-quality": "tsx scripts/verify-browser-quality.ts",
     "verify:release-build": "tsx scripts/verify-release-build.ts",
     "verify:deployment": "tsx scripts/verify-deployment.ts",
+    "release:pack": "npm run build:package && tsx scripts/build-release-assets.ts",
+    "release:card": "tsx scripts/render-launch-card.ts",
     "dev:cloudflare": "wrangler dev --local",
     "deploy:preview": "wrangler versions upload",
     "deploy:public": "wrangler deploy",
@@ -52,13 +54,20 @@
   "bugs": {
     "url": "https://github.com/danox46/resumilio/issues"
   },
-  "homepage": "https://github.com/danox46/resumilio#readme",
+  "homepage": "https://resumilio.danienremoto.com",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "keywords": [
     "resume",
     "portfolio",
     "evidence",
     "mcp",
-    "bilingual"
+    "bilingual",
+    "living-resume",
+    "open-source",
+    "typescript"
   ],
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

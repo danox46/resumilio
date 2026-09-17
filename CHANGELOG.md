@@ -4,6 +4,20 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-21
+
+### Added
+
+- A guided, animated evidence constellation with an expressive avatar and accessible reduced-motion behavior.
+- A bilingual classic resume generated from the same public profile, plus dedicated product and how-to pages.
+- Release-grade npm automation, package smoke testing, checksums, a CycloneDX SBOM, screenshots, and a machine-readable release receipt.
+
+### Changed
+
+- Expanded the sanitized demonstration graph to 34 connected claims while retaining evidence and lifecycle distinctions.
+- Established `https://resumilio.danienremoto.com` as the canonical bilingual origin and Cloudflare Custom Domain.
+- Unified the package, CLI, and MCP server on version `0.8.0` without changing the public v1 profile or export schemas.
+
 ## [0.7.0] - 2026-09-14
 
 ### Added

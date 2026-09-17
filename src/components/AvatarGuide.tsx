@@ -14,7 +14,6 @@ const avatarGuideMedia: Record<AvatarLayout, string> = {
   wide: "/media/avatar/daniel-guide-wide.mp4",
   stacked: "/media/avatar/daniel-guide-stacked.mp4",
 };
-const allAvatarSources = [...Object.values(avatarMedia), ...Object.values(avatarGuideMedia)];
 
 type AvatarVariant = Exclude<AvatarReaction, "guide"> | "guide-wide" | "guide-stacked";
 type VideoLayer = AvatarPlayback & {
@@ -49,10 +48,9 @@ function framingStyle(variant: AvatarVariant): CSSProperties {
   return { "--avatar-video-scale": framing.scale, "--avatar-video-offset-y": framing.offsetY } as CSSProperties;
 }
 
-export default function AvatarGuide({ playback, layout, pageLoaded, onComplete }: {
+export default function AvatarGuide({ playback, layout, onComplete }: {
   playback: AvatarPlayback;
   layout: AvatarLayout;
-  pageLoaded: boolean;
   onComplete: (sequence: number) => void;
 }) {
   const initialLayer = useRef(videoLayer(playback, layout));
@@ -114,19 +112,6 @@ export default function AvatarGuide({ playback, layout, pageLoaded, onComplete }
     if (fallbackTimer.current) window.clearTimeout(fallbackTimer.current);
     fallbackTimer.current = window.setTimeout(() => activatePending(desired.id), incomingFallbackMs);
   }, [activatePending, layout, playback]);
-
-  useEffect(() => {
-    const sources = pageLoaded ? allAvatarSources : [avatarMedia.smile];
-    const preloaders = sources.map((source) => {
-      const media = document.createElement("video");
-      media.muted = true;
-      media.preload = "auto";
-      media.src = source;
-      media.load();
-      return media;
-    });
-    return () => preloaders.forEach((media) => { media.removeAttribute("src"); media.load(); });
-  }, [pageLoaded]);
 
   useEffect(() => () => {
     if (fallbackTimer.current) window.clearTimeout(fallbackTimer.current);

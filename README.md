@@ -1,17 +1,19 @@
 # Resumilio
 
-Resumilio is a person-first, evidence-backed living resume engine. The person is the public identity; Resumilio is the reusable engine underneath it.
+[![CI](https://github.com/danox46/resumilio/actions/workflows/ci.yml/badge.svg)](https://github.com/danox46/resumilio/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/resumilio)](https://www.npmjs.com/package/resumilio) [![MIT](https://img.shields.io/badge/license-MIT-355d4a)](LICENSE)
 
-It starts with a bilingual data contract that keeps claims, lifecycle, provenance, evidence strength, and relationships distinct. A local CLI and MCP server let people or agents maintain the same profile without a model key, proprietary account, or hosted service.
+**A living, visual resume that connects your work, proof, and possibilities.**
 
-The included web experience turns that contract into an adaptive Evidence Constellation: search and filter the complete public record, open the proof behind a claim, and understand why a related item is recommended. The initial HTML remains complete when JavaScript is unavailable; session adaptation stays local to the current browser tab.
+[Explore the live profile](https://resumilio.danienremoto.com) · [See how it works](https://resumilio.danienremoto.com/how-to/) · [Versión en español](https://resumilio.danienremoto.com/es/acerca/)
 
-Machines can discover the same public record through `/.well-known/resumilio.json`, localized `resume.json`, `evidence.json`, `graph.json`, `search-index.json`, `llms.txt`, and versioned schemas. Every claim export links to a crawlable evidence page where its supporting record resolves in one hop.
+![Resumilio's evidence constellation and classic resume](docs/release/resumilio-v0.8.0-desktop.png)
 
-## Start in a fresh directory
+Resumilio keeps one evidence-backed career record and presents it in two useful ways: an interactive constellation for discovery and a classic resume for applications. Recommendations react to what a visitor explores and explain the connection. The complete experience remains useful without JavaScript, a model key, a proprietary account, analytics, or a hosted database.
+
+## Start locally
 
 ```sh
-npm install -g resumilio
+npm install -g resumilio@0.8.0
 resumilio init my-profile
 cd my-profile
 resumilio validate
@@ -20,64 +22,43 @@ resumilio export --format markdown
 resumilio deploy
 ```
 
-Until the package is published to npm, clone this repository, run `npm ci && npm run build`, and use `node /path/to/resumilio/dist/cli.js` with the same commands.
+`deploy` creates sanitized local static artifacts. It never publishes them or asks for credentials.
 
-`deploy` deliberately creates sanitized local static artifacts only. It does not publish them or require credentials.
-
-## Commands
-
-| Command | Purpose |
+| Command | What you get |
 | --- | --- |
-| `init` | Create a valid bilingual starter profile and experience-level guidance. |
-| `ingest` | Replace a profile with valid JSON or merge a validated `claim-bundle`. |
-| `validate` | Check schema, graph integrity, evidence reciprocity, lifecycle wording, and constellation reachability. |
-| `preview` | Create a local HTML preview. |
-| `export` | Export JSON, Markdown, or HTML. |
-| `doctor` | Check the runtime and profile without requiring a model key. |
-| `deploy` | Build sanitized local static deployment artifacts without publishing. |
+| `init` | A valid bilingual starter profile and guidance matched to your experience level. |
+| `ingest` | A validated profile import or evidence-backed claim bundle. |
+| `validate` | Schema, graph, lifecycle, evidence, and constellation-health checks. |
+| `preview` | A local browser-ready profile. |
+| `export` | JSON, Markdown, or HTML output from the same source. |
+| `doctor` | A no-key runtime and profile health check. |
+| `deploy` | Sanitized static deployment artifacts, without publishing. |
 
-Choose `--level nontechnical`, `intermediate`, or `advanced` during `init`. The explanation changes; the generated profile and deployment schema do not.
-
-## Included profiles
-
-- `profiles/starter.json` is a generic bilingual starter.
-- `profiles/daniel.json` is a deliberately small public seed that demonstrates truthful lifecycle and evidence distinctions. It is not a private résumé archive.
-
-## Local MCP server
+## Work with agents through MCP
 
 ```sh
-npm run build
-node dist/mcp-server.js --profile ./resumilio.json
+npm install resumilio@0.8.0
+npx resumilio init .
+npx resumilio-mcp --profile ./resumilio.json
 ```
 
-The stdio server exposes bounded tools to read and update claims, link public sources, validate the graph, preview, and build local deployment artifacts. See `docs/mcp.md`.
+The local stdio MCP server exposes bounded tools to read and update claims, connect public sources, validate the graph, preview the experience, and build deployment artifacts. Agents help maintain the record; they do not become its owner. See [the MCP guide](docs/mcp.md).
 
-The adaptive constellation cannot become trapped in an authored relationship cluster. Resumilio preserves truthful semantic links, then adds a deterministic presentation-only traversal cycle and an unexplored-frontier guard. Validation reports semantic components separately from the guaranteed navigable graph; see [Architecture](docs/architecture.md#constellation-graph-health).
+## One public contract
 
-## Development
+The profile, classic resume, and machine interfaces share the versioned v1 schema. Claims keep lifecycle, provenance, evidence strength, and relationships distinct. Public discovery is available through `/.well-known/resumilio.json`, localized resume/evidence/graph/search exports, `llms.txt`, and crawlable pages.
+
+The repository includes a generic starter and Daniel's deliberately sanitized public demonstration profile. It is not a private resume archive. Resumilio is open source—not a freemium shell: profile authoring, validation, search, export, the visual experience, and the local agent workflow are included under the MIT license. The name and marks are covered separately by [TRADEMARKS.md](TRADEMARKS.md).
+
+## Develop and verify
 
 ```sh
 npm ci
 npm run phase6
-npm run dev
+npm run verify:browser-quality
+npm pack --dry-run
 ```
 
-The Phase 6 gate builds the package and bilingual static site, type-checks both, validates the Daniel seed, and runs authoring, discovery, machine-contract, structured-data, static-experience, accessibility-structure, Lighthouse, release-origin, and public-safety checks. CI separately exercises the rendered browser experience and retains its screenshots, browser report, Lighthouse summaries, and raw Lighthouse results as build artifacts. These checks do not claim a real screen-reader user test.
+Phase 6 builds the package and bilingual site, type-checks them, validates the public profile, exercises authoring and machine contracts, scans current files and history for private data, and enforces Lighthouse scores of at least 95. Browser QA covers keyboard use, reduced motion, no-JavaScript access, responsive layouts from 240px upward, the constellation carousel, and the classic resume.
 
-The flagship static site is published as an assets-only Cloudflare Worker. See [Cloudflare deployment](docs/deployment.md) for the preview, parity, publication, and readback sequence.
-
-## Project documents
-
-- [Architecture](docs/architecture.md)
-- [Public data contract](docs/phase-1-public-data-contract.md)
-- [Onboarding modes](docs/onboarding.md)
-- [Local MCP server](docs/mcp.md)
-- [Phase 3 design system](docs/design/phase-3-design-system.md)
-- [Phase 3 fidelity ledger](docs/design/phase-3-fidelity-ledger.md)
-- [Machine interfaces and bilingual discovery](docs/machine-interfaces.md)
-- [Quality assurance](docs/quality-assurance.md)
-- [Cloudflare deployment](docs/deployment.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security](SECURITY.md)
-
-Resumilio is available under the MIT License. The project name and marks are covered separately by `TRADEMARKS.md`.
+Read [Architecture](docs/architecture.md), [How deployment works](docs/deployment.md), [Quality assurance](docs/quality-assurance.md), [Contributing](CONTRIBUTING.md), and [Security](SECURITY.md).

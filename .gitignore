@@ -7,6 +7,7 @@ site-dist/
 .wrangler/
 output/playwright/
 qa-artifacts/
+release-artifacts/
 *.log
 .env
 .env.*
