@@ -1,5 +1,5 @@
 import type { Locale, ResumilioProfile } from "./profile.js";
-import { absoluteUrl, claimPath, localeRoot, localizedPath, siteOrigin } from "./site.js";
+import { absoluteUrl, classicClaimPath, classicEvidencePath, localeRoot, localizedPath, siteOrigin } from "./site.js";
 
 const schemaVersion = "1.0.0" as const;
 const publicCache = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
@@ -46,7 +46,7 @@ export function buildResumeExport(profile: ResumilioProfile, locale: Locale) {
         lifecycle: claim.lifecycle,
         title: claim.title[locale],
         summary: claim.summary[locale],
-        url: absoluteUrl(claimPath(claim.id, locale)),
+        url: absoluteUrl(classicClaimPath(claim.id, locale)),
         organization: organization ? { id: organization.id, name: organization.name[locale], url: organization.url } : undefined,
         tags: claim.tags,
         evidence: claim.evidenceIds.map((evidenceId) => {
@@ -56,7 +56,7 @@ export function buildResumeExport(profile: ResumilioProfile, locale: Locale) {
             title: evidence.title[locale],
             strength: evidence.strength,
             visibility: evidence.source.visibility,
-            url: absoluteUrl(`${claimPath(claim.id, locale)}#${evidence.id}`),
+            url: absoluteUrl(classicEvidencePath(evidence.id, locale)),
             sourceUrl: evidence.source.url,
           };
         }),
@@ -79,7 +79,7 @@ export function buildEvidenceExport(profile: ResumilioProfile, locale: Locale) {
       lifecycle: item.lifecycle,
       observedAt: item.observedAt,
       source: { label: item.source.label[locale], visibility: item.source.visibility, url: item.source.url },
-      claims: item.claimIds.map((claimId) => ({ id: claimId, url: absoluteUrl(claimPath(claimId, locale)) })),
+      claims: item.claimIds.map((claimId) => ({ id: claimId, url: absoluteUrl(classicClaimPath(claimId, locale)) })),
     })),
   };
 }
@@ -88,8 +88,8 @@ export function buildGraphExport(profile: ResumilioProfile, locale: Locale) {
   const nodes = [
     { id: profile.profile.id, kind: "person", label: profile.profile.name[locale], url: absoluteUrl(localeRoot(locale)) },
     ...profile.organizations.map((item) => ({ id: item.id, kind: "organization", label: item.name[locale], url: item.url })),
-    ...profile.claims.map((item) => ({ id: item.id, kind: "claim", label: item.title[locale], url: absoluteUrl(claimPath(item.id, locale)) })),
-    ...profile.evidence.map((item) => ({ id: item.id, kind: "evidence", label: item.title[locale], url: absoluteUrl(`${claimPath(item.claimIds[0], locale)}#${item.id}`) })),
+    ...profile.claims.map((item) => ({ id: item.id, kind: "claim", label: item.title[locale], url: absoluteUrl(classicClaimPath(item.id, locale)) })),
+    ...profile.evidence.map((item) => ({ id: item.id, kind: "evidence", label: item.title[locale], url: absoluteUrl(classicEvidencePath(item.id, locale)) })),
   ];
   const supports = profile.evidence.flatMap((item) => item.claimIds.map((claimId) => ({
     id: `support-${item.id}-${claimId}`,
@@ -125,7 +125,7 @@ export function buildSearchIndex(profile: ResumilioProfile, locale: Locale) {
         tags: claim.tags,
         organization: organization?.name[locale],
         evidence: evidence.map((item) => item.title[locale]),
-        url: absoluteUrl(claimPath(claim.id, locale)),
+        url: absoluteUrl(classicClaimPath(claim.id, locale)),
       };
     }),
   };
@@ -189,12 +189,12 @@ export function buildLlmsText(profile: ResumilioProfile, locale: Locale, full = 
     "",
   ];
   for (const claim of profile.claims) {
-    lines.push(`- [${claim.title[locale]}](${absoluteUrl(claimPath(claim.id, locale))}) — ${claim.lifecycle}`);
+    lines.push(`- [${claim.title[locale]}](${absoluteUrl(classicClaimPath(claim.id, locale))}) — ${claim.lifecycle}`);
     if (full) {
       lines.push(`  ${claim.summary[locale]}`);
       for (const evidenceId of claim.evidenceIds) {
         const evidence = profile.evidence.find((item) => item.id === evidenceId)!;
-        lines.push(`  - ${t.source}: [${evidence.title[locale]}](${absoluteUrl(`${claimPath(claim.id, locale)}#${evidence.id}`)}) — ${evidence.strength}; ${evidence.source.visibility}`);
+        lines.push(`  - ${t.source}: [${evidence.title[locale]}](${absoluteUrl(classicEvidencePath(evidence.id, locale))}) — ${evidence.strength}; ${evidence.source.visibility}`);
       }
     }
   }

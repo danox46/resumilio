@@ -1,0 +1,104 @@
+---
+import type { Locale, ResumilioProfile } from "../profile";
+import { marketClaimSummary } from "../presentation";
+import { claimShowcases } from "../showcase";
+import { absoluteUrl, classicClaimPath, classicPath, localeRoot } from "../site";
+import { buildProfileJsonLd } from "../structured-data";
+import "../styles/classic-resume.css";
+
+const { profile, locale } = Astro.props as { profile: ResumilioProfile; locale: Locale };
+const alternateLocale: Locale = locale === "en" ? "es" : "en";
+const copy = locale === "en" ? {
+  back: "Interactive resume",
+  sections: {
+    experience: "Experience",
+    project: "Selected projects",
+    education: "Education",
+    certification: "Certifications",
+    publication: "Publications",
+    skill: "Skills",
+  },
+} : {
+  back: "Currículum interactivo",
+  sections: {
+    experience: "Experiencia",
+    project: "Proyectos seleccionados",
+    education: "Educación",
+    certification: "Certificaciones",
+    publication: "Publicaciones",
+    skill: "Habilidades",
+  },
+};
+const sectionOrder = ["experience", "project", "education", "certification", "publication", "skill"] as const;
+const groups = sectionOrder.map((type) => ({ type, claims: profile.claims.filter((claim) => claim.type === type) })).filter((group) => group.claims.length);
+const canonical = absoluteUrl(classicPath(locale));
+const alternate = absoluteUrl(classicPath(alternateLocale));
+const jsonLd = buildProfileJsonLd(profile, locale);
+const organizationFor = (organizationId?: string) => organizationId ? profile.organizations.find((item) => item.id === organizationId) : undefined;
+const titleFor = (value: string) => value.split(" — ")[0];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={profile.profile.summary[locale]} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={locale} href={canonical} />
+    <link rel="alternate" hreflang={alternateLocale} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl(classicPath("en"))} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{profile.profile.name[locale]} — {profile.profile.headline[locale]}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body class="classic-resume-page">
+    <nav class="classic-toolbar" aria-label={locale === "en" ? "Resume controls" : "Controles del currículum"}>
+      <a href={localeRoot(locale)}>← {copy.back}</a>
+      <a href={classicPath(alternateLocale)}>{locale === "en" ? "ES" : "EN"}</a>
+    </nav>
+    <main class="resume-paper">
+      <header class="resume-header">
+        <div>
+          <h1>{profile.profile.name[locale]}</h1>
+          <p class="resume-headline">{profile.profile.headline[locale]}</p>
+        </div>
+        <address class="resume-contact-list">
+          {profile.profile.contacts.map((contact) => <a href={contact.url}>{contact.label[locale]}</a>)}
+        </address>
+        <p class="resume-summary">{profile.profile.summary[locale]}</p>
+      </header>
+
+      {groups.map((group) => <section class="resume-section" aria-labelledby={`section-${group.type}`}>
+        <h2 id={`section-${group.type}`}>{copy.sections[group.type]}</h2>
+        <div class="resume-section-content">
+          {group.claims.map((claim) => {
+            const organization = organizationFor(claim.organizationId);
+            const showcases = claimShowcases(profile, claim, locale);
+            return <article class="resume-entry" id={claim.id} tabindex="-1">
+              {claim.evidenceIds.map((evidenceId) => <span class="resume-machine-anchor" id={evidenceId} aria-hidden="true"></span>)}
+              <div class="resume-entry-heading">
+                <div>
+                  <h3>{titleFor(claim.title[locale])}</h3>
+                  {organization && <p>{organization.name[locale]}</p>}
+                </div>
+                <div class="resume-entry-links">
+                  {showcases.map((showcase) => showcase.href
+                    ? <a href={showcase.href} target="_blank" rel="noopener noreferrer">{showcase.label}</a>
+                    : <span>{showcase.label}</span>)}
+                </div>
+              </div>
+              <p class="resume-entry-summary">{marketClaimSummary(claim, locale)}</p>
+              <p class="resume-entry-tags">{claim.tags.slice(0, 6).join(" · ")}</p>
+              <a
+                class="resume-entry-permalink"
+                href={classicClaimPath(claim.id, locale)}
+                aria-label={`${titleFor(claim.title[locale])} ${locale === "en" ? "permalink" : "enlace permanente"}`}
+              >#</a>
+            </article>;
+          })}
+        </div>
+      </section>)}
+    </main>
+  </body>
+</html>

@@ -572,17 +572,27 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.experience-shell .claim-detail h2 { -webkit-line-clamp: 2; color: var(--constellation-ink); font-size: clamp(25px, 2.3vw, 38px); }
-.experience-shell .detail-organization { margin-top: 9px; color: var(--constellation-muted); font-size: 14px; }
+.experience-shell .claim-detail h2 { -webkit-line-clamp: 2; color: var(--constellation-ink); font-size: clamp(30px, 2.65vw, 44px); line-height: 1.02; }
+.experience-shell .detail-organization { margin-top: 10px; color: var(--constellation-muted); font-size: 15px; }
 .experience-shell .detail-statuses { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 9px; margin: 9px 0 16px; }
-.experience-shell .detail-status { display: inline-flex; align-items: center; gap: 5px; margin: 0; color: var(--showcase-color, var(--amber)); font-size: 12px; font-weight: 700; line-height: 1.25; }
+.experience-shell .detail-status { display: inline-flex; align-items: center; gap: 5px; margin: 0; color: var(--showcase-color, var(--amber)); font-size: 13px; font-weight: 700; line-height: 1.25; }
 .experience-shell .detail-status + .detail-status { padding-left: 9px; border-left: 1px solid rgb(255 255 255 / 16%); }
 .experience-shell .detail-status--linked { text-decoration-color: color-mix(in srgb, currentColor 44%, transparent); text-underline-offset: 3px; }
 .experience-shell .detail-status--linked:hover, .experience-shell .detail-status--linked:focus-visible { text-decoration-color: currentColor; }
 .experience-shell .detail-status svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
-.experience-shell .detail-summary { -webkit-line-clamp: 3; color: #ccc7bd; font-size: clamp(13px, 1vw, 15px); line-height: 1.55; }
-.experience-shell .detail-actions { margin-top: 22px; }
-.experience-shell .button { min-height: 46px; border-radius: 9px; }
+.experience-shell .detail-summary { -webkit-line-clamp: 3; color: #ccc7bd; font-size: clamp(14px, 1.1vw, 17px); line-height: 1.5; }
+.experience-shell .detail-actions--dock {
+  position: fixed;
+  left: 60%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 35;
+  width: min(36vw, 510px);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  gap: 10px;
+  margin: 0;
+  transform: translateX(-50%);
+}
+.experience-shell .button { min-height: 48px; border-radius: 999px; }
 .experience-shell .button--primary { display: flex; gap: 9px; border-color: var(--amber); background: var(--amber); color: #17140e; }
 .experience-shell .button--primary svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .experience-shell .button--secondary { border-color: rgb(242 175 75 / 68%); background: transparent; color: #e6c98e; }
@@ -759,15 +769,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     padding: clamp(48px, 4.3vw, 72px);
     border-radius: 50%;
   }
-  .experience-shell .detail-actions { grid-template-columns: 1fr; gap: 9px; margin-top: 17px; }
-  .experience-shell .button { min-height: 40px; }
   .experience-shell .claim-detail--dense { padding: clamp(40px, 3.7vw, 58px); }
-  .experience-shell .claim-detail--dense h2 { font-size: clamp(22px, 2vw, 32px); line-height: 1.06; }
+  .experience-shell .claim-detail--dense h2 { font-size: clamp(27px, 2.25vw, 36px); line-height: 1.03; }
   .experience-shell .claim-detail--dense .detail-label { margin-bottom: 7px; }
   .experience-shell .claim-detail--dense .detail-organization { margin-top: 7px; font-size: 13px; }
   .experience-shell .claim-detail--dense .detail-statuses { margin: 7px 0 12px; }
-  .experience-shell .claim-detail--dense .detail-summary { font-size: clamp(12px, .9vw, 14px); line-height: 1.42; }
-  .experience-shell .claim-detail--dense .detail-actions { margin-top: 13px; }
+  .experience-shell .claim-detail--dense .detail-summary { font-size: clamp(13px, 1vw, 15px); line-height: 1.44; }
 }
 
 @media (max-width: 1100px) and (min-width: 701px) {
@@ -787,6 +794,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .claim-detail h2 { font-size: clamp(25px, 3.4vw, 34px); }
   .experience-shell .detail-summary { font-size: 13px; line-height: 1.42; }
   .experience-shell .avatar-guide { left: 12%; width: 215px; }
+}
+
+@media (min-width: 701px) and (max-height: 700px) {
+  .experience-focus { top: 47%; width: clamp(340px, 63vh, 390px); }
+  .experience-shell .claim-detail { padding: 42px; }
+  .experience-shell .detail-actions--dock { bottom: 12px; width: min(48vw, 390px); }
 }
 
 @media (max-width: 700px) {
@@ -890,12 +903,12 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     box-shadow: 0 18px 48px rgb(0 0 0 / 32%);
     backdrop-filter: blur(13px);
   }
-  .experience-shell .claim-detail h2 { font-size: clamp(24px, 7.7vw, 32px); line-height: 1.02; }
+  .experience-shell .claim-detail h2 { font-size: clamp(27px, 8.4vw, 35px); line-height: 1.01; }
   .experience-shell .detail-organization { margin-top: 8px; font-size: 13px; }
   .experience-shell .detail-statuses { margin: 7px 0 11px; }
   .experience-shell .detail-status { font-size: 11px; }
-  .experience-shell .detail-summary { -webkit-line-clamp: 3; font-size: clamp(12px, 3.65vw, 14px); line-height: 1.4; }
-  .experience-shell .detail-actions--mobile {
+  .experience-shell .detail-summary { -webkit-line-clamp: 3; font-size: clamp(13px, 3.8vw, 15px); line-height: 1.4; }
+  .experience-shell .detail-actions--dock {
     position: fixed;
     left: 14px;
     right: 76px;
@@ -903,7 +916,9 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
     z-index: 35;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
     gap: 8px;
+    width: auto;
     margin: 0;
+    transform: none;
   }
   .experience-shell .button { min-height: 52px; padding-inline: 12px; border-radius: 999px; font-size: clamp(12px, 3.5vw, 14px); }
   .experience-shell .claim-graph {

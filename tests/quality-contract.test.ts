@@ -25,7 +25,7 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(component, /className="transition-reserves" aria-hidden="true"/);
   assert.match(component, /setQueuedSelection\(intent\)/);
   assert.match(component, /className="ambient-nodes" aria-hidden="true"/);
-  assert.match(component, /href=\{claimPath\(claim\.id, locale\)\} target="_blank" rel="noopener noreferrer"/);
+  assert.match(component, /href=\{classicClaimPath\(claim\.id, locale\)\} target="_blank" rel="noopener noreferrer"/);
   assert.match(entryPages, /client:load/);
 });
 
@@ -172,4 +172,23 @@ test("constellation showcase states replace generic lifecycle copy", () => {
   for (const state of ["professional-role", "live-demo", "public-source", "external-preview", "certificate", "nda-protected", "private-context"]) {
     assert.match(styles, new RegExp(`showcase--${state}`));
   }
+});
+
+test("focused constellation actions stay outside the main display node", () => {
+  assert.match(component, /<ClaimDetail profile=\{profile\} claim=\{selected\} locale=\{locale\}\/>/);
+  assert.match(component, /<ClaimActions claim=\{selected\} locale=\{locale\} onMoreLike=\{moreLike\}\/>/);
+  assert.match(component, /detail-actions detail-actions--dock/);
+  assert.doesNotMatch(component, /showActions|detail-actions--mobile/);
+  assert.match(styles, /\.experience-shell \.detail-actions--dock \{[\s\S]*position: fixed;[\s\S]*bottom:/);
+});
+
+test("classic view targets one anchored print-ready resume instead of node pages", () => {
+  const classicResume = readFileSync("src/components/ClassicResume.astro", "utf8");
+  const classicStyles = readFileSync("src/styles/classic-resume.css", "utf8");
+  assert.match(siteSource, /classicClaimPath/);
+  assert.match(classicResume, /class="resume-entry" id=\{claim\.id\}/);
+  assert.match(classicResume, /groups\.map/);
+  assert.match(classicStyles, /\.resume-entry:target/);
+  assert.match(classicStyles, /@media print/);
+  assert.match(classicStyles, /@page \{ size: A4/);
 });

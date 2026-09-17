@@ -238,10 +238,12 @@ try {
   await constellationPage.goto(`${origin}/`, { waitUntil: "networkidle" });
   const sourceUrl = constellationPage.url();
   const detailPagePromise = linkContext.waitForEvent("page");
-  await constellationPage.locator(".experience-focus .button--primary").click();
+  await constellationPage.locator(".detail-actions--dock .button--primary").click();
   const detailPage = await detailPagePromise;
   await detailPage.waitForLoadState("networkidle");
-  if (constellationPage.url() !== sourceUrl || !detailPage.url().includes("/evidence/claim-")) throw new Error("Classic View did not preserve the constellation and open the record in a new tab.");
+  if (constellationPage.url() !== sourceUrl || !detailPage.url().includes("/classic/#claim-")) throw new Error("Classic View did not preserve the constellation and open the anchored resume in a new tab.");
+  const anchoredEntry = detailPage.locator(".resume-entry:target");
+  if (await anchoredEntry.count() !== 1 || !(await anchoredEntry.isVisible())) throw new Error("Classic View did not scroll to and highlight the selected resume entry.");
   report.experienceLinkNewTab = true;
   await linkContext.close();
 
@@ -482,7 +484,7 @@ try {
   await motionPage.waitForFunction(() => !matchMedia("(max-width: 700px)").matches
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-layout") === "wide"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
-  await motionPage.locator(".experience-focus .button--secondary").click();
+  await motionPage.locator(".detail-actions--dock .button--secondary").click();
   await motionPage.waitForFunction(() => document.querySelector(".avatar-guide")?.getAttribute("data-avatar-active-state") === "smile"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-mode") === "interactive"
     && document.querySelector(".avatar-guide")?.getAttribute("data-avatar-transition") === "settled");
@@ -675,7 +677,7 @@ try {
     const style = getComputedStyle(node as HTMLElement);
     return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
   })));
-  await mobileSimilarPage.locator(".detail-actions--mobile .button--secondary").click();
+  await mobileSimilarPage.locator(".detail-actions--dock .button--secondary").click();
   await mobileSimilarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "in");
   const similarIncomingOrigins = await mobileSimilarPage.locator('.claim-node[data-node-role="incoming"]:visible').evaluateAll((nodes) => nodes.map((node) => {
     const style = getComputedStyle(node as HTMLElement);
@@ -743,7 +745,7 @@ try {
   const similarContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "no-preference" });
   const similarPage = await similarContext.newPage();
   await similarPage.goto(`${origin}/`, { waitUntil: "networkidle" });
-  await similarPage.locator(".experience-focus .button--secondary").click();
+  await similarPage.locator(".detail-actions--dock .button--secondary").click();
   await similarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "out"
     && Boolean(document.querySelector(".graph-stage")?.getAttribute("data-transition-target")));
   report.similarWorkLayerTransition = true;

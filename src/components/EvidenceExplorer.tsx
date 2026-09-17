@@ -24,7 +24,7 @@ import {
 import type { Locale, ResumilioProfile } from "../profile.js";
 import { marketClaimSummary, marketEvidenceTitle } from "../presentation.js";
 import { claimShowcase, claimShowcases } from "../showcase.js";
-import { claimPath } from "../site.js";
+import { classicClaimPath } from "../site.js";
 import AvatarGuide from "./AvatarGuide.js";
 
 const sessionKey = "resumilio:discovery:v1";
@@ -147,18 +147,18 @@ function ResetIcon() {
 function ExternalLinkIcon() {
   return <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 6 10"/><path d="M11 9v4H3V5h4"/></svg>;
 }
-function ClaimActions({ claim, locale, onMoreLike, mobile = false }: {
-  claim: Claim; locale: Locale; onMoreLike: () => void; mobile?: boolean;
+function ClaimActions({ claim, locale, onMoreLike }: {
+  claim: Claim; locale: Locale; onMoreLike: () => void;
 }) {
   const t = copy[locale];
-  return <div className={`detail-actions${mobile ? " detail-actions--mobile" : ""}`}>
-    <a className="button button--primary" href={claimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}</a>
+  return <div className="detail-actions detail-actions--dock" aria-label={t.selected}>
+    <a className="button button--primary" href={classicClaimPath(claim.id, locale)} target="_blank" rel="noopener noreferrer">{t.view}</a>
     <button className="button button--secondary" type="button" onClick={onMoreLike}>{t.more}</button>
   </div>;
 }
 
-function ClaimDetail({ profile, claim, locale, onMoreLike, showActions = true }: {
-  profile: ResumilioProfile; claim: Claim; locale: Locale; onMoreLike: () => void; showActions?: boolean;
+function ClaimDetail({ profile, claim, locale }: {
+  profile: ResumilioProfile; claim: Claim; locale: Locale;
 }) {
   const t = copy[locale];
   const organization = organizationFor(profile, claim);
@@ -175,7 +175,6 @@ function ClaimDetail({ profile, claim, locale, onMoreLike, showActions = true }:
       ? <a key={`${showcase.kind}:${showcase.href}`} className="detail-status detail-status--linked" data-showcase-kind={showcase.kind} href={showcase.href} target="_blank" rel="noopener noreferrer">{showcase.label}<ExternalLinkIcon/></a>
       : <span key={showcase.kind} className="detail-status" data-showcase-kind={showcase.kind}>{showcase.label}</span>)}</div>
     <p className="detail-summary" aria-label={summary} title={summary}>{previewSummary}</p>
-    {showActions && <ClaimActions claim={claim} locale={locale} onMoreLike={onMoreLike}/>}
   </section>;
 }
 
@@ -680,13 +679,13 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
               ><strong title={fullTitle}>{visibleTitle}</strong></button>;
             })}
           </div>
-          <div className={`experience-focus showcase--${claimShowcase(profile, selected, locale).kind}`} key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale} onMoreLike={moreLike} showActions={avatarLayout !== "stacked"}/></div>
-          {avatarLayout === "stacked" && <ClaimActions claim={selected} locale={locale} onMoreLike={moreLike} mobile/>}
+          <div className={`experience-focus showcase--${claimShowcase(profile, selected, locale).kind}`} key={selected.id} data-selected-id={selected.id}><ClaimDetail profile={profile} claim={selected} locale={locale}/></div>
+          <ClaimActions claim={selected} locale={locale} onMoreLike={moreLike}/>
           {query && neighborhood.length === 0 && <p className="empty-state" aria-live="polite">{t.empty}</p>}
         </div>
       </section>
       <nav hidden aria-hidden="true">
-        {profile.claims.map((claim) => <a key={claim.id} id={claim.id} href={claimPath(claim.id, locale)}>{claim.title[locale]}</a>)}
+        {profile.claims.map((claim) => <a key={claim.id} id={claim.id} href={classicClaimPath(claim.id, locale)}>{claim.title[locale]}</a>)}
         {profile.evidence.map((item) => <span key={item.id}>{marketEvidenceTitle(item, locale)}</span>)}
       </nav>
     </main>

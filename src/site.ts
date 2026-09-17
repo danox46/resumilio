@@ -13,6 +13,18 @@ export function claimPath(claimId: string, locale: Locale): string {
   return locale === "en" ? `/evidence/${claimId}/` : `/es/evidencia/${claimId}/`;
 }
 
+export function classicPath(locale: Locale): string {
+  return locale === "en" ? "/classic/" : "/es/clasico/";
+}
+
+export function classicClaimPath(claimId: string, locale: Locale): string {
+  return `${classicPath(locale)}#${claimId}`;
+}
+
+export function classicEvidencePath(evidenceId: string, locale: Locale): string {
+  return `${classicPath(locale)}#${evidenceId}`;
+}
+
 export function localizedPath(path: string, locale: Locale): string {
   return locale === "en" ? path : `/es${path}`;
 }

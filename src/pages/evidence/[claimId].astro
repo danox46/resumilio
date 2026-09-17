@@ -1,12 +1,23 @@
 ---
-import EvidenceRecord from "../../components/EvidenceRecord.astro";
 import profileDocument from "../../../profiles/daniel.json";
 import type { ResumilioProfile } from "../../profile";
+import { absoluteUrl, classicClaimPath } from "../../site";
 
 export function getStaticPaths() {
   return (profileDocument as ResumilioProfile).claims.map((claim) => ({ params: { claimId: claim.id }, props: { claim } }));
 }
 const profile = profileDocument as ResumilioProfile;
 const { claim } = Astro.props;
+const target = classicClaimPath(claim.id, "en");
 ---
-<EvidenceRecord profile={profile} claim={claim} locale="en" />
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <link rel="canonical" href={absoluteUrl(target)} />
+    <title>{claim.title.en}</title>
+  </head>
+  <body><a href={target}>Open in the classic resume</a></body>
+</html>
