@@ -24,13 +24,12 @@ const copy = isEnglish ? {
   github: "View on GitHub",
   quietly: "The person stays visible. Resumilio works quietly underneath.",
   orbitLabel: "One person. Connected proof.",
-  centerName: "Your story",
-  centerNote: "Owned by you",
-  nodes: [
-    ["Product work", "Verified"],
-    ["Open source", "Working"],
-    ["New direction", "Prelaunch"],
-    ["Selected concept", "Proposal"],
+  focusItems: [
+    ["Your story", "Owned by you", "person"],
+    ["Open source", "Built for everyone", "source"],
+    ["Evidence connected", "Proof, not promises", "evidence"],
+    ["Agent assisted", "Help without takeover", "agents"],
+    ["Always current", "Grows with your work", "growth"],
   ],
   howEyebrow: "How it works",
   howTitle: "A profile that can grow without losing its memory.",
@@ -64,13 +63,12 @@ const copy = isEnglish ? {
   github: "Ver en GitHub",
   quietly: "La persona permanece visible. Resumilio trabaja discretamente por debajo.",
   orbitLabel: "Una persona. Evidencia conectada.",
-  centerName: "Tu historia",
-  centerNote: "Te pertenece",
-  nodes: [
-    ["Trabajo de producto", "Verificado"],
-    ["Código abierto", "En curso"],
-    ["Nueva dirección", "Prelanzamiento"],
-    ["Concepto seleccionado", "Propuesta"],
+  focusItems: [
+    ["Tu historia", "Te pertenece", "person"],
+    ["Código abierto", "Creado para todos", "source"],
+    ["Evidencia conectada", "Pruebas, no promesas", "evidence"],
+    ["Con agentes", "Ayuda sin tomar el control", "agents"],
+    ["Siempre al día", "Crece con tu trabajo", "growth"],
   ],
   howEyebrow: "Cómo funciona",
   howTitle: "Un perfil que puede crecer sin perder su memoria.",
@@ -157,10 +155,33 @@ const jsonLd = {
           <p class="brand-quiet">{copy.quietly}</p>
         </div>
 
-        <div class="proof-orbit" aria-label={copy.orbitLabel}>
-          <svg class="proof-lines" viewBox="0 0 640 570" aria-hidden="true"><path d="M320 282 137 108M320 282 512 102M320 282 535 365M320 282 132 436"/><path class="proof-line--soft" d="M137 108 512 102M512 102 535 365M535 365 132 436"/></svg>
-          <div class="proof-center"><span class="proof-person" aria-hidden="true"><i></i></span><strong>{copy.centerName}</strong><small>{copy.centerNote}</small></div>
-          {copy.nodes.map(([title, status], index) => <div class={`proof-node proof-node--${index + 1}`}><span class="proof-dot" aria-hidden="true"></span><strong>{title}</strong><small>{status}</small></div>)}
+        <div class="proof-orbit" aria-label={copy.orbitLabel} data-proof-orbit>
+          <svg class="proof-lines" viewBox="0 0 640 570" aria-hidden="true">
+            <ellipse class="proof-orbit-ring" cx="320" cy="285" rx="216" ry="182"/>
+            <ellipse class="proof-orbit-ring proof-orbit-ring--inner" cx="320" cy="285" rx="118" ry="100"/>
+            <path class="proof-spokes" d="M320 285 96 88M320 285 544 88M320 285 544 474M320 285 96 474"/>
+            <path class="proof-constellation" d="M96 88C220 26 420 26 544 88M544 88C602 190 602 370 544 474M544 474C412 536 228 536 96 474M96 474C38 366 38 196 96 88"/>
+            <g class="proof-anchors"><circle cx="96" cy="88" r="4"/><circle cx="544" cy="88" r="4"/><circle cx="544" cy="474" r="4"/><circle cx="96" cy="474" r="4"/></g>
+          </svg>
+          {copy.focusItems.map(([title, line, icon], index) => (
+            <div
+              class="proof-card"
+              data-proof-card
+              data-index={index}
+              data-icon={icon}
+              data-role={index === 0 ? "focus" : "orbit"}
+              data-position={index === 0 ? undefined : index}
+            >
+              <span class="proof-symbol" aria-hidden="true">
+                {icon === "person" && <svg viewBox="0 0 40 40"><circle cx="20" cy="13" r="6"/><path d="M9 32c1-8 5-12 11-12s10 4 11 12"/></svg>}
+                {icon === "source" && <svg viewBox="0 0 40 40"><circle cx="11" cy="10" r="3"/><circle cx="29" cy="20" r="3"/><circle cx="11" cy="30" r="3"/><path d="M14 10h3c7 0 9 4 9 10M14 30h3c7 0 9-4 9-10"/></svg>}
+                {icon === "evidence" && <svg viewBox="0 0 40 40"><path d="M16 12h-3a8 8 0 0 0 0 16h6M24 12h3a8 8 0 0 1 0 16h-6M14 20h12"/><path class="proof-symbol-accent" d="m17 25 3 3 7-8"/></svg>}
+                {icon === "agents" && <svg viewBox="0 0 40 40"><circle cx="10" cy="13" r="3"/><circle cx="30" cy="13" r="3"/><circle cx="20" cy="29" r="4"/><path d="m13 15 5 10m9-10-5 10"/><path class="proof-symbol-accent" d="m20 7 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>}
+                {icon === "growth" && <svg viewBox="0 0 40 40"><path d="M30 18a11 11 0 1 1-5-8"/><path d="m25 6 2 6 6-2"/><path class="proof-symbol-accent" d="M20 27c0-7 3-11 9-12-1 7-4 11-9 12Zm0 0c0-5-2-8-7-9 0 5 2 8 7 9Z"/></svg>}
+              </span>
+              <span class="proof-card-copy"><strong>{title}</strong><small>{line}</small></span>
+            </div>
+          ))}
           <span class="ambient-dot ambient-dot--1" aria-hidden="true"></span><span class="ambient-dot ambient-dot--2" aria-hidden="true"></span><span class="ambient-dot ambient-dot--3" aria-hidden="true"></span>
         </div>
       </section>
@@ -182,5 +203,42 @@ const jsonLd = {
     </main>
 
     <footer class="brand-footer"><a class="brand-wordmark" href={canonicalPath}><span>resumilio</span></a><p>{copy.footer}</p><a href="https://github.com/danox46/resumilio">GitHub ↗</a></footer>
+    <script>
+      const orbit = document.querySelector<HTMLElement>("[data-proof-orbit]");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      if (orbit && !reducedMotion.matches) {
+        const cards = Array.from(orbit.querySelectorAll<HTMLElement>("[data-proof-card]"));
+        let focusIndex = 0;
+        let loopTimer: number | undefined;
+
+        const updateRoles = () => {
+          cards.forEach((card, index) => {
+            const offset = (index - focusIndex + cards.length) % cards.length;
+            card.dataset.role = offset === 0 ? "focus" : "orbit";
+            if (offset === 0) {
+              delete card.dataset.position;
+            } else {
+              card.dataset.position = String(offset);
+            }
+          });
+        };
+
+        const advanceFocus = () => {
+          focusIndex = (focusIndex + 1) % cards.length;
+          updateRoles();
+        };
+
+        const startTimer = window.setTimeout(() => {
+          advanceFocus();
+          loopTimer = window.setInterval(advanceFocus, 6200);
+        }, 3600);
+
+        window.addEventListener("pagehide", () => {
+          window.clearTimeout(startTimer);
+          if (loopTimer) window.clearInterval(loopTimer);
+        }, { once: true });
+      }
+    </script>
   </body>
 </html>
