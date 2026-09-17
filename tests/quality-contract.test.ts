@@ -188,7 +188,11 @@ test("classic view targets one anchored print-ready resume instead of node pages
   assert.match(siteSource, /classicClaimPath/);
   assert.match(classicResume, /class="resume-entry" id=\{claim\.id\}/);
   assert.match(classicResume, /groups\.map/);
+  assert.match(classicResume, /<details class="resume-section"[\s\S]*open>/);
+  assert.match(classicResume, /<summary class="resume-section-summary">/);
+  assert.match(classicResume, /section instanceof HTMLDetailsElement[\s\S]*section\.open = true/);
   assert.match(classicStyles, /\.resume-entry:target/);
+  assert.match(classicStyles, /\.resume-section:not\(\[open\]\) > \.resume-section-content \{ display: block !important; \}/);
   assert.match(classicStyles, /@media print/);
   assert.match(classicStyles, /@page \{ size: A4/);
 });

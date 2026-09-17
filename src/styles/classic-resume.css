@@ -84,14 +84,42 @@ a { color: inherit; }
   padding-top: 36px;
 }
 
-.resume-section > h2 {
-  margin: 0;
+.resume-section-summary {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
   color: #9a6300;
+  cursor: pointer;
+  list-style: none;
+}
+
+.resume-section-summary::-webkit-details-marker { display: none; }
+
+.resume-section-summary h2 {
+  margin: 0;
   font-size: 12px;
   line-height: 1.3;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+
+.resume-section-summary svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 180ms ease;
+}
+
+.resume-section[open] > .resume-section-summary svg { transform: rotate(180deg); }
+.resume-section-summary:hover, .resume-section-summary:focus-visible { color: #714900; }
+.resume-section-summary:focus-visible { outline: 2px solid rgb(210 139 18 / 42%); outline-offset: 5px; }
 
 .resume-section-content { min-width: 0; }
 .resume-entry {
@@ -129,7 +157,7 @@ a { color: inherit; }
   .resume-header { grid-template-columns: 1fr; gap: 20px; }
   .resume-contact-list { align-items: flex-start; flex-direction: row; flex-wrap: wrap; gap: 7px 14px; }
   .resume-section { grid-template-columns: 1fr; gap: 16px; padding-top: 30px; }
-  .resume-section > h2 { padding-bottom: 8px; border-bottom: 1px solid #c9c9c4; }
+  .resume-section-summary { padding-bottom: 8px; border-bottom: 1px solid #c9c9c4; }
   .resume-entry { padding-left: 12px; }
   .resume-entry-heading { display: block; }
   .resume-entry-links { max-width: none; justify-content: flex-start; margin-top: 9px; text-align: left; }
@@ -143,11 +171,15 @@ a { color: inherit; }
   .resume-paper { width: auto; margin: 0; padding: 0; box-shadow: none; }
   .resume-header h1 { font-size: 34pt; }
   .resume-section { break-inside: auto; }
+  .resume-section-summary { color: #9a6300; cursor: default; }
+  .resume-section-summary svg { display: none; }
+  .resume-section:not([open]) > .resume-section-content { display: block !important; }
   .resume-entry { break-inside: avoid; }
   .resume-entry:target, .resume-entry:has(.resume-machine-anchor:target) { border-left-color: transparent; background: none; box-shadow: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .resume-section-summary svg { transition: none; }
   .resume-entry { transition: none; }
 }

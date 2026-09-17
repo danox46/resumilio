@@ -69,8 +69,11 @@ const titleFor = (value: string) => value.split(" — ")[0];
         <p class="resume-summary">{profile.profile.summary[locale]}</p>
       </header>
 
-      {groups.map((group) => <section class="resume-section" aria-labelledby={`section-${group.type}`}>
-        <h2 id={`section-${group.type}`}>{copy.sections[group.type]}</h2>
+      {groups.map((group) => <details class="resume-section" data-resume-section={group.type} aria-labelledby={`section-${group.type}`} open>
+        <summary class="resume-section-summary">
+          <h2 id={`section-${group.type}`}>{copy.sections[group.type]}</h2>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" /></svg>
+        </summary>
         <div class="resume-section-content">
           {group.claims.map((claim) => {
             const organization = organizationFor(claim.organizationId);
@@ -98,7 +101,30 @@ const titleFor = (value: string) => value.split(" — ")[0];
             </article>;
           })}
         </div>
-      </section>)}
+      </details>)}
     </main>
+    <script is:inline>
+      const revealResumeTarget = () => {
+        if (!window.location.hash) return;
+        let targetId;
+        try {
+          targetId = decodeURIComponent(window.location.hash.slice(1));
+        } catch {
+          return;
+        }
+        const target = document.getElementById(targetId);
+        const entry = target?.closest(".resume-entry");
+        const section = (entry ?? target)?.closest("details.resume-section");
+        if (section instanceof HTMLDetailsElement) section.open = true;
+        const destination = entry ?? target;
+        if (!destination) return;
+        requestAnimationFrame(() => destination.scrollIntoView({
+          block: "center",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        }));
+      };
+      window.addEventListener("hashchange", revealResumeTarget);
+      revealResumeTarget();
+    </script>
   </body>
 </html>
