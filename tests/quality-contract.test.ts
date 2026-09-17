@@ -134,14 +134,22 @@ test("the avatar uses bounded local media for shared and responsive reactions", 
   assert.match(avatarComponent, /incomingFallbackMs = 1_000/);
   assert.match(avatarComponent, /data-avatar-video-role=\{role\}/);
   for (const framing of [
-    /idle: \{ scale: 1, offsetY: "0%" \}/,
-    /waiting: \{ scale: 0\.99, offsetY: "-0\.4%" \}/,
-    /nod: \{ scale: 1\.01, offsetY: "-0\.4%" \}/,
-    /smile: \{ scale: 1\.01, offsetY: "-0\.8%" \}/,
-    /"guide-wide": \{ scale: 1, offsetY: "-0\.8%" \}/,
-    /"guide-stacked": \{ scale: 1, offsetY: "-1%" \}/,
+    /idle: \{ scale: 1, offsetY: "0%", originY: "50%" \}/,
+    /waiting: \{ scale: 0\.99, offsetY: "-0\.4%", originY: "50%" \}/,
+    /nod: \{ scale: 1\.01, offsetY: "-0\.4%", originY: "50%" \}/,
+    /smile: \{ scale: 0\.975, offsetY: "0%", originY: "18%" \}/,
+    /"guide-wide": \{ scale: 1, offsetY: "-0\.8%", originY: "50%" \}/,
+    /"guide-stacked": \{ scale: 1, offsetY: "-1%", originY: "50%" \}/,
   ]) assert.match(avatarComponent, framing);
+  assert.match(styles, /transform-origin: 50% var\(--avatar-video-origin-y, 50%\)/);
   assert.match(styles, /transition: opacity 180ms cubic-bezier\(\.22, \.8, \.25, 1\)/);
+});
+
+test("background constellation remains legible without changing the avatar blend circle", () => {
+  assert.match(styles, /\.reserve-node:nth-child\(3n \+ 2\) \{ opacity: \.43;/);
+  assert.match(styles, /\.depth-echo-node:nth-child\(4n\) \{ border-color: rgb\(242 175 75 \/ 42%\); opacity: \.33; \}/);
+  assert.match(styles, /\.experience-shell \.constellation-depth-field \{ opacity: \.93; \}/);
+  assert.match(styles, /\.experience-shell \.background-edge--avatar \{ stroke: rgb\(228 177 91 \/ 31%\); opacity: \.7; \}/);
 });
 
 test("personalization remains session-local and network-independent", () => {

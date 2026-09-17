@@ -336,8 +336,9 @@ try {
   const welcomeFrame = await activeVideo().evaluate((element) => ({
     scale: element.style.getPropertyValue("--avatar-video-scale"),
     offsetY: element.style.getPropertyValue("--avatar-video-offset-y"),
+    originY: element.style.getPropertyValue("--avatar-video-origin-y"),
   }));
-  if (welcomeFrame.scale !== "1.01" || welcomeFrame.offsetY !== "-0.8%") throw new Error("Welcome smile did not receive its normalized framing.");
+  if (welcomeFrame.scale !== "0.975" || welcomeFrame.offsetY !== "0%" || welcomeFrame.originY !== "18%") throw new Error("Welcome smile did not receive its head-anchored framing.");
 
   await motionPage.evaluate(() => {
     const values = [0.1, 0.7, 0.9];
@@ -356,8 +357,9 @@ try {
     }, { reaction: expected, sequence: previousSequence });
   }
   report.ambientAvatarMix = true;
-  report.framing = await activeVideo().evaluate((element) => element.style.getPropertyValue("--avatar-video-scale") === "1.01"
-    && element.style.getPropertyValue("--avatar-video-offset-y") === "-0.8%");
+  report.framing = await activeVideo().evaluate((element) => element.style.getPropertyValue("--avatar-video-scale") === "0.975"
+    && element.style.getPropertyValue("--avatar-video-offset-y") === "0%"
+    && element.style.getPropertyValue("--avatar-video-origin-y") === "18%");
   if (!report.framing) throw new Error("Per-clip avatar framing was not applied to the active layer.");
   const graphBox = await motionPage.locator(".graph-stage").boundingBox();
   const avatarBox = await avatar.boundingBox();

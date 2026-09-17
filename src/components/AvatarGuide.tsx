@@ -24,13 +24,13 @@ type VideoLayer = AvatarPlayback & {
   startAt: number;
 };
 
-export const avatarFraming: Record<AvatarVariant, { scale: number; offsetY: string }> = {
-  idle: { scale: 1, offsetY: "0%" },
-  waiting: { scale: 0.99, offsetY: "-0.4%" },
-  nod: { scale: 1.01, offsetY: "-0.4%" },
-  smile: { scale: 1.01, offsetY: "-0.8%" },
-  "guide-wide": { scale: 1, offsetY: "-0.8%" },
-  "guide-stacked": { scale: 1, offsetY: "-1%" },
+export const avatarFraming: Record<AvatarVariant, { scale: number; offsetY: string; originY: string }> = {
+  idle: { scale: 1, offsetY: "0%", originY: "50%" },
+  waiting: { scale: 0.99, offsetY: "-0.4%", originY: "50%" },
+  nod: { scale: 1.01, offsetY: "-0.4%", originY: "50%" },
+  smile: { scale: 0.975, offsetY: "0%", originY: "18%" },
+  "guide-wide": { scale: 1, offsetY: "-0.8%", originY: "50%" },
+  "guide-stacked": { scale: 1, offsetY: "-1%", originY: "50%" },
 };
 
 function videoLayer(playback: AvatarPlayback, layout: AvatarLayout, startAt = 0): VideoLayer {
@@ -46,7 +46,11 @@ function videoLayer(playback: AvatarPlayback, layout: AvatarLayout, startAt = 0)
 
 function framingStyle(variant: AvatarVariant): CSSProperties {
   const framing = avatarFraming[variant];
-  return { "--avatar-video-scale": framing.scale, "--avatar-video-offset-y": framing.offsetY } as CSSProperties;
+  return {
+    "--avatar-video-scale": framing.scale,
+    "--avatar-video-offset-y": framing.offsetY,
+    "--avatar-video-origin-y": framing.originY,
+  } as CSSProperties;
 }
 
 export default function AvatarGuide({ playback, layout, pageLoaded, onComplete }: {
