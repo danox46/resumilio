@@ -10,6 +10,7 @@ const { profile, locale } = Astro.props as { profile: ResumilioProfile; locale: 
 const alternateLocale: Locale = locale === "en" ? "es" : "en";
 const copy = locale === "en" ? {
   back: "Interactive resume",
+  loadMore: "Load more",
   sections: {
     experience: "Experience",
     project: "Selected projects",
@@ -20,6 +21,7 @@ const copy = locale === "en" ? {
   },
 } : {
   back: "Currículum interactivo",
+  loadMore: "Cargar más",
   sections: {
     experience: "Experiencia",
     project: "Proyectos seleccionados",
@@ -36,6 +38,7 @@ const alternate = absoluteUrl(classicPath(alternateLocale));
 const jsonLd = buildProfileJsonLd(profile, locale);
 const organizationFor = (organizationId?: string) => organizationId ? profile.organizations.find((item) => item.id === organizationId) : undefined;
 const titleFor = (value: string) => value.split(" — ")[0];
+const pageSize = 3;
 ---
 
 <!doctype html>
@@ -51,6 +54,7 @@ const titleFor = (value: string) => value.split(" — ")[0];
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{profile.profile.name[locale]} — {profile.profile.headline[locale]}</title>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+    <noscript><style>.resume-entry[hidden] { display: block !important; } .resume-load-more { display: none !important; }</style></noscript>
   </head>
   <body class="classic-resume-page">
     <nav class="classic-toolbar" aria-label={locale === "en" ? "Resume controls" : "Controles del currículum"}>
@@ -74,11 +78,11 @@ const titleFor = (value: string) => value.split(" — ")[0];
           <h2 id={`section-${group.type}`}>{copy.sections[group.type]}</h2>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" /></svg>
         </summary>
-        <div class="resume-section-content">
-          {group.claims.map((claim) => {
+        <div class="resume-section-content" id={`section-content-${group.type}`}>
+          {group.claims.map((claim, index) => {
             const organization = organizationFor(claim.organizationId);
             const showcases = claimShowcases(profile, claim, locale);
-            return <article class="resume-entry" id={claim.id} tabindex="-1">
+            return <article class="resume-entry" id={claim.id} tabindex="-1" hidden={index >= pageSize}>
               {claim.evidenceIds.map((evidenceId) => <span class="resume-machine-anchor" id={evidenceId} aria-hidden="true"></span>)}
               <div class="resume-entry-heading">
                 <div>
@@ -100,10 +104,38 @@ const titleFor = (value: string) => value.split(" — ")[0];
               >#</a>
             </article>;
           })}
+          {group.claims.length > pageSize && <button
+            class="resume-load-more"
+            type="button"
+            data-resume-load-more
+            aria-controls={`section-content-${group.type}`}
+            aria-describedby={`section-${group.type}`}
+          >
+            <span>{copy.loadMore}</span>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg>
+          </button>}
         </div>
       </details>)}
     </main>
     <script is:inline>
+      const pageSize = 3;
+      const revealSectionEntries = (section, requestedCount) => {
+        const entries = [...section.querySelectorAll(".resume-entry")];
+        const visibleCount = Math.min(entries.length, Math.max(pageSize, requestedCount));
+        entries.forEach((entry, index) => { entry.hidden = index >= visibleCount; });
+        const loadMore = section.querySelector("[data-resume-load-more]");
+        if (loadMore instanceof HTMLButtonElement) loadMore.hidden = visibleCount >= entries.length;
+      };
+
+      document.querySelectorAll("[data-resume-load-more]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const section = button.closest("details.resume-section");
+          if (!(section instanceof HTMLDetailsElement)) return;
+          const visibleCount = section.querySelectorAll(".resume-entry:not([hidden])").length;
+          revealSectionEntries(section, visibleCount + pageSize);
+        });
+      });
+
       const revealResumeTarget = () => {
         if (!window.location.hash) return;
         let targetId;
@@ -115,7 +147,14 @@ const titleFor = (value: string) => value.split(" — ")[0];
         const target = document.getElementById(targetId);
         const entry = target?.closest(".resume-entry");
         const section = (entry ?? target)?.closest("details.resume-section");
-        if (section instanceof HTMLDetailsElement) section.open = true;
+        if (section instanceof HTMLDetailsElement) {
+          section.open = true;
+          if (entry instanceof HTMLElement) {
+            const entries = [...section.querySelectorAll(".resume-entry")];
+            const entryIndex = entries.indexOf(entry);
+            if (entryIndex >= 0) revealSectionEntries(section, Math.ceil((entryIndex + 1) / pageSize) * pageSize);
+          }
+        }
         const destination = entry ?? target;
         if (!destination) return;
         requestAnimationFrame(() => destination.scrollIntoView({

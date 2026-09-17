@@ -191,7 +191,14 @@ test("classic view targets one anchored print-ready resume instead of node pages
   assert.match(classicResume, /<details class="resume-section"[\s\S]*open>/);
   assert.match(classicResume, /<summary class="resume-section-summary">/);
   assert.match(classicResume, /section instanceof HTMLDetailsElement[\s\S]*section\.open = true/);
+  assert.match(classicResume, /loadMore: "Load more"/);
+  assert.match(classicResume, /loadMore: "Cargar más"/);
+  assert.match(classicResume, /const pageSize = 3/);
+  assert.match(classicResume, /data-resume-load-more/);
+  assert.match(classicResume, /<noscript><style>\.resume-entry\[hidden\]/);
+  assert.match(classicResume, /Math\.ceil\(\(entryIndex \+ 1\) \/ pageSize\) \* pageSize/);
   assert.match(classicStyles, /\.resume-entry:target/);
+  assert.match(classicStyles, /\.resume-entry\[hidden\] \{ display: block !important; \}/);
   assert.match(classicStyles, /\.resume-section:not\(\[open\]\) > \.resume-section-content \{ display: block !important; \}/);
   assert.match(classicStyles, /@media print/);
   assert.match(classicStyles, /@page \{ size: A4/);
