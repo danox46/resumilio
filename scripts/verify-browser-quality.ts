@@ -77,7 +77,7 @@ async function nodeLabelCenterOffsets(page: Page) {
 }
 
 const browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--no-sandbox"] });
-const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, mobileTransitionSync: false, mobileTransitionScreenshots: [] as string[], outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
+const report = { viewports: [] as Array<Record<string, unknown>>, keyboard: false, reactiveNeighborhood: false, relationshipBridge: false, relationshipBridgeScreenshots: [] as string[], layerPreload: false, backgroundConstellation: false, backgroundShift: false, sharedNodeIdentity: false, previousCenterHandoff: false, incomingReserveMotion: false, singleOwnerTransition: false, mobileTransitionNodeCeiling: false, mobileTransitionSync: false, mobileSpatialContinuity: false, mobileSearchSpatialContinuity: false, mobileSimilarSpatialContinuity: false, mobileTransitionScreenshots: [] as string[], outgoingRetreat: false, latestSelectionQueue: false, searchLayerTransition: false, similarWorkLayerTransition: false, mobileReserveCap: false, localizedResponsiveLabels: false, boundedPreview: false, boundedPreviewScreenshot: "", nodeTransition: false, nodeTransitionScreenshot: "", layerTransitionScreenshots: [] as string[], experienceLinkNewTab: false, avatarReactions: false, avatarPlayback: false, immediateIdlePlayback: false, welcomeAfterLoad: false, ambientAvatarMix: false, avatarInteractionPriority: false, guideCooldown: false, crossfade: false, framing: false, resetSkipsWelcome: false, wideAvatarPlacement: false, responsiveAvatar: false, responsiveAvatarScreenshots: [] as string[], assistiveTechnologyStructureSmoke: false, reducedMotion: false, firstPartyRequests: 0, externalRequests: [] as string[], evidencePageScriptRequests: 0 };
 try {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
@@ -539,15 +539,19 @@ try {
   await mobileDepthPage.waitForFunction((claimId) => document.querySelector(".experience-focus")?.getAttribute("data-selected-id") === claimId, mobileTarget);
   const mobileReserveCount = Number(await mobileDepthPage.locator(".graph-stage").getAttribute("data-reserve-count"));
   const mobileVisibleReserves = await mobileDepthPage.locator(".reserve-layers .reserve-node:visible").count();
-  report.mobileReserveCap = mobileReserveCount > 8 && mobileVisibleReserves === 8;
-  if (!report.mobileReserveCap) throw new Error(`Mobile reserve stress state exposed ${mobileVisibleReserves} of ${mobileReserveCount} ghosts; expected exactly 8 visible.`);
+  report.mobileReserveCap = mobileReserveCount === 8 && mobileVisibleReserves === 8;
+  if (!report.mobileReserveCap) throw new Error(`Mobile reserve pool exposed ${mobileVisibleReserves} of ${mobileReserveCount} ghosts; expected exactly 8 visible.`);
   await mobileDepthContext.close();
 
   const mobileMotionContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference" });
   const mobileMotionPage = await mobileMotionContext.newPage();
   await mobileMotionPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  const mobileReserveOrigins = new Set(await mobileMotionPage.locator(".reserve-layers .reserve-node:visible").evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node as HTMLElement);
+    return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
+  })));
   await mobileMotionPage.locator(".claim-node").first().click();
-  const mobileTransitionSamples: Array<{ phase: string | null; incomingFrame: number | null; labeledNodes: number; advancingReserves: number; incomingLabelOpacity: number | null; mobileMapOpacity: number }> = [];
+  const mobileTransitionSamples: Array<{ phase: string | null; incomingFrame: number | null; labeledNodes: number; advancingReserves: number; incomingLabelOpacity: number | null; mobileMapOpacity: number; incomingOrigins: string[] }> = [];
   let incomingFrame = 0;
   for (let sample = 0; sample < 18; sample += 1) {
     const transitionSample = await mobileMotionPage.evaluate(() => {
@@ -558,6 +562,12 @@ try {
         advancingReserves: document.querySelectorAll(".transition-reserves .reserve-node--advancing").length,
         incomingLabelOpacity: incoming ? Number(getComputedStyle(incoming.querySelector("strong")!).opacity) : null,
         mobileMapOpacity: Number(getComputedStyle(document.querySelector(".mobile-relationship-map")!).opacity),
+        incomingOrigins: [...document.querySelectorAll<HTMLElement>('.claim-node[data-node-role="incoming"]')]
+          .filter((node) => getComputedStyle(node).display !== "none")
+          .map((node) => {
+            const style = getComputedStyle(node);
+            return `${style.getPropertyValue("--mobile-from-x").trim()}|${style.getPropertyValue("--mobile-from-y").trim()}`;
+          }),
       };
     });
     mobileTransitionSamples.push({ ...transitionSample, incomingFrame: transitionSample.phase === "in" ? incomingFrame++ : null });
@@ -575,11 +585,66 @@ try {
   report.mobileTransitionSync = travelingSamples.length > 0
     && travelingSamples.every((sample) => (sample.incomingLabelOpacity ?? 1) <= .05 && sample.mobileMapOpacity <= .05);
   if (!report.mobileTransitionSync) throw new Error(`Mobile labels or settled connections appeared before incoming nodes arrived: ${JSON.stringify(mobileTransitionSamples)}.`);
+  const incomingOrigins = new Set(mobileTransitionSamples.flatMap((sample) => sample.incomingOrigins));
+  report.mobileSpatialContinuity = incomingOrigins.size > 0 && [...incomingOrigins].every((origin) => mobileReserveOrigins.has(origin));
+  if (!report.mobileSpatialContinuity) throw new Error(`Mobile incoming nodes did not originate at visible pre-click reserve bubbles: ${JSON.stringify({ mobileReserveOrigins: [...mobileReserveOrigins], incomingOrigins: [...incomingOrigins] })}.`);
   await mobileMotionPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  await mobileMotionPage.waitForFunction(() => [...document.querySelectorAll<HTMLElement>(".claim-node")]
+    .filter((node) => getComputedStyle(node).display !== "none")
+    .every((node) => Number(getComputedStyle(node.querySelector("strong")!).opacity) > .9));
   const mobileTransitionSettled = join(outputDirectory, "mobile-transition-settled.png");
   await mobileMotionPage.screenshot({ path: mobileTransitionSettled });
   report.mobileTransitionScreenshots.push(mobileTransitionSettled);
   await mobileMotionContext.close();
+
+  const mobileSearchContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference" });
+  const mobileSearchPage = await mobileSearchContext.newPage();
+  await mobileSearchPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  await mobileSearchPage.locator(".mobile-search-toggle").click();
+  await mobileSearchPage.locator(".search-field input").fill("How Google Does Machine Learning");
+  const searchReserveOrigins = new Set(await mobileSearchPage.locator(".reserve-layers .reserve-node:visible").evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node as HTMLElement);
+    return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
+  })));
+  await mobileSearchPage.locator(".search-field input").press("Enter");
+  await mobileSearchPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "in");
+  const searchIncomingOrigins = await mobileSearchPage.locator('.claim-node[data-node-role="incoming"]:visible').evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node as HTMLElement);
+    return `${style.getPropertyValue("--mobile-from-x").trim()}|${style.getPropertyValue("--mobile-from-y").trim()}`;
+  }));
+  report.mobileSearchSpatialContinuity = searchIncomingOrigins.length > 0
+    && searchIncomingOrigins.every((origin) => searchReserveOrigins.has(origin));
+  if (!report.mobileSearchSpatialContinuity) throw new Error(`Mobile search spawned incoming nodes without visible reserve origins: ${JSON.stringify({ searchReserveOrigins: [...searchReserveOrigins], searchIncomingOrigins })}.`);
+  const mobileSearchTransition = join(outputDirectory, "mobile-search-transition-in.png");
+  await mobileSearchPage.screenshot({ path: mobileSearchTransition });
+  report.mobileTransitionScreenshots.push(mobileSearchTransition);
+  await mobileSearchPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "idle");
+  await mobileSearchPage.waitForFunction(() => [...document.querySelectorAll<HTMLElement>(".claim-node")]
+    .filter((node) => getComputedStyle(node).display !== "none")
+    .every((node) => Number(getComputedStyle(node.querySelector("strong")!).opacity) > .9));
+  if (await mobileSearchPage.locator(".experience-focus").getAttribute("data-selected-id") !== "claim-how-google-does-machine-learning") throw new Error("Mobile search did not settle on How Google Does Machine Learning.");
+  const mobileSearchSettled = join(outputDirectory, "mobile-search-transition-settled.png");
+  await mobileSearchPage.screenshot({ path: mobileSearchSettled });
+  report.mobileTransitionScreenshots.push(mobileSearchSettled);
+  await mobileSearchContext.close();
+
+  const mobileSimilarContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference" });
+  const mobileSimilarPage = await mobileSimilarContext.newPage();
+  await mobileSimilarPage.goto(`${origin}/`, { waitUntil: "networkidle" });
+  const similarReserveOrigins = new Set(await mobileSimilarPage.locator(".reserve-layers .reserve-node:visible").evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node as HTMLElement);
+    return `${style.getPropertyValue("--x").trim()}|${style.getPropertyValue("--y").trim()}`;
+  })));
+  await mobileSimilarPage.locator(".detail-actions--mobile .button--secondary").click();
+  await mobileSimilarPage.waitForFunction(() => document.querySelector(".graph-stage")?.getAttribute("data-transition-phase") === "in");
+  const similarIncomingOrigins = await mobileSimilarPage.locator('.claim-node[data-node-role="incoming"]:visible').evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node as HTMLElement);
+    return `${style.getPropertyValue("--mobile-from-x").trim()}|${style.getPropertyValue("--mobile-from-y").trim()}`;
+  }));
+  report.mobileSimilarSpatialContinuity = similarIncomingOrigins.length > 0
+    && similarIncomingOrigins.every((origin) => similarReserveOrigins.has(origin));
+  if (!report.mobileSimilarSpatialContinuity) throw new Error(`Mobile Similar Work spawned incoming nodes without visible reserve origins: ${JSON.stringify({ similarReserveOrigins: [...similarReserveOrigins], similarIncomingOrigins })}.`);
+  await mobileSimilarContext.close();
 
   const relationshipContext = await browser.newContext({ viewport: { width: 1440, height: 1024 }, reducedMotion: "reduce" });
   const relationshipPage = await relationshipContext.newPage();
@@ -645,7 +710,7 @@ try {
   await similarContext.close();
 
   if (report.externalRequests.length > 0) throw new Error(`External runtime requests detected: ${report.externalRequests.join(", ")}`);
-  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.mobileTransitionSync || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
+  if (!report.keyboard || !report.reactiveNeighborhood || !report.relationshipBridge || !report.layerPreload || !report.backgroundConstellation || !report.backgroundShift || !report.sharedNodeIdentity || !report.previousCenterHandoff || !report.incomingReserveMotion || !report.singleOwnerTransition || !report.mobileTransitionNodeCeiling || !report.mobileTransitionSync || !report.mobileSpatialContinuity || !report.mobileSearchSpatialContinuity || !report.mobileSimilarSpatialContinuity || !report.outgoingRetreat || !report.latestSelectionQueue || !report.searchLayerTransition || !report.similarWorkLayerTransition || !report.mobileReserveCap || !report.localizedResponsiveLabels || !report.boundedPreview || !report.nodeTransition || !report.experienceLinkNewTab || !report.avatarReactions || !report.avatarPlayback || !report.immediateIdlePlayback || !report.welcomeAfterLoad || !report.ambientAvatarMix || !report.avatarInteractionPriority || !report.guideCooldown || !report.crossfade || !report.framing || !report.resetSkipsWelcome || !report.wideAvatarPlacement || !report.responsiveAvatar || !report.assistiveTechnologyStructureSmoke || !report.reducedMotion) throw new Error("One or more interaction or accessibility structure smoke checks failed.");
   if (report.evidencePageScriptRequests > 0) throw new Error("Static evidence pages loaded JavaScript.");
   writeFileSync(join(outputDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));

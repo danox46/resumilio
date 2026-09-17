@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import type { ResumilioProfile } from "../src/profile.js";
 import { applySignal, emptyDiscoveryState, mobileConstellationNeighborhoodSize, rankConstellationRecommendations, traversalSuccessorId } from "../src/discovery.js";
-import { buildLayerPlan, buildSuccessorLayer, constellationSlots } from "../src/constellation-layers.js";
+import { buildLayerPlan, buildSuccessorLayer, constellationSlots, mobileConstellationSlots, mobileReservePool } from "../src/constellation-layers.js";
 
 const profile = JSON.parse(await readFile("profiles/daniel.json", "utf8")) as ResumilioProfile;
 
@@ -77,4 +77,22 @@ test("reserve and retreat coordinates remain within the constellation stage", ()
 
   assert.ok(points.length > 0);
   assert.ok(points.every(([x, y]) => x >= 3 && x <= 97 && y >= 4 && y <= 96));
+});
+
+test("mobile successors preserve stable sectors and draw every incoming node from the visible reserve pool", () => {
+  const selectedId = "claim-alphahub-hubspot-specialist";
+  const current = neighborhood(selectedId);
+  const plan = buildLayerPlan(profile, current.discovery, selectedId, current.ids);
+  const pool = new Set(mobileReservePool.map(([x, y]) => `${x}:${y}`));
+
+  assert.equal(Object.keys(plan.mobileSlotByClaimId).length, mobileConstellationSlots.length);
+  for (const layer of plan.successors.slice(0, mobileConstellationSlots.length)) {
+    const currentMobileIds = new Set(current.ids.slice(0, mobileConstellationSlots.length));
+    const nextMobileIds = layer.nextNeighborhoodIds.slice(0, mobileConstellationSlots.length);
+    for (const claimId of nextMobileIds.filter((id) => currentMobileIds.has(id))) {
+      assert.equal(layer.nextMobileSlotByClaimId[claimId], plan.mobileSlotByClaimId[claimId]);
+    }
+    assert.equal(layer.mobileReserveNodes.length, nextMobileIds.filter((id) => !currentMobileIds.has(id)).length);
+    assert.ok(layer.mobileReserveNodes.every((node) => pool.has(`${node.origin[0]}:${node.origin[1]}`)));
+  }
 });

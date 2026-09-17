@@ -20,7 +20,7 @@ test("claim controls expose directional keyboard navigation", () => {
   assert.match(component, /data-transition-phase=\{transition\.phase\}/);
   assert.match(component, /data-node-role=\{role\}/);
   assert.match(component, /data-layer-count=\{layerPlan\.successors\.length\}/);
-  assert.match(component, /data-reserve-count=\{layerPlan\.reserveCount\}/);
+  assert.match(component, /data-reserve-count=\{backgroundReserves\.length\}/);
   assert.match(component, /className="reserve-layers" aria-hidden="true"/);
   assert.match(component, /className="transition-reserves" aria-hidden="true"/);
   assert.match(component, /setQueuedSelection\(intent\)/);
@@ -41,7 +41,8 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(component, /transitionCommitMs = 432/);
   assert.match(component, /transitionSettleMs = 945/);
   assert.match(component, /minimumBackgroundNodeCount = 15/);
-  assert.match(component, /backgroundReserves = backgroundLayers\.flatMap/);
+  assert.match(component, /mobilePoolReserves = mobileReservePool\.map/);
+  assert.match(component, /backgroundLayers\.flatMap\(\(layer\) => layer\.reserveNodes\)/);
   assert.match(component, /className="depth-echoes"/);
   assert.match(component, /className="constellation-depth-field"/);
   assert.match(component, /className="background-constellation"/);
@@ -74,6 +75,9 @@ test("the constellation preloads semantic reserve layers with a quiet mobile pre
   assert.match(styles, /\.reserve-layers \.reserve-node:nth-child\(n \+ 9\) \{ display: none; \}/);
   assert.match(styles, /\.experience-shell \.claim-node:nth-child\(n \+ 4\) \{ display: none; \}/);
   assert.match(styles, /@keyframes mobile-incoming-node-arrival/);
+  assert.match(styles, /left: var\(--mobile-from-x\); top: var\(--mobile-from-y\)/);
+  assert.match(styles, /left: var\(--mobile-x\); top: var\(--mobile-y\)/);
+  assert.doesNotMatch(styles, /claim-node:nth-child\(1\) \{ left:/);
   assert.match(styles, /incoming-node-label-arrival 162ms 351ms/);
   assert.match(styles, /mobile-relation-arrival 120ms 393ms/);
   assert.match(component, /transition\.phase === "out" && transitionLayer && <div className="transition-reserves"/);

@@ -889,14 +889,15 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   }
   .experience-shell .claim-node, .experience-shell .claim-node:hover, .experience-shell .claim-node:focus-visible {
     position: absolute;
+    left: var(--mobile-x);
+    top: var(--mobile-y);
     width: clamp(82px, 26vw, 108px);
     padding: 11px;
     transform: translate(-50%, -50%);
   }
   .experience-shell .claim-node:nth-child(n + 4) { display: none; }
-  .experience-shell .claim-node:nth-child(1) { left: 84%; top: 29%; }
-  .experience-shell .claim-node:nth-child(2) { left: 15%; top: 67%; width: clamp(80px, 25vw, 104px); }
-  .experience-shell .claim-node:nth-child(3) { left: 63%; top: 81%; width: clamp(76px, 24vw, 98px); }
+  .experience-shell .claim-node:nth-child(2) { width: clamp(80px, 25vw, 104px); }
+  .experience-shell .claim-node:nth-child(3) { width: clamp(76px, 24vw, 98px); }
   .experience-shell .claim-node strong { -webkit-line-clamp: 3; font-size: clamp(11.5px, 12.5cqi, 15.5px); line-height: 1.08; }
   .experience-shell .claim-node--initial { animation-name: mobile-node-arrival; }
   .experience-shell .claim-node::after { content: none; }
@@ -949,11 +950,11 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
 @keyframes mobile-node-arrival { from { opacity: .18; transform: translate(-50%, -50%) scale(.42); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @keyframes mobile-node-depart { to { opacity: .08; transform: translate(-50%, -50%) scale(.4); } }
 @keyframes mobile-node-promote { to { opacity: 1; transform: translate(-50%, -50%) scale(1.16); } }
-@keyframes mobile-previous-center-out { from { left: 60%; top: 54%; opacity: .18; transform: translate(-50%, -50%) scale(1.16); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes mobile-previous-center-out { from { left: 60%; top: 54%; opacity: .18; transform: translate(-50%, -50%) scale(1.16); } to { left: var(--mobile-x); top: var(--mobile-y); opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @keyframes mobile-incoming-node-arrival {
-  from { left: var(--from-x); top: var(--from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
+  from { left: var(--mobile-from-x); top: var(--mobile-from-y); opacity: .08; transform: translate(-50%, -50%) scale(var(--reserve-scale, .5)); }
   68% { opacity: .28; transform: translate(-50%, -50%) scale(.78); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { left: var(--mobile-x); top: var(--mobile-y); opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 @keyframes mobile-feature-depart { to { opacity: .08; transform: scale(.82); } }
 @keyframes mobile-feature-arrival { from { opacity: .12; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
@@ -975,9 +976,6 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .claim-detail { padding: 12px; }
   .experience-shell .detail-actions { left: 10px; right: 68px; gap: 6px; }
   .experience-shell .search-controls { right: 10px; }
-  .experience-shell .claim-node:nth-child(1) { left: 84%; }
-  .experience-shell .claim-node:nth-child(2) { left: 14%; }
-  .experience-shell .claim-node:nth-child(3) { left: 62%; }
 }
 
 @media (max-width: 700px) and (max-height: 650px) {
@@ -989,7 +987,4 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   .experience-shell .detail-organization { margin-top: 5px; }
   .experience-shell .detail-status { margin: 4px 0 6px; }
   .experience-shell .detail-summary { -webkit-line-clamp: 2; }
-  .experience-shell .claim-node:nth-child(1) { top: 28%; }
-  .experience-shell .claim-node:nth-child(2) { top: 68%; }
-  .experience-shell .claim-node:nth-child(3) { top: 80%; }
 }

@@ -28,12 +28,14 @@ export interface SuccessorLayerPlan {
   nextDiscovery: DiscoveryState;
   nextNeighborhoodIds: string[];
   nextSlotByClaimId: Record<string, number>;
+  nextMobileSlotByClaimId: Record<string, number>;
   nextDriftByClaimId: Record<string, ConstellationDrift>;
   sharedIds: string[];
   incomingIds: string[];
   outgoingIds: string[];
   previousCenterRetained: boolean;
   reserveNodes: ReserveNodePlan[];
+  mobileReserveNodes: ReserveNodePlan[];
   retreatPointByClaimId: Record<string, ConstellationPoint>;
 }
 
@@ -41,6 +43,7 @@ export interface LayerPlan {
   selectedId: string;
   neighborhoodIds: string[];
   slotByClaimId: Record<string, number>;
+  mobileSlotByClaimId: Record<string, number>;
   driftByClaimId: Record<string, ConstellationDrift>;
   successors: SuccessorLayerPlan[];
   reserveCount: number;
@@ -54,6 +57,19 @@ export const constellationSlots: readonly ConstellationSlot[] = [
   { index: 3, point: [39, 79], midPoint: [22, 81], className: "south-west" },
   { index: 4, point: [79, 77], midPoint: [91, 79], className: "south-east" },
 ] as const;
+
+export const mobileConstellationSlots: readonly ConstellationSlot[] = [
+  { index: 0, point: [84, 29], midPoint: [93, 42], className: "mobile-north-east" },
+  { index: 1, point: [15, 67], midPoint: [15, 67], className: "mobile-south-west" },
+  { index: 2, point: [63, 81], midPoint: [89, 72], className: "mobile-south-east" },
+] as const;
+
+const mobileReserveOriginPools: readonly (readonly ConstellationPoint[])[] = [
+  [[96, 13], [93, 42], [88, 8]],
+  [[5, 52], [12, 92], [18, 27]],
+  [[89, 72], [58, 91]],
+];
+export const mobileReservePool: readonly ConstellationPoint[] = mobileReserveOriginPools.flat();
 
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -87,9 +103,18 @@ function reserveOrigin(ownerId: string, claimId: string, slotIndex: number, inco
   ];
 }
 
+function mobileReserveOrigin(ownerId: string, claimId: string, slotIndex: number): ConstellationPoint {
+  const pool = mobileReserveOriginPools[slotIndex] ?? mobileReserveOriginPools[0];
+  return pool[Math.floor(hashUnit(`${ownerId}:${claimId}:mobile-origin`) * pool.length) % pool.length];
+}
+
 function normalizedSlots(neighborhoodIds: string[], requested: Record<string, number>) {
+  return normalizedSlotSet(neighborhoodIds, requested, constellationSlots);
+}
+
+function normalizedSlotSet(neighborhoodIds: string[], requested: Record<string, number>, slots: readonly ConstellationSlot[]) {
   const result: Record<string, number> = {};
-  const available = constellationSlots.map((slot) => slot.index);
+  const available = slots.map((slot) => slot.index);
   for (const [fallback, claimId] of neighborhoodIds.entries()) {
     const requestedSlot = requested[claimId];
     const slot = available.includes(requestedSlot) ? requestedSlot : available.includes(fallback) ? fallback : available[0];
@@ -106,6 +131,7 @@ export function buildSuccessorLayer(
   neighborhoodIds: string[],
   slotByClaimId: Record<string, number>,
   targetId: string,
+  mobileSlotByClaimId: Record<string, number> = {},
 ): SuccessorLayerPlan {
   const target = profile.claims.find((claim) => claim.id === targetId);
   if (!target) throw new Error(`Cannot prepare an unknown constellation target: ${targetId}`);
@@ -138,6 +164,28 @@ export function buildSuccessorLayer(
     nextSlotByClaimId[claimId] = slot;
   }
 
+  const currentMobileIds = neighborhoodIds.slice(0, mobileConstellationSlots.length);
+  const nextMobileIds = nextNeighborhoodIds.slice(0, mobileConstellationSlots.length);
+  const currentMobileSlots = normalizedSlotSet(currentMobileIds, mobileSlotByClaimId, mobileConstellationSlots);
+  const targetMobileSlot = currentMobileSlots[targetId] ?? 0;
+  const currentMobileSet = new Set(currentMobileIds);
+  const mobileSharedIds = nextMobileIds.filter((claimId) => currentMobileSet.has(claimId));
+  const mobileIncomingIds = nextMobileIds.filter((claimId) => !currentMobileSet.has(claimId));
+  const nextMobileSlotByClaimId: Record<string, number> = {};
+  for (const claimId of mobileSharedIds) nextMobileSlotByClaimId[claimId] = currentMobileSlots[claimId];
+  const availableMobileSlots = mobileConstellationSlots.map((slot) => slot.index)
+    .filter((slot) => !new Set(Object.values(nextMobileSlotByClaimId)).has(slot));
+  if (mobileIncomingIds.includes(selectedId) && availableMobileSlots.includes(targetMobileSlot)) {
+    nextMobileSlotByClaimId[selectedId] = targetMobileSlot;
+    availableMobileSlots.splice(availableMobileSlots.indexOf(targetMobileSlot), 1);
+  }
+  for (const claimId of mobileIncomingIds) {
+    if (nextMobileSlotByClaimId[claimId] !== undefined) continue;
+    const slot = availableMobileSlots.shift();
+    if (slot === undefined) throw new Error(`No mobile constellation slot remains for ${claimId}`);
+    nextMobileSlotByClaimId[claimId] = slot;
+  }
+
   const nextDriftByClaimId = Object.fromEntries(nextNeighborhoodIds.map((claimId) => [claimId, stableNodeDrift(targetId, claimId)]));
   const reserveNodes = incomingIds.map((claimId, incomingIndex) => {
     const destinationSlot = nextSlotByClaimId[claimId];
@@ -152,6 +200,19 @@ export function buildSuccessorLayer(
       scale: .5 + hashUnit(`${targetId}:${claimId}:scale`) * .22,
     };
   });
+  const mobileReserveNodes = mobileIncomingIds.map((claimId) => {
+    const destinationSlot = nextMobileSlotByClaimId[claimId];
+    return {
+      key: `${targetId}:${claimId}:mobile`,
+      ownerId: targetId,
+      claimId,
+      destinationSlot,
+      origin: mobileReserveOrigin(targetId, claimId, destinationSlot),
+      destination: mobileConstellationSlots[destinationSlot].point,
+      drift: [0, 0] as ConstellationDrift,
+      scale: .5 + hashUnit(`${targetId}:${claimId}:scale`) * .22,
+    };
+  });
   const retreatPointByClaimId = Object.fromEntries(outgoingIds.map((claimId, outgoingIndex) => {
     const slot = currentSlots[claimId];
     return [claimId, reserveOrigin(targetId, claimId, slot, outgoingIndex)];
@@ -163,12 +224,14 @@ export function buildSuccessorLayer(
     nextDiscovery,
     nextNeighborhoodIds,
     nextSlotByClaimId,
+    nextMobileSlotByClaimId,
     nextDriftByClaimId,
     sharedIds,
     incomingIds,
     outgoingIds,
     previousCenterRetained: incomingIds.includes(selectedId),
     reserveNodes,
+    mobileReserveNodes,
     retreatPointByClaimId,
   };
 }
@@ -179,8 +242,14 @@ export function buildLayerPlan(
   selectedId: string,
   neighborhoodIds: string[],
   requestedSlots: Record<string, number> = {},
+  requestedMobileSlots: Record<string, number> = {},
 ): LayerPlan {
   const slotByClaimId = normalizedSlots(neighborhoodIds, requestedSlots);
+  const mobileSlotByClaimId = normalizedSlotSet(
+    neighborhoodIds.slice(0, mobileConstellationSlots.length),
+    requestedMobileSlots,
+    mobileConstellationSlots,
+  );
   const driftByClaimId = Object.fromEntries(neighborhoodIds.map((claimId) => [claimId, stableNodeDrift(selectedId, claimId)]));
   const successors = neighborhoodIds.map((targetId) => buildSuccessorLayer(
     profile,
@@ -189,11 +258,13 @@ export function buildLayerPlan(
     neighborhoodIds,
     slotByClaimId,
     targetId,
+    mobileSlotByClaimId,
   ));
   return {
     selectedId,
     neighborhoodIds,
     slotByClaimId,
+    mobileSlotByClaimId,
     driftByClaimId,
     successors,
     reserveCount: successors.reduce((total, layer) => total + layer.reserveNodes.length, 0),

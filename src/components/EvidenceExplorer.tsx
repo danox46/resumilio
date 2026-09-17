@@ -5,6 +5,8 @@ import {
   buildSuccessorLayer,
   constellationFocus,
   constellationSlots,
+  mobileConstellationSlots,
+  mobileReservePool,
   type ConstellationDrift,
   type ConstellationPoint,
   type SuccessorLayerPlan,
@@ -184,6 +186,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   const guideCooldownUntil = useRef(0);
   const welcomeHandled = useRef(false);
   const [slotByClaimId, setSlotByClaimId] = useState<Record<string, number>>({});
+  const [mobileSlotByClaimId, setMobileSlotByClaimId] = useState<Record<string, number>>({});
   const [transition, setTransition] = useState<TransitionState>({ phase: "idle" });
   const [queuedSelection, setQueuedSelection] = useState<SelectionIntent>();
   const [retiredNodes, setRetiredNodes] = useState<RetiredNode[]>([]);
@@ -273,18 +276,23 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     return () => window.clearTimeout(timer);
   }, [selected.id, selected.tags, signal, transition.phase]);
 
+  const normalizedQuery = useMemo(() => normalizeTerm(query), [query]);
+  const queryTopics = useMemo(() => normalizedQuery.split(" ").filter(Boolean), [normalizedQuery]);
+  const planningDiscovery = useMemo(
+    () => normalizedQuery ? applySignal(discovery, "search", queryTopics) : discovery,
+    [discovery, normalizedQuery, queryTopics],
+  );
   const neighborhood = useMemo(() => {
-    const normalizedQuery = normalizeTerm(query);
     if (normalizedQuery) {
       return searchClaims(profile, normalizedQuery).map((result) => result.claim).filter((claim) => claim.id !== selected.id).slice(0, visibleNeighborhoodSize);
     }
     const contextualState = applySignal(discovery, "open", selected.tags, selected.id);
     return rankConstellationRecommendations(profile, contextualState, selected.id, visibleNeighborhoodSize).map((result) => result.claim);
-  }, [profile, query, selected.id, selected.tags, discovery]);
+  }, [profile, normalizedQuery, selected.id, selected.tags, discovery]);
   const neighborhoodIds = useMemo(() => neighborhood.map((claim) => claim.id), [neighborhood]);
   const layerPlan = useMemo(
-    () => buildLayerPlan(profile, discovery, selected.id, neighborhoodIds, slotByClaimId),
-    [profile, discovery, selected.id, neighborhoodIds, slotByClaimId],
+    () => buildLayerPlan(profile, planningDiscovery, selected.id, neighborhoodIds, slotByClaimId, mobileSlotByClaimId),
+    [profile, planningDiscovery, selected.id, neighborhoodIds, slotByClaimId, mobileSlotByClaimId],
   );
 
   const requestSelection = useCallback((intent: SelectionIntent) => {
@@ -311,7 +319,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       return;
     }
 
-    const preloaded = intent.precedingSignal
+    const preloaded = intent.precedingSignal?.kind === "more-like-this"
       ? undefined
       : layerPlan.successors.find((candidate) => candidate.targetId === claim.id);
     const layer = preloaded ?? buildSuccessorLayer(
@@ -321,6 +329,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       neighborhoodIds,
       layerPlan.slotByClaimId,
       claim.id,
+      layerPlan.mobileSlotByClaimId,
     );
     if (intent.reaction === "guide") showGuide();
     else showReaction(intent.reaction);
@@ -332,6 +341,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       setSelectedId(claim.id);
       setQuery("");
       setSlotByClaimId(layer.nextSlotByClaimId);
+      setMobileSlotByClaimId(layer.nextMobileSlotByClaimId);
       setRetiredNodes([]);
       setTransition({ phase: "idle" });
       return;
@@ -350,6 +360,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
         setSelectedId(claim.id);
         setQuery("");
         setSlotByClaimId(layer.nextSlotByClaimId);
+        setMobileSlotByClaimId(layer.nextMobileSlotByClaimId);
         setTransition((current) => current.phase === "idle" ? current : { ...current, phase: "in" });
       }, transitionCommitMs),
       window.setTimeout(() => {
@@ -399,38 +410,67 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
   };
   const reset = () => {
     transitionTimers.current.forEach((timer) => window.clearTimeout(timer));
-    setDiscovery(emptyDiscoveryState()); setQuery(""); setMobileSearchOpen(false); setSelectedId(defaultClaimId); setSlotByClaimId({});
+    setDiscovery(emptyDiscoveryState()); setQuery(""); setMobileSearchOpen(false); setSelectedId(defaultClaimId); setSlotByClaimId({}); setMobileSlotByClaimId({});
     setTransition({ phase: "idle" }); setQueuedSelection(undefined); setRetiredNodes([]); setHasTransitioned(false); resetAvatar();
     try { sessionStorage.removeItem(sessionKey); } catch { /* Nothing else to reset. */ }
   };
   const transitionLayer = transition.phase === "idle" ? undefined : transition.layer;
   const backgroundLayers = layerPlan.successors
     .filter((layer) => transition.phase !== "out" || layer.targetId !== transition.layer.targetId);
-  const backgroundReserves = backgroundLayers.flatMap((layer) => layer.reserveNodes);
+  const pointKey = (point: ConstellationPoint) => `${point[0]}:${point[1]}`;
+  const transitionReserveOrigins = new Set(
+    (avatarLayout === "stacked" ? transitionLayer?.mobileReserveNodes : transitionLayer?.reserveNodes)
+      ?.map((node) => pointKey(node.origin)) ?? [],
+  );
+  const mobilePoolReserves = mobileReservePool.map((origin, index) => ({
+    key: `mobile-pool:${index}`,
+    ownerId: "mobile-reserve-pool",
+    claimId: `mobile-reserve-${index}`,
+    origin,
+    scale: .5 + (index % 3) * .08,
+  }));
+  const backgroundReserves = (avatarLayout === "stacked"
+    ? mobilePoolReserves
+    : backgroundLayers.flatMap((layer) => layer.reserveNodes))
+    .filter((node) => transition.phase === "idle" || !transitionReserveOrigins.has(pointKey(node.origin)));
   const echoStart = stableIndex(selectedId, depthEchoOrigins.length);
   const backgroundEchoes = Array.from({ length: Math.max(0, minimumBackgroundNodeCount - backgroundReserves.length) }, (_, index) => {
     const sourceIndex = (echoStart + index) % depthEchoOrigins.length;
     const source = depthEchoOrigins[sourceIndex];
     return { key: `echo:${selectedId}:${index}:${sourceIndex}`, point: source.point, scale: source.scale };
   });
-  const backgroundEdges = backgroundLayers.flatMap((layer, branchIndex) => {
-    const ownerSlot = constellationSlots[layerPlan.slotByClaimId[layer.targetId] ?? layer.targetSlot];
-    return layer.reserveNodes.map((node, nodeIndex) => ({
+  const backgroundEdges = avatarLayout === "stacked"
+    ? backgroundReserves.map((node, nodeIndex) => ({
       key: `depth:${node.key}`,
-      from: nodeIndex === 0 ? ownerSlot.point : layer.reserveNodes[nodeIndex - 1].origin,
+      from: nodeIndex === 0 ? mobileReservePool[mobileReservePool.length - 1] : backgroundReserves[nodeIndex - 1].origin,
       to: node.origin,
-      branchIndex,
+      branchIndex: 0,
       nodeIndex,
-    }));
-  });
+    }))
+    : backgroundLayers.flatMap((layer, branchIndex) => {
+      const ownerSlot = constellationSlots[layerPlan.slotByClaimId[layer.targetId] ?? layer.targetSlot];
+      return layer.reserveNodes.map((node, nodeIndex) => ({
+        key: `depth:${node.key}`,
+        from: nodeIndex === 0 ? ownerSlot.point : layer.reserveNodes[nodeIndex - 1].origin,
+        to: node.origin,
+        branchIndex,
+        nodeIndex,
+      }));
+    });
   const backgroundEchoEdges = backgroundEchoes.map((node, index) => ({
     key: `edge:${node.key}`,
     from: index === 0 ? decorativeNodes[echoStart % decorativeNodes.length].point : backgroundEchoes[index - 1].point,
     to: node.point,
     nodeIndex: index,
   }));
-  const transitioningReserves = transitionLayer?.reserveNodes ?? [];
-  const transitionTargetPoint = transitionLayer ? constellationSlots[transitionLayer.targetSlot]?.point : constellationFocus;
+  const transitioningReserves = avatarLayout === "stacked"
+    ? transitionLayer?.mobileReserveNodes ?? []
+    : transitionLayer?.reserveNodes ?? [];
+  const transitionTargetPoint = transitionLayer
+    ? avatarLayout === "stacked"
+      ? mobileConstellationSlots[layerPlan.mobileSlotByClaimId[transitionLayer.targetId] ?? 0]?.point
+      : constellationSlots[transitionLayer.targetSlot]?.point
+    : constellationFocus;
   const depthFieldStyle = {
     "--field-shift-x": `${((constellationFocus[0] - transitionTargetPoint[0]) * .16).toFixed(2)}%`,
     "--field-shift-y": `${((constellationFocus[1] - transitionTargetPoint[1]) * .16).toFixed(2)}%`,
@@ -440,6 +480,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
     : undefined;
   const renderedNodes = neighborhood.map((claim, index) => {
     let slotIndex = layerPlan.slotByClaimId[claim.id] ?? index;
+    let mobileSlotIndex = layerPlan.mobileSlotByClaimId[claim.id] ?? index % mobileConstellationSlots.length;
     let drift: ConstellationDrift = layerPlan.driftByClaimId[claim.id] ?? [0, 0];
     let role = hasTransitioned ? "settled" : "initial";
     if (transition.phase === "out") {
@@ -448,6 +489,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       else if (transition.layer.sharedIds.includes(claim.id)) {
         role = "shared";
         slotIndex = transition.layer.nextSlotByClaimId[claim.id];
+        mobileSlotIndex = transition.layer.nextMobileSlotByClaimId[claim.id] ?? mobileSlotIndex;
         drift = transition.layer.nextDriftByClaimId[claim.id];
       }
     } else if (transition.phase === "in") {
@@ -456,8 +498,10 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
       else if (transition.layer.sharedIds.includes(claim.id)) role = "shared";
     }
     const slot = constellationSlots[slotIndex] ?? constellationSlots[index];
+    const mobileSlot = mobileConstellationSlots[mobileSlotIndex] ?? mobileConstellationSlots[index % mobileConstellationSlots.length];
     const reserveSource = transitionLayer?.reserveNodes.find((node) => node.claimId === claim.id);
-    return { claim, slot, drift, role, reserveSource };
+    const mobileReserveSource = transitionLayer?.mobileReserveNodes.find((node) => node.claimId === claim.id);
+    return { claim, slot, mobileSlot, drift, role, reserveSource, mobileReserveSource };
   });
   const visibleRenderedNodes = avatarLayout === "stacked" ? renderedNodes.slice(0, mobileConstellationNeighborhoodSize) : renderedNodes;
 
@@ -482,7 +526,7 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
           data-transition-phase={transition.phase}
           data-transition-target={transitionLayer?.targetId}
           data-layer-count={layerPlan.successors.length}
-          data-reserve-count={layerPlan.reserveCount}
+          data-reserve-count={backgroundReserves.length}
           data-queued-claim={queuedSelection?.claimId}
           aria-busy={transition.phase !== "idle"}
         >
@@ -577,18 +621,23 @@ export default function EvidenceExplorer({ profile, initialLocale = profile.prof
           </svg>
           <AvatarGuide playback={avatar} layout={avatarLayout} pageLoaded={pageLoaded} onComplete={completeAvatarReaction}/>
           <div className="claim-graph" role="group" aria-label={t.neighborhood}>
-            {visibleRenderedNodes.map(({ claim, slot, drift, role, reserveSource }, index) => {
+            {visibleRenderedNodes.map(({ claim, slot, mobileSlot, drift, role, reserveSource, mobileReserveSource }, index) => {
               const fullTitle = graphTitle(claim.title[locale]);
               const visibleTitle = nodeTitle(claim.title[locale]);
               const textDensity = visibleTitle.length > 34 ? "dense" : visibleTitle.length > 24 ? "compact" : "standard";
               const retreat = transitionLayer?.retreatPointByClaimId[claim.id];
               const claimStyle = {
                 "--x": `${slot.point[0]}%`, "--y": `${slot.point[1]}%`, "--order": index,
+                "--mobile-x": `${mobileSlot.point[0]}%`, "--mobile-y": `${mobileSlot.point[1]}%`,
                 "--drift-x": `${drift[0]}px`, "--drift-y": `${drift[1]}px`,
                 ...(retreat ? { "--retreat-x": `${retreat[0]}%`, "--retreat-y": `${retreat[1]}%` } : {}),
                 ...(reserveSource ? {
                   "--from-x": `${reserveSource.origin[0]}%`, "--from-y": `${reserveSource.origin[1]}%`,
                   "--reserve-scale": reserveSource.scale,
+                } : {}),
+                ...(mobileReserveSource ? {
+                  "--mobile-from-x": `${mobileReserveSource.origin[0]}%`, "--mobile-from-y": `${mobileReserveSource.origin[1]}%`,
+                  "--reserve-scale": mobileReserveSource.scale,
                 } : {}),
               } as CSSProperties;
               return <button
