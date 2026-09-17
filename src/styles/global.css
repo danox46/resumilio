@@ -378,13 +378,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   width: var(--size);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, rgb(118 118 113 / 20%), rgb(54 55 53 / 9%) 54%, rgb(20 21 20 / 2%) 72%);
+  background: radial-gradient(circle at 38% 34%, rgb(132 129 119 / 27%), rgb(69 68 63 / 14%) 54%, rgb(26 27 25 / 4%) 72%);
   transform: translate(-50%, -50%);
-  opacity: .76;
+  opacity: .82;
   transition: transform 567ms cubic-bezier(.22,.8,.25,1), opacity 486ms ease, border-color 486ms ease;
 }
-.ambient-node--outlined { border: 1px solid rgb(242 175 75 / 34%); }
-.ambient-node--quiet { border: 1px solid rgb(164 163 154 / 19%); }
+.ambient-node--outlined { border: 1px solid rgb(242 175 75 / 41%); }
+.ambient-node--quiet { border: 1px solid rgb(177 174 163 / 26%); }
 .background-constellation {
   position: absolute;
   inset: 0;
@@ -416,13 +416,13 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   top: var(--y);
   width: clamp(58px, 6vw, 112px);
   aspect-ratio: 1;
-  border: 1px solid rgb(208 165 91 / 31%);
+  border: 1px solid rgb(218 172 94 / 38%);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 42% 38%, rgb(182 167 139 / 22%) 0 4%, transparent 15%),
-    radial-gradient(circle at 38% 34%, rgb(112 111 104 / 22%), rgb(43 44 42 / 11%) 58%, rgb(18 19 18 / 3%) 76%);
+    radial-gradient(circle at 42% 38%, rgb(193 176 146 / 28%) 0 4%, transparent 15%),
+    radial-gradient(circle at 38% 34%, rgb(126 123 113 / 28%), rgb(54 54 50 / 15%) 58%, rgb(22 23 21 / 5%) 76%);
   box-shadow: inset 0 0 34px rgb(0 0 0 / 25%), 0 0 30px rgb(220 168 78 / 4%);
-  opacity: .18;
+  opacity: .23;
   transform: translate(-50%, -50%) scale(var(--reserve-scale, .5));
 }
 .reserve-node::after {
@@ -437,23 +437,23 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   box-shadow: 0 0 10px rgb(242 175 75 / 45%);
   transform: translate(-50%, -50%);
 }
-.reserve-node:nth-child(3n + 2) { opacity: .26; border-color: rgb(242 175 75 / 39%); }
-.reserve-node:nth-child(4n) { opacity: .13; }
+.reserve-node:nth-child(3n + 2) { opacity: .31; border-color: rgb(242 175 75 / 45%); }
+.reserve-node:nth-child(4n) { opacity: .18; }
 .depth-echo-node {
   position: absolute;
   left: var(--x);
   top: var(--y);
   width: clamp(30px, 3.6vw, 62px);
   aspect-ratio: 1;
-  border: 1px solid rgb(190 166 122 / 23%);
+  border: 1px solid rgb(203 176 127 / 30%);
   border-radius: 50%;
-  background: radial-gradient(circle at 46% 43%, rgb(224 181 103 / 24%) 0 3%, rgb(80 79 73 / 13%) 8%, rgb(20 21 20 / 3%) 68%);
+  background: radial-gradient(circle at 46% 43%, rgb(229 187 109 / 29%) 0 3%, rgb(94 91 82 / 17%) 8%, rgb(24 25 23 / 5%) 68%);
   box-shadow: 0 0 22px rgb(218 168 77 / 4%);
-  opacity: .16;
+  opacity: .21;
   transform: translate(-50%, -50%) scale(var(--echo-scale, .55));
 }
-.depth-echo-node:nth-child(3n + 2) { opacity: .1; }
-.depth-echo-node:nth-child(4n) { border-color: rgb(242 175 75 / 29%); opacity: .2; }
+.depth-echo-node:nth-child(3n + 2) { opacity: .14; }
+.depth-echo-node:nth-child(4n) { border-color: rgb(242 175 75 / 34%); opacity: .24; }
 .retired-node {
   width: clamp(54px, 6vw, 104px);
   opacity: .16;
@@ -858,8 +858,8 @@ footer { max-width: 1536px; min-height: 64px; margin: 22px auto 0; padding: 0 cl
   }
   .experience-shell .constellation-depth-field { opacity: .82; }
   .experience-shell .background-edge { stroke: rgb(221 177 100 / 31%); }
-  .experience-shell .reserve-node { opacity: .24; }
-  .experience-shell .depth-echo-node { opacity: .2; }
+  .experience-shell .reserve-node { opacity: .3; }
+  .experience-shell .depth-echo-node { opacity: .24; }
   .experience-shell .avatar-guide {
     position: absolute;
     left: 31%;
