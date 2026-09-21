@@ -1,0 +1,71 @@
+{
+  "name": "resumilio",
+  "version": "0.8.0",
+  "description": "Open-source living resume and interactive career constellation.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "resumilio": "dist/core/cli.js",
+    "resumilio-mcp": "dist/core/mcp-server.js"
+  },
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./react": "./dist/ui/index.js"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "starter",
+    "skills",
+    "README.md",
+    "LICENSE",
+    "TRADEMARKS.md"
+  ],
+  "scripts": {
+    "dev": "astro dev --root site",
+    "build": "npm run build:package && npm run build:site",
+    "build:package": "tsc -p tsconfig.build.json",
+    "build:site": "astro build --root site",
+    "typecheck": "tsc --noEmit && astro check --root site",
+    "test": "tsx --test tests/**/*.test.ts",
+    "validate": "tsx scripts/validate-profile.ts profiles/demo.json",
+    "scan:clean": "tsx scripts/scan-clean.ts",
+    "verify:package": "tsx scripts/verify-package.ts",
+    "verify:browser": "tsx scripts/verify-browser.ts",
+    "verify:packed": "tsx scripts/smoke-packed.ts",
+    "deploy:preview": "npm run build:site && wrangler versions upload",
+    "deploy:public": "npm run build:site && wrangler deploy",
+    "verify": "npm run typecheck && npm run validate && npm test && npm run build && npm run verify:browser && npm run scan:clean && npm run verify:package && npm run verify:packed",
+    "release:pack": "npm run verify && npm pack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danox46/resumilio.git"
+  },
+  "bugs": { "url": "https://github.com/danox46/resumilio/issues" },
+  "homepage": "https://resumilio.danienremoto.com",
+  "publishConfig": { "access": "public", "provenance": true },
+  "keywords": ["resume", "portfolio", "career", "mcp", "agent", "constellation", "open-source"],
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.4"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/react": "^6.0.5",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro": "^7.3.2",
+    "playwright": "^1.55.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.131.1"
+  }
+}

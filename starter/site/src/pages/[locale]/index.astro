@@ -1,0 +1,12 @@
+---
+import Base from "../../layouts/Base.astro";
+import { Constellation } from "resumilio/react";
+import type { ResumilioConfig, ResumilioProfile } from "resumilio";
+import profileDocument from "../../../resumilio.json";
+import configDocument from "../../../resumilio.config.json";
+const profile = profileDocument as ResumilioProfile;
+const config = configDocument as ResumilioConfig;
+export function getStaticPaths() { return profileDocument.profile.locales.filter((locale) => locale !== profileDocument.profile.defaultLocale).map((locale) => ({ params: { locale } })); }
+const { locale } = Astro.params;
+---
+<Base title={profile.profile.name[locale!]} description={profile.profile.summary[locale!]} locale={locale}><Constellation profile={profile} config={config} locale={locale} classicBase={`/${locale}/classic/`} client:load /></Base>

@@ -1,0 +1,10 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { ClassicResume } from "resumilio/react";
+import type { ResumilioProfile } from "resumilio";
+import profileDocument from "../../../../resumilio.json";
+const profile = profileDocument as ResumilioProfile;
+export function getStaticPaths() { return profileDocument.profile.locales.filter((locale) => locale !== profileDocument.profile.defaultLocale).map((locale) => ({ params: { locale } })); }
+const { locale } = Astro.params;
+---
+<Base title={`${profile.profile.name[locale!]} — Classic`} description={profile.profile.summary[locale!]} locale={locale}><ClassicResume profile={profile} locale={locale} /></Base>

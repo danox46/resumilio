@@ -1,0 +1,9 @@
+---
+import Base from "../../layouts/Base.astro";
+import { ClassicResume } from "resumilio/react";
+import type { ResumilioProfile } from "resumilio";
+import profileDocument from "../../../resumilio.json";
+const profile = profileDocument as ResumilioProfile;
+const locale = profile.profile.defaultLocale;
+---
+<Base title={`${profile.profile.name[locale]} — Classic`} description={profile.profile.summary[locale]} locale={locale}><ClassicResume profile={profile} locale={locale} /></Base>

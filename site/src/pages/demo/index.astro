@@ -1,0 +1,11 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import { Constellation } from "../../../../ui/Constellation";
+import profile from "../../../../profiles/demo.json";
+import config from "../../../../resumilio.config.json";
+import type { ResumilioConfig, ResumilioProfile } from "../../../../core/profile";
+const typedProfile = profile as ResumilioProfile;
+const typedConfig = config as ResumilioConfig;
+---
+<Base title="Fictional Resumilio demo" description="Explore a fully fictional interactive career constellation."><div class="site-shell"><Nav/><main style="min-height:calc(100vh - 76px);padding:20px clamp(12px,3vw,44px)"><Constellation profile={typedProfile} config={typedConfig} client:load /></main></div></Base>

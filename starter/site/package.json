@@ -1,0 +1,15 @@
+{
+  "name": "my-resumilio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "astro dev", "build": "astro build", "preview": "astro preview", "check": "astro check" },
+  "dependencies": {
+    "@astrojs/react": "^6.0.5",
+    "astro": "^7.3.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "resumilio": "^0.8.0"
+  },
+  "devDependencies": { "@astrojs/check": "^0.9.10", "typescript": "^5.9.2" }
+}

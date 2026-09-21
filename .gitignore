@@ -1,0 +1,12 @@
+node_modules/
+dist/
+site/dist/
+.astro/
+.resumilio/
+*.tgz
+test-output/
+playwright-report/
+output/
+.wrangler/
+.env*
+!.env.example

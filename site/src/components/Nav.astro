@@ -1,0 +1,13 @@
+---
+const { locale = "en" } = Astro.props;
+const es = locale === "es";
+---
+<nav class="site-nav" aria-label={es ? "Navegación principal" : "Primary navigation"}>
+  <a class="wordmark" href={es ? "/es/" : "/"}><span class="wordmark-mark" aria-hidden="true"><i></i><i></i><i></i></span>Resumilio</a>
+  <div class="site-nav-links">
+    <a href={es ? "/es/demo/" : "/demo/"}>{es ? "Demo" : "Demo"}</a>
+    <a href={es ? "/es/como-usar/" : "/how-to/"}>{es ? "Cómo funciona" : "How it works"}</a>
+    <a href="https://github.com/danox46/resumilio">GitHub</a>
+    <a href={es ? "/" : "/es/"}>{es ? "EN" : "ES"}</a>
+  </div>
+</nav>

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "1.0.0",
+  "profile": {
+    "id": "morgan-vale-fictional",
+    "name": { "en": "Morgan Vale — Fictional Profile", "es": "Morgan Vale — Perfil ficticio" },
+    "headline": { "en": "Integration engineer and product builder", "es": "Ingeniería de integraciones y creación de producto" },
+    "summary": {
+      "en": "A fictional career used only to demonstrate how Resumilio connects roles, projects, learning, and public work.",
+      "es": "Una carrera ficticia usada únicamente para demostrar cómo Resumilio conecta roles, proyectos, aprendizaje y trabajo público."
+    },
+    "defaultLocale": "en",
+    "locales": ["en", "es"],
+    "contacts": [
+      { "id": "contact-portfolio", "kind": "portfolio", "label": { "en": "Contact", "es": "Contacto" }, "url": "https://example.com/contact" },
+      { "id": "contact-meeting", "kind": "meeting", "label": { "en": "Book a meeting", "es": "Agendar reunión" }, "url": "https://example.com/meeting" }
+    ]
+  },
+  "organizations": [
+    { "id": "example-systems", "name": { "en": "Example Systems", "es": "Sistemas Ejemplo" }, "url": "https://example.com" },
+    { "id": "sample-studio", "name": { "en": "Sample Product Studio", "es": "Estudio de Producto Muestra" }, "url": "https://example.org" },
+    { "id": "fictional-university", "name": { "en": "Fictional Technical University", "es": "Universidad Técnica Ficticia" }, "url": "https://example.edu" }
+  ],
+  "careerItems": [
+    {
+      "id": "integration-engineering-lead",
+      "kind": "role",
+      "state": "current",
+      "title": { "en": "Integration Engineering Lead", "es": "Liderazgo de Ingeniería de Integraciones" },
+      "summary": { "en": "Designed reliable CRM and product integrations while mentoring a small delivery team.", "es": "Diseñó integraciones confiables de CRM y producto mientras guiaba a un pequeño equipo de entrega." },
+      "organizationId": "example-systems",
+      "startDate": "2024",
+      "resourceIds": ["resource-role-summary"],
+      "tags": ["integrations", "leadership", "crm"]
+    },
+    {
+      "id": "workflow-observatory",
+      "kind": "project",
+      "state": "available",
+      "title": { "en": "Workflow Observatory", "es": "Observatorio de Flujos" },
+      "summary": { "en": "A live operations dashboard that turns automation failures into reviewable recovery steps.", "es": "Un tablero operativo en vivo que convierte fallas de automatización en pasos de recuperación revisables." },
+      "organizationId": "sample-studio",
+      "startDate": "2025",
+      "resourceIds": ["resource-workflow-demo", "resource-workflow-repo"],
+      "tags": ["automation", "observability", "typescript"]
+    },
+    {
+      "id": "crm-migration-toolkit",
+      "kind": "project",
+      "state": "completed",
+      "title": { "en": "CRM Migration Toolkit", "es": "Kit de Migración CRM" },
+      "summary": { "en": "Reusable import, reconciliation, and rollback tooling for staged CRM migrations.", "es": "Herramientas reutilizables de importación, conciliación y reversión para migraciones CRM por etapas." },
+      "organizationId": "example-systems",
+      "startDate": "2024",
+      "endDate": "2025",
+      "resourceIds": ["resource-migration-preview"],
+      "tags": ["crm", "data", "automation"]
+    },
+    {
+      "id": "private-advisory-platform",
+      "kind": "project",
+      "state": "completed",
+      "title": { "en": "Private Advisory Platform", "es": "Plataforma Privada de Asesoría" },
+      "summary": { "en": "Delivered a custom client workflow whose implementation details remain confidential.", "es": "Entregó un flujo personalizado para un cliente cuyos detalles de implementación son confidenciales." },
+      "organizationId": "sample-studio",
+      "resourceIds": ["resource-nda-summary"],
+      "tags": ["product", "automation", "client-delivery"]
+    },
+    {
+      "id": "cloud-integration-certificate",
+      "kind": "certification",
+      "state": "completed",
+      "title": { "en": "Cloud Integration Certificate", "es": "Certificado de Integración en la Nube" },
+      "summary": { "en": "Completed a fictional certification covering secure API integration patterns.", "es": "Completó una certificación ficticia sobre patrones seguros de integración de API." },
+      "organizationId": "fictional-university",
+      "endDate": "2023",
+      "resourceIds": ["resource-certificate"],
+      "tags": ["integrations", "security", "learning"]
+    },
+    {
+      "id": "support-operations-specialist",
+      "kind": "role",
+      "state": "completed",
+      "title": { "en": "Support Operations Specialist", "es": "Especialista de Operaciones de Soporte" },
+      "summary": { "en": "Improved handoffs between support, product, and engineering using structured incident reviews.", "es": "Mejoró los traspasos entre soporte, producto e ingeniería mediante revisiones estructuradas de incidentes." },
+      "organizationId": "example-systems",
+      "startDate": "2021",
+      "endDate": "2024",
+      "resourceIds": [],
+      "tags": ["operations", "support", "leadership"]
+    },
+    {
+      "id": "integration-field-guide",
+      "kind": "publication",
+      "state": "available",
+      "title": { "en": "Integration Field Guide", "es": "Guía de Campo de Integraciones" },
+      "summary": { "en": "A practical public guide to idempotency, retries, and observable integration design.", "es": "Una guía pública y práctica sobre idempotencia, reintentos y diseño observable de integraciones." },
+      "resourceIds": ["resource-field-guide"],
+      "tags": ["integrations", "writing", "observability"]
+    },
+    {
+      "id": "data-systems-program",
+      "kind": "education",
+      "state": "completed",
+      "title": { "en": "Data Systems Program", "es": "Programa de Sistemas de Datos" },
+      "summary": { "en": "Studied data modeling, distributed systems, and practical software delivery.", "es": "Estudió modelado de datos, sistemas distribuidos y entrega práctica de software." },
+      "organizationId": "fictional-university",
+      "startDate": "2018",
+      "endDate": "2021",
+      "resourceIds": [],
+      "tags": ["data", "learning", "software"]
+    }
+  ],
+  "resources": [
+    { "id": "resource-role-summary", "careerItemIds": ["integration-engineering-lead"], "label": { "en": "Public role overview", "es": "Resumen público del rol" }, "kind": "external-preview", "availability": "public", "url": "https://example.com/role" },
+    { "id": "resource-workflow-demo", "careerItemIds": ["workflow-observatory"], "label": { "en": "Try the live demo", "es": "Probar la demo" }, "kind": "live-demo", "availability": "public", "url": "https://example.com/demo" },
+    { "id": "resource-workflow-repo", "careerItemIds": ["workflow-observatory"], "label": { "en": "View the repository", "es": "Ver el repositorio" }, "kind": "public-repository", "availability": "public", "url": "https://github.com/example/resumilio-demo" },
+    { "id": "resource-migration-preview", "careerItemIds": ["crm-migration-toolkit"], "label": { "en": "Read the project overview", "es": "Leer el resumen del proyecto" }, "kind": "work-sample", "availability": "public", "url": "https://example.org/work" },
+    { "id": "resource-nda-summary", "careerItemIds": ["private-advisory-platform"], "label": { "en": "Implementation details available in a private conversation", "es": "Detalles de implementación disponibles en conversación privada" }, "kind": "nda-protected", "availability": "restricted" },
+    { "id": "resource-certificate", "careerItemIds": ["cloud-integration-certificate"], "label": { "en": "View certificate", "es": "Ver certificado" }, "kind": "online-certificate", "availability": "public", "url": "https://example.edu/certificate" },
+    { "id": "resource-field-guide", "careerItemIds": ["integration-field-guide"], "label": { "en": "Read the guide", "es": "Leer la guía" }, "kind": "external-preview", "availability": "public", "url": "https://example.net/guide" }
+  ],
+  "connections": [
+    { "id": "connection-lead-workflow", "sourceId": "integration-engineering-lead", "targetId": "workflow-observatory", "kind": "built-on" },
+    { "id": "connection-lead-migration", "sourceId": "integration-engineering-lead", "targetId": "crm-migration-toolkit", "kind": "performed-for" },
+    { "id": "connection-lead-private", "sourceId": "integration-engineering-lead", "targetId": "private-advisory-platform", "kind": "performed-for" },
+    { "id": "connection-lead-certificate", "sourceId": "integration-engineering-lead", "targetId": "cloud-integration-certificate", "kind": "learned-through" },
+    { "id": "connection-support-lead", "sourceId": "support-operations-specialist", "targetId": "integration-engineering-lead", "kind": "built-on" },
+    { "id": "connection-guide-workflow", "sourceId": "integration-field-guide", "targetId": "workflow-observatory", "kind": "related-to" },
+    { "id": "connection-program-support", "sourceId": "data-systems-program", "targetId": "support-operations-specialist", "kind": "built-on" }
+  ]
+}

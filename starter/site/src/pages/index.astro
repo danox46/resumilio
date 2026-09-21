@@ -1,0 +1,11 @@
+---
+import Base from "../layouts/Base.astro";
+import { Constellation } from "resumilio/react";
+import type { ResumilioConfig, ResumilioProfile } from "resumilio";
+import profileDocument from "../../resumilio.json";
+import configDocument from "../../resumilio.config.json";
+const profile = profileDocument as ResumilioProfile;
+const config = configDocument as ResumilioConfig;
+const locale = profile.profile.defaultLocale;
+---
+<Base title={profile.profile.name[locale]} description={profile.profile.summary[locale]} locale={locale}><Constellation profile={profile} config={config} locale={locale} client:load /></Base>

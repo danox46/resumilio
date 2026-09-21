@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resumilio Authoring"
+  short_description: "Build and maintain a connected public career profile."
+  default_prompt: "Help me build or improve my Resumilio profile without inventing facts."

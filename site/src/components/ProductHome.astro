@@ -1,0 +1,44 @@
+---
+import Nav from "./Nav.astro";
+import { Constellation } from "../../../ui/Constellation";
+import profileDocument from "../../../profiles/demo.json";
+import configDocument from "../../../resumilio.config.json";
+import type { ResumilioConfig, ResumilioProfile } from "../../../core/profile";
+const { locale = "en" } = Astro.props;
+const es = locale === "es";
+const profile = profileDocument as ResumilioProfile;
+const config = configDocument as ResumilioConfig;
+---
+<div class="site-shell">
+  <Nav locale={locale} />
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>{es ? <>Tu carrera,<br/><em>en movimiento.</em></> : <>Your career,<br/><em>in motion.</em></>}</h1>
+        <p>{es ? "Un currículum vivo que se adapta a lo que las personas exploran." : "A living resume that adapts to what people explore."}</p>
+        <div class="install-command">npx resumilio@latest init my-resume</div>
+        <a class="primary-link" href={es ? "/es/demo/" : "/demo/"}>{es ? "Probar la demo ficticia →" : "Try the fictional demo →"}</a>
+        <p class="hero-note">{es ? "Explora un currículum interactivo. Ninguna persona real. Completamente ficticio." : "Explore an interactive resume. No real person. Fully fictional."}</p>
+      </div>
+      <div class="hero-demo"><Constellation profile={profile} config={config} locale={locale} classicBase={es ? "/es/classic/" : "/classic/"} client:load /></div>
+    </section>
+    <section class="feature-band" id="how-it-works">
+      <article class="feature">
+        <h2>{es ? "Cómo funciona" : "How it works"}</h2>
+        <p>{es ? "Escribe tu carrera en un formato abierto y versionable. Resumilio la convierte en una experiencia que reacciona a lo que exploran." : "Write your career in a clean, versioned format. Resumilio turns it into an experience that reacts to what people explore."}</p>
+        <ul><li>{es ? "Autoría en archivos simples" : "Author in simple files"}</li><li>{es ? "Genera un grafo interactivo" : "Generate an interactive graph"}</li><li>{es ? "Comparte un enlace y mantenlo al día" : "Share a link and keep it current"}</li></ul>
+      </article>
+      <article class="feature">
+        <h2>{es ? "Privado por diseño" : "Private by design"}</h2>
+        <p>{es ? "Tú decides qué es público. Los borradores, notas y archivos sensibles se quedan fuera del sitio." : "You control what is public. Drafts, notes, and sensitive files stay outside the site."}</p>
+        <ul><li>{es ? "Tu contenido vive en tu repositorio" : "Your content stays in your repository"}</li><li>{es ? "Elige qué publicar" : "Choose what to publish"}</li><li>{es ? "Sin hospedaje de archivos privados" : "No private-file hosting"}</li></ul>
+      </article>
+      <article class="feature">
+        <h2>{es ? "Con o sin agente" : "Works with or without an agent"}</h2>
+        <p>{es ? "Usa el CLI directamente o permite que un agente te entreviste, organice y refine el contenido. La decisión final siempre es tuya." : "Use the CLI directly or let an agent interview, organize, and refine your content. The final call always stays with you."}</p>
+        <ul><li>{es ? "Empieza manualmente con el CLI" : "Start manually with the CLI"}</li><li>{es ? "O usa un agente como apoyo" : "Or use an agent to assist"}</li><li>{es ? "Formato abierto, control completo" : "Open format, full control"}</li></ul>
+      </article>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Resumilio · MIT</span><span>{es ? "Tu carrera, en movimiento." : "Your career, in motion."}</span></footer>
+</div>

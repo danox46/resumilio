@@ -1,0 +1,8 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { ClassicResume } from "../../../../../ui/ClassicResume";
+import profile from "../../../../../profiles/demo.json";
+import type { ResumilioProfile } from "../../../../../core/profile";
+const typedProfile = profile as ResumilioProfile;
+---
+<Base locale="es" title="Currículum clásico ficticio" description="Vista clásica imprimible de la demo ficticia de Resumilio."><ClassicResume profile={typedProfile} locale="es" /></Base>

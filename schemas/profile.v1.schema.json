@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/profile.v1.schema.json",
+  "title": "Resumilio public career profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "profile", "organizations", "careerItems", "resources", "connections"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "profile": { "$ref": "#/$defs/profile" },
+    "organizations": { "type": "array", "items": { "$ref": "#/$defs/organization" } },
+    "careerItems": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/careerItem" } },
+    "resources": { "type": "array", "items": { "$ref": "#/$defs/resource" } },
+    "connections": { "type": "array", "items": { "$ref": "#/$defs/connection" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "minLength": 3, "maxLength": 100 },
+    "localized": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 900 } },
+    "profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "name", "headline", "summary", "defaultLocale", "locales", "contacts"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/localized" }, "headline": { "$ref": "#/$defs/localized" }, "summary": { "$ref": "#/$defs/localized" },
+        "defaultLocale": { "type": "string", "minLength": 2, "maxLength": 15 },
+        "locales": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 2, "maxLength": 15 } },
+        "contacts": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["id", "kind", "label", "url"], "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["github", "linkedin", "portfolio", "email", "meeting", "other"] }, "label": { "$ref": "#/$defs/localized" }, "url": { "type": "string", "pattern": "^(https://|mailto:)[^\\s]+$" } } } }
+      }
+    },
+    "organization": { "type": "object", "additionalProperties": false, "required": ["id", "name"], "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/localized" }, "url": { "type": "string", "pattern": "^https://" } } },
+    "careerItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "state", "title", "summary", "resourceIds", "tags"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["role", "project", "education", "certification", "publication", "skill"] }, "state": { "enum": ["current", "available", "completed", "in-development", "archived"] },
+        "title": { "$ref": "#/$defs/localized" }, "summary": { "$ref": "#/$defs/localized" }, "organizationId": { "$ref": "#/$defs/id" },
+        "startDate": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" }, "endDate": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" },
+        "resourceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "tags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "resource": {
+      "type": "object", "additionalProperties": false, "required": ["id", "careerItemIds", "label", "kind", "availability"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "careerItemIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "label": { "$ref": "#/$defs/localized" }, "kind": { "enum": ["live-demo", "external-preview", "public-repository", "online-certificate", "work-sample", "nda-protected"] }, "availability": { "enum": ["public", "restricted", "unavailable"] }, "url": { "type": "string", "pattern": "^https://" } }
+    },
+    "connection": { "type": "object", "additionalProperties": false, "required": ["id", "sourceId", "targetId", "kind"], "properties": { "id": { "$ref": "#/$defs/id" }, "sourceId": { "$ref": "#/$defs/id" }, "targetId": { "$ref": "#/$defs/id" }, "kind": { "enum": ["related-to", "built-on", "performed-for", "learned-through"] } } }
+  }
+}

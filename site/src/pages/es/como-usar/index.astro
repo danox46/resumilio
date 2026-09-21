@@ -1,0 +1,16 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Nav from "../../../components/Nav.astro";
+---
+<Base locale="es" title="Cómo usar Resumilio" description="Crea, escribe, valida y publica un perfil profesional vivo.">
+  <div class="site-shell"><Nav locale="es"/><main class="docs-page">
+    <h1>Construye una experiencia profesional, no otro formulario.</h1>
+    <p>Empieza manualmente con el formato abierto o pide a un agente que te entreviste. Ambos caminos producen el mismo sitio versionable.</p>
+    <h2>1. Crea el sitio</h2><pre>npx resumilio@latest init my-resume</pre>
+    <h2>2. Añade tu carrera</h2><p>Reemplaza el ejemplo ficticio con roles, proyectos, educación, credenciales y recursos públicos útiles. El trabajo puede ser real y valioso sin tener un enlace público.</p>
+    <h2>3. Valida y previsualiza</h2><pre>npx resumilio validate resumilio.json<br/>npm run dev</pre>
+    <h2>4. Publica cuando tú decidas</h2><p>La compilación es estática y funciona en cualquier host. Los archivos privados, notas y detalles protegidos quedan fuera del proyecto público.</p>
+    <h2>Autoría con agentes</h2><p>Los proyectos incluyen la habilidad de Resumilio localmente. Ejecuta <code>npx resumilio agent install codex</code> solo si quieres instalarla globalmente para Codex.</p>
+  </main></div>
+</Base>
+<style>.docs-page{max-width:840px;margin:auto;padding:72px 28px 120px}.docs-page h1{font-size:clamp(3rem,7vw,6rem);letter-spacing:-.065em;line-height:.95}.docs-page h2{margin-top:56px;font-size:1.8rem}.docs-page p{font-size:1.15rem;line-height:1.7;color:#c8ccc9}.docs-page pre{padding:20px;border:1px solid #424842;background:#0e110f;overflow:auto;color:#f5ad3d}</style>

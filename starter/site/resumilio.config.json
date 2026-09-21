@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "profile": "profiles/demo.json",
+  "presentation": {
+    "companion": { "enabled": true, "variant": "orbit-pet" },
+    "palette": { "background": "#0b0d0c", "text": "#f4f1e8", "accent": "#f5ad3d", "muted": "#8f9691" },
+    "activeNodes": { "mobile": 4, "desktop": 5 }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": { "@core/*": ["core/*"], "@ui/*": ["ui/*"] }
+  },
+  "include": ["core/**/*.ts", "ui/**/*.tsx", "site/**/*.astro", "site/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
+}

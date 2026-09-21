@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+---
+<Base title="How to use Resumilio" description="Create, author, validate, and publish a living career profile.">
+  <div class="site-shell"><Nav/><main class="docs-page">
+    <h1>Build a career experience, not another form.</h1>
+    <p>Start manually with the open profile file or ask an agent to interview you. Both paths produce the same versioned format and the same site.</p>
+    <h2>1. Create the site</h2><pre>npx resumilio@latest init my-resume</pre>
+    <h2>2. Add your career</h2><p>Replace the fictional starter with roles, projects, education, credentials, and useful public resources. Work can be real and valuable without a public link.</p>
+    <h2>3. Validate and preview</h2><pre>npx resumilio validate resumilio.json<br/>npm run dev</pre>
+    <h2>4. Publish when you choose</h2><p>The build is static and host-neutral. Private files, source notes, and NDA details stay outside the public project.</p>
+    <h2>Agent-assisted authoring</h2><p>Generated projects include the Resumilio authoring skill locally. Run <code>npx resumilio agent install codex</code> only if you want to install it for Codex globally.</p>
+  </main></div>
+</Base>
+<style>.docs-page{max-width:840px;margin:auto;padding:72px 28px 120px}.docs-page h1{font-size:clamp(3rem,7vw,6rem);letter-spacing:-.065em;line-height:.95}.docs-page h2{margin-top:56px;font-size:1.8rem}.docs-page p{font-size:1.15rem;line-height:1.7;color:#c8ccc9}.docs-page pre{padding:20px;border:1px solid #424842;background:#0e110f;overflow:auto;color:#f5ad3d}</style>
