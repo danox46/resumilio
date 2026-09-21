@@ -24,7 +24,7 @@
 @keyframes companion-smile{0%,18%{transform:translate(0,-50%)}19%,43%{transform:translate(-25%,-50%)}44%,74%{transform:translate(-50%,-50%)}75%,100%{transform:translate(-75%,-50%)}}
 @keyframes companion-guide{0%,17%{transform:translate(0,-66.6667%)}18%,39%{transform:translate(-25%,-66.6667%)}40%,68%{transform:translate(-50%,-66.6667%)}69%,100%{transform:translate(-75%,-66.6667%)}}
 @keyframes companion-guide-mobile{0%,17%{transform:translate(0,-83.3333%)}18%,39%{transform:translate(-25%,-83.3333%)}40%,68%{transform:translate(-50%,-83.3333%)}69%,100%{transform:translate(-75%,-83.3333%)}}
-@media(min-width:701px){.resumilio-companion{width:min(240px,24vw);left:calc(14% - 210px);bottom:-4%}}
+@media(min-width:701px){.resumilio-companion{width:clamp(170px,14vw,220px);left:0;bottom:-4%}}
 @media(max-width:700px){.resumilio-companion{width:220px;left:50%;bottom:-7%;transform:translateX(-50%);opacity:.76}.resumilio-companion--guide .companion-sprite{animation-name:companion-guide-mobile}}
 @media(prefers-reduced-motion:reduce){.companion-sprite{animation:none!important;transition:none!important}.resumilio-companion--waiting .companion-sprite,.resumilio-companion--nod .companion-sprite,.resumilio-companion--smile .companion-sprite,.resumilio-companion--guide .companion-sprite{transform:translate(0,0)}}
 @media print{.site-nav,.constellation{display:none}.classic-resume{padding:0;max-width:none}.classic-resume details{display:block}.classic-resume details>*{display:block}}
