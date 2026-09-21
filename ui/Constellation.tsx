@@ -60,7 +60,7 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
     setVisited((current) => [...new Set([...current, center.id])]);
     setMood(reaction);
     setCenterId(id);
-    window.setTimeout(() => setMood("idle"), reaction === "smile" ? 1200 : 900);
+    window.setTimeout(() => setMood("idle"), 1250);
   };
 
   const submitSearch = (event: React.SyntheticEvent<HTMLFormElement>) => {

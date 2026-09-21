@@ -51,7 +51,7 @@ Initialization never changes global agent configuration.
 
 ## Companion animation
 
-The default companion uses one transparent CSS sprite atlas, not canvas or WebGL. Its six rows cover idle, waiting, nod, smile, wide-screen guidance, and mobile downward guidance. Replace `public/images/resumilio-companion-sprite.png` with another 4-by-6 atlas that preserves the 256-pixel square cell layout, or disable the companion in `resumilio.config.json` without affecting the constellation.
+The default companion uses six preloaded transparent CSS sprite sheets, not canvas or WebGL. Idle, waiting, nod, smile, wide-screen guidance, and mobile downward guidance each have a dedicated 4-by-4 sheet with 16 drawings played at 14 frames per second. Replace the matching `public/images/resumilio-companion-*.png` sheets while preserving their 4-by-4 layout, or disable the companion in `resumilio.config.json` without affecting the constellation.
 
 ## Public resources, not private files
 

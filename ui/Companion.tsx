@@ -4,27 +4,33 @@ export interface CompanionProps {
   mood?: CompanionMood;
   enabled?: boolean;
   className?: string;
-  spriteSrc?: string;
+  spriteBasePath?: string;
 }
+
+const spriteLayers = ["idle", "waiting", "nod", "smile", "guide-wide", "guide-mobile"] as const;
 
 export function Companion({
   mood = "idle",
   enabled = true,
   className = "",
-  spriteSrc = "/images/resumilio-companion-sprite.png",
+  spriteBasePath = "/images/resumilio-companion",
 }: CompanionProps) {
   if (!enabled) return null;
   return (
     <div className={`resumilio-companion resumilio-companion--${mood} ${className}`} aria-hidden="true">
-      <img
-        className="companion-sprite"
-        src={spriteSrc}
-        alt=""
-        width="1024"
-        height="1536"
-        decoding="async"
-        draggable="false"
-      />
+      {spriteLayers.map((layer) => (
+        <img
+          className={`companion-sprite companion-sprite--${layer}`}
+          src={`${spriteBasePath}-${layer}.png`}
+          alt=""
+          width="1024"
+          height="1024"
+          loading="eager"
+          decoding="async"
+          draggable="false"
+          key={layer}
+        />
+      ))}
     </div>
   );
 }

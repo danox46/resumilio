@@ -13,6 +13,8 @@ test("init creates the complete site and local skill without changing global con
     assert.match(await readFile(result.profile, "utf8"), /Fictional Profile/);
     assert.match(await readFile(result.skill, "utf8"), /resumilio-authoring/);
     assert.match(await readFile(join(target, "src/pages/index.astro"), "utf8"), /Constellation/);
-    assert.ok((await stat(join(target, "public/images/resumilio-companion-sprite.png"))).size > 0);
+    for (const state of ["idle", "waiting", "nod", "smile", "guide-wide", "guide-mobile"]) {
+      assert.ok((await stat(join(target, `public/images/resumilio-companion-${state}.png`))).size > 0);
+    }
   } finally { await rm(parent, { recursive: true, force: true }); }
 });
