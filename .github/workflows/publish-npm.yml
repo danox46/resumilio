@@ -24,5 +24,3 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run verify
       - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

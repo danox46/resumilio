@@ -1,0 +1,36 @@
+name: Attest release package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:package
+      - run: npm pack
+      - run: npm sbom --sbom-format cyclonedx --package-lock-only > resumilio-0.8.0.cdx.json
+      - uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: resumilio-0.8.0.tgz
+      - uses: actions/attest-sbom@v3
+        with:
+          subject-path: resumilio-0.8.0.tgz
+          sbom-path: resumilio-0.8.0.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resumilio-0.8.0-release
+          path: |
+            resumilio-0.8.0.tgz
+            resumilio-0.8.0.cdx.json
