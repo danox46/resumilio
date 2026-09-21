@@ -3,6 +3,8 @@ dist/
 site/dist/
 .astro/
 .resumilio/
+!starter/site/.resumilio/
+!starter/site/.resumilio/**
 *.tgz
 test-output/
 playwright-report/
