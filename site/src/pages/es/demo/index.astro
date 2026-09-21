@@ -8,4 +8,4 @@ import type { ResumilioConfig, ResumilioProfile } from "../../../../../core/prof
 const typedProfile = profile as ResumilioProfile;
 const typedConfig = config as ResumilioConfig;
 ---
-<Base locale="es" title="Demo ficticia de Resumilio" description="Explora una constelación profesional interactiva y completamente ficticia."><div class="site-shell"><Nav locale="es"/><main style="min-height:calc(100vh - 76px);padding:20px clamp(12px,3vw,44px)"><Constellation profile={typedProfile} config={typedConfig} locale="es" classicBase="/es/classic/" client:load /></main></div></Base>
+<Base locale="es" title="Demo ficticia de Resumilio" description="Explora una constelación profesional interactiva y completamente ficticia."><div class="site-shell"><Nav locale="es"/><main style="min-height:calc(100vh - 76px);padding:20px clamp(12px,3vw,44px)"><p class="demo-disclosure"><strong>Demo ficticia</strong> — cada persona, organización y elemento profesional de esta página es inventado.</p><Constellation profile={typedProfile} config={typedConfig} locale="es" classicBase="/es/classic/" client:load /></main></div></Base>
