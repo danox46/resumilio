@@ -18,7 +18,7 @@ npm run dev
 The generated project includes:
 
 - Responsive constellation discovery with four mobile and five desktop preview nodes.
-- A removable SVG companion that reacts to navigation.
+- A removable illustrated sprite companion that reacts to navigation without WebGL.
 - A classic resume route designed for printing and eventual PDF export.
 - Configured-locale routes and machine-readable profile, graph, search, and LLM endpoints.
 - A local Resumilio authoring skill and project-level agent instructions.
@@ -48,6 +48,10 @@ npx resumilio agent install codex
 ```
 
 Initialization never changes global agent configuration.
+
+## Companion animation
+
+The default companion uses one transparent CSS sprite atlas, not canvas or WebGL. Its six rows cover idle, waiting, nod, smile, wide-screen guidance, and mobile downward guidance. Replace `public/images/resumilio-companion-sprite.png` with another 4-by-6 atlas that preserves the 256-pixel square cell layout, or disable the companion in `resumilio.config.json` without affecting the constellation.
 
 ## Public resources, not private files
 

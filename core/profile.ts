@@ -55,7 +55,7 @@ export interface ResumilioConfig {
   schemaVersion: 1;
   profile: string;
   presentation: {
-    companion: { enabled: boolean; variant: "orbit-pet" | "custom"; customMedia?: Record<string, string> };
+    companion: { enabled: boolean; variant: "illustrated-pet" | "custom"; customMedia?: Record<string, string> };
     palette: { background: string; text: string; accent: string; muted: string };
     activeNodes: { mobile: number; desktop: number };
   };

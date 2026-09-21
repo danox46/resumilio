@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -13,5 +13,6 @@ test("init creates the complete site and local skill without changing global con
     assert.match(await readFile(result.profile, "utf8"), /Fictional Profile/);
     assert.match(await readFile(result.skill, "utf8"), /resumilio-authoring/);
     assert.match(await readFile(join(target, "src/pages/index.astro"), "utf8"), /Constellation/);
+    assert.ok((await stat(join(target, "public/images/resumilio-companion-sprite.png"))).size > 0);
   } finally { await rm(parent, { recursive: true, force: true }); }
 });

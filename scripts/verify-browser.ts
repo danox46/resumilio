@@ -27,8 +27,12 @@ try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await desktop.goto(origin, { waitUntil: "networkidle" });
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
+  const sprite = desktop.locator(".companion-sprite");
+  const spriteSize = await sprite.evaluate((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight }));
+  if (spriteSize.width !== 1024 || spriteSize.height !== 1536) throw new Error("Companion sprite atlas has unexpected dimensions.");
   const before = await desktop.locator(".focus-node h2").innerText();
   await desktop.locator(".preview-node").first().click();
+  if (await sprite.evaluate((element) => getComputedStyle(element).animationName) !== "companion-guide") throw new Error("Desktop selection did not trigger the wide guidance strip.");
   const after = await desktop.locator(".focus-node h2").innerText();
   if (before === after) throw new Error("Node selection did not promote a new career item.");
   await desktop.getByPlaceholder("Search roles, skills, or projects").fill("Field Guide");
@@ -39,6 +43,8 @@ try {
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
+  await mobile.locator(".preview-node").first().click();
+  if (await mobile.locator(".companion-sprite").evaluate((element) => getComputedStyle(element).animationName) !== "companion-guide-mobile") throw new Error("Mobile selection did not trigger the downward guidance strip.");
   const focus = await mobile.locator(".focus-node").boundingBox();
   if (!focus) throw new Error("Mobile focus node is missing.");
   for (const node of await mobile.locator(".preview-node").all()) {
@@ -53,7 +59,9 @@ try {
   await reduced.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   const animation = await reduced.locator(".preview-node").first().evaluate((element) => getComputedStyle(element).animationName);
   if (animation !== "none") throw new Error("Reduced-motion mode still animates preview nodes.");
-  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, reducedMotion: true, noOverflow: true }, null, 2));
+  const companionAnimation = await reduced.locator(".companion-sprite").evaluate((element) => getComputedStyle(element).animationName);
+  if (companionAnimation !== "none") throw new Error("Reduced-motion mode still animates the companion.");
+  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionSprite: spriteSize, reducedMotion: true, noOverflow: true }, null, 2));
 } finally {
   await browser.close();
   await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
