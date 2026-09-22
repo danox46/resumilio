@@ -32,10 +32,11 @@
     "scan:clean": "tsx scripts/scan-clean.ts",
     "verify:package": "tsx scripts/verify-package.ts",
     "verify:browser": "tsx scripts/verify-browser.ts",
+    "verify:companion": "tsx scripts/verify-companion-sprites.ts",
     "verify:packed": "tsx scripts/smoke-packed.ts",
     "deploy:preview": "npm run build:site && wrangler versions upload",
     "deploy:public": "npm run build:site && wrangler deploy",
-    "verify": "npm run typecheck && npm run validate && npm test && npm run build && npm run verify:browser && npm run scan:clean && npm run verify:package && npm run verify:packed",
+    "verify": "npm run typecheck && npm run validate && npm test && npm run build && npm run verify:companion && npm run verify:browser && npm run scan:clean && npm run verify:package && npm run verify:packed",
     "release:pack": "npm run verify && npm pack"
   },
   "repository": {
