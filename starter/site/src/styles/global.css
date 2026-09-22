@@ -24,9 +24,9 @@
 @keyframes cat-blink{0%,43%,47%,100%{opacity:0}44.3%,45.7%{opacity:1}}
 @keyframes cat-waiting{0%,100%{transform:rotate(0) scale(1)}34%{transform:rotate(-1.4deg) scale(1.008)}70%{transform:rotate(.7deg) scale(1.004)}}
 @keyframes cat-nod{0%,100%{transform:rotate(0) scale(1)}24%{transform:rotate(0) scale(1.005)}43%{transform:rotate(1.2deg) scale(1.005)}66%{transform:rotate(-.35deg) scale(1.002)}}
-@keyframes cat-smile{0%{opacity:0}8%,100%{opacity:1}}
-@keyframes cat-guide-wide{0%{opacity:0;transform:rotate(-1deg) scale(.985)}12%,100%{opacity:1;transform:rotate(0) scale(1)}}
-@keyframes cat-guide-mobile{0%{opacity:0;transform:rotate(.8deg) scale(.985)}12%,100%{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes cat-smile{0%{transform:scale(.992)}100%{transform:scale(1)}}
+@keyframes cat-guide-wide{0%{transform:rotate(-1deg) scale(.985)}100%{transform:rotate(0) scale(1)}}
+@keyframes cat-guide-mobile{0%{transform:rotate(.8deg) scale(.985)}100%{transform:rotate(0) scale(1)}}
 @media(min-width:701px){.resumilio-companion{width:clamp(180px,15vw,236px);left:0;bottom:-4%}}
 @media(max-width:700px){.resumilio-companion{width:230px;left:50%;bottom:-7%;transform:translateX(-50%);opacity:.82}.resumilio-companion--guide .companion-pose--guide-wide{opacity:0;animation:none}.resumilio-companion--guide .companion-pose--guide-mobile{opacity:1;animation:cat-guide-mobile 5.8s cubic-bezier(.3,0,.2,1) both}}
 @media(prefers-reduced-motion:reduce){.companion-pose{animation:none!important;transition:none!important;transform:none!important}.companion-pose--blink{opacity:0}.resumilio-companion--guide .companion-pose--idle{opacity:0}.resumilio-companion--guide .companion-pose--guide-wide{opacity:1}.resumilio-companion--guide .companion-pose--guide-mobile{opacity:0}}

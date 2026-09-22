@@ -63,7 +63,9 @@ try {
   await assertCompanionFaceClear(desktop, "Desktop");
   const before = await desktop.locator(".focus-node h2").innerText();
   await desktop.locator(".preview-node").first().click();
+  await desktop.waitForTimeout(450);
   if (await desktop.locator(".companion-pose--guide-wide").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-wide") throw new Error("Desktop selection did not trigger the wide guidance pose.");
+  if (Number(await desktop.locator(".companion-pose--guide-wide").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Desktop guidance pose did not become visibly opaque.");
   const after = await desktop.locator(".focus-node h2").innerText();
   if (before === after) throw new Error("Node selection did not promote a new career item.");
   await desktop.getByPlaceholder("Search roles, skills, or projects").fill("Field Guide");
@@ -78,7 +80,9 @@ try {
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
   await assertCompanionFaceClear(mobile, "Mobile");
   await mobile.locator(".preview-node").first().click();
+  await mobile.waitForTimeout(450);
   if (await mobile.locator(".companion-pose--guide-mobile").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-mobile") throw new Error("Mobile selection did not trigger the downward guidance pose.");
+  if (Number(await mobile.locator(".companion-pose--guide-mobile").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Mobile guidance pose did not become visibly opaque.");
   const focus = await mobile.locator(".focus-node").boundingBox();
   if (!focus) throw new Error("Mobile focus node is missing.");
   for (const node of await mobile.locator(".preview-node").all()) {
