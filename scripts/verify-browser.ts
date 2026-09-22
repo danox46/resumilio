@@ -71,6 +71,13 @@ try {
   await desktop.getByPlaceholder("Search roles, skills, or projects").fill("Field Guide");
   await desktop.getByRole("button", { name: "Search" }).click();
   if (!/Field Guide/.test(await desktop.locator(".focus-node h2").innerText())) throw new Error("Search did not promote its matching item.");
+  await desktop.getByRole("button", { name: "Similar Work" }).click();
+  await desktop.waitForTimeout(450);
+  if (!/resumilio-companion--smile/.test(await desktop.locator(".resumilio-companion").getAttribute("class") ?? "")) throw new Error("Similar Work did not trigger the smiling companion state.");
+  if (await desktop.locator(".companion-pose--smile").evaluate((element) => getComputedStyle(element).animationName) !== "cat-smile-face") throw new Error("Smiling state did not start the face animation.");
+  if (Number(await desktop.locator(".companion-pose--smile").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Smiling face did not become visibly opaque.");
+  if (await desktop.locator(".companion-pose--idle").evaluate((element) => getComputedStyle(element).animationName) !== "cat-happy-lift") throw new Error("Smiling state did not start the anchored happy lift.");
+  if (await desktop.locator(".companion-pose--blink").evaluate((element) => getComputedStyle(element).zIndex) !== "2") throw new Error("Happy-eye pose is not layered above the smiling face.");
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });

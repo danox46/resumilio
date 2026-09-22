@@ -61,7 +61,7 @@ const css = await readFile(resolve("site/styles/global.css"), "utf8");
 if (css.includes("companion-frames") || css.includes("steps(1,end)")) {
   throw new Error("Legacy stepped sprite animation is still present in the product site.");
 }
-for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-smile", "cat-guide-wide", "cat-guide-mobile"]) {
+for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-happy-lift", "cat-smile-face", "cat-smile-eyes", "cat-guide-wide", "cat-guide-mobile"]) {
   if (!css.includes(`@keyframes ${animation}`)) throw new Error(`Missing smooth companion animation: ${animation}.`);
 }
 
