@@ -51,7 +51,7 @@ try {
   if (spriteSizes.some(({ width, height }) => width !== 1024 || height !== 1024)) throw new Error("A companion sprite sheet has unexpected dimensions.");
   const idleSprite = desktop.locator(".companion-sprite--idle");
   const idleTiming = await idleSprite.evaluate((element) => ({ name: getComputedStyle(element).animationName, duration: parseFloat(getComputedStyle(element).animationDuration) }));
-  if (idleTiming.name !== "companion-frames" || Math.abs(idleTiming.duration - 16 / 14) > 0.001) throw new Error("Idle companion is not playing sixteen drawings at 14 fps.");
+  if (idleTiming.name !== "companion-frames" || Math.abs(idleTiming.duration - 16 / 2.8) > 0.001) throw new Error("Idle companion is not playing sixteen drawings at 2.8 fps.");
   await assertCompanionFaceClear(desktop, "Desktop");
   const before = await desktop.locator(".focus-node h2").innerText();
   await desktop.locator(".preview-node").first().click();
@@ -86,7 +86,7 @@ try {
   if (animation !== "none") throw new Error("Reduced-motion mode still animates preview nodes.");
   const companionAnimation = await reduced.locator(".companion-sprite--idle").evaluate((element) => getComputedStyle(element).animationName);
   if (companionAnimation !== "none") throw new Error("Reduced-motion mode still animates the companion.");
-  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionSheets: spriteSizes.length, companionFramesPerState: 16, companionFps: 14, reducedMotion: true, noOverflow: true, faceSafe: true }, null, 2));
+  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionSheets: spriteSizes.length, companionFramesPerState: 16, companionFps: 2.8, reducedMotion: true, noOverflow: true, faceSafe: true }, null, 2));
 } finally {
   await browser.close();
   await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));

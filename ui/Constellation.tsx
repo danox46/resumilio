@@ -15,6 +15,7 @@ const desktopSlots = [
   { x: 18, y: 25 }, { x: 75, y: 17 }, { x: 84, y: 64 }, { x: 31, y: 78 }, { x: 56, y: 87 },
 ];
 const mobileSlots = [{ x: 82, y: 14 }, { x: 14, y: 14 }, { x: 84, y: 90 }, { x: 16, y: 90 }];
+const companionReactionMs = 5800;
 
 const resourceLabels: Record<ResourceKind, Record<string, string>> = {
   "live-demo": { en: "Live demo", es: "Demo en vivo" },
@@ -60,7 +61,7 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
     setVisited((current) => [...new Set([...current, center.id])]);
     setMood(reaction);
     setCenterId(id);
-    window.setTimeout(() => setMood("idle"), 1250);
+    window.setTimeout(() => setMood("idle"), companionReactionMs);
   };
 
   const submitSearch = (event: React.SyntheticEvent<HTMLFormElement>) => {
