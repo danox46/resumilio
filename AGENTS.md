@@ -7,4 +7,3 @@ This repository is the clean, generic open-source Resumilio product. It must not
 - Public UI uses job-market language; do not expose proof/evidence terminology.
 - Preserve the full manual path. Agent support must remain optional.
 - Validate the profile, graph, generated starter, package contents, browser experience, and personal-content scan before release.
-- Do not publish packages, releases, domains, or external content without explicit authorization.
