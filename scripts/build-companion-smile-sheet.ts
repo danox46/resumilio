@@ -13,7 +13,11 @@ const imagesRoot = resolve("site/public/images");
 const starterRoot = resolve("starter/site/public/images");
 
 async function rgba(path: string) {
-  const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharp(path)
+    .resize(sourceSize, sourceSize, { fit: "fill" })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
   if (info.width !== sourceSize || info.height !== sourceSize || info.channels !== 4) {
     throw new Error(`${path} must be a ${sourceSize}x${sourceSize} RGBA image.`);
   }
@@ -26,24 +30,25 @@ function smoothstep(value: number) {
 }
 
 function amounts(frame: number) {
-  const smile = frame < 5 ? 0 : smoothstep((frame - 5) / 6);
-  const blink = frame < 12
+  const smile = frame < 3
     ? 0
-    : frame <= 16
-      ? smoothstep((frame - 12) / 4)
-      : frame <= 18
+    : frame <= 10
+      ? smoothstep((frame - 3) / 7)
+      : frame <= 25
         ? 1
-        : frame <= 23
-          ? 1 - smoothstep((frame - 18) / 5)
-          : 0;
-  return { smile, blink };
+        : 1 - 0.12 * smoothstep((frame - 25) / 6);
+  return { smile };
 }
 
-function faceMask(x: number, y: number) {
-  const dx = (x - 512) / 365;
-  const dy = (y - 300) / 300;
+function ellipseMask(x: number, y: number, centerX: number, centerY: number, radiusX: number, radiusY: number) {
+  const dx = (x - centerX) / radiusX;
+  const dy = (y - centerY) / radiusY;
   const distance = Math.sqrt(dx * dx + dy * dy);
-  return 1 - smoothstep((distance - 0.82) / 0.2);
+  return 1 - smoothstep((distance - 0.78) / 0.22);
+}
+
+function expressionMask(x: number, y: number) {
+  return ellipseMask(x, y, 512, 420, 255, 125);
 }
 
 function blend(target: Uint8Array, overlay: Uint8Array, amount: number, mask: number, offset: number) {
@@ -57,9 +62,9 @@ function blend(target: Uint8Array, overlay: Uint8Array, amount: number, mask: nu
 }
 
 const idle = await rgba(resolve(imagesRoot, "resumilio-cat-idle.png"));
-const smile = await rgba(resolve(imagesRoot, "resumilio-cat-smile.png"));
-const blink = await rgba(resolve(imagesRoot, "resumilio-cat-blink.png"));
+const smile = await rgba(resolve("assets/companion/resumilio-cat-smile-expression.png"));
 const frames: Buffer[] = [];
+let staticSmile: Buffer | undefined;
 
 for (let frame = 0; frame < frameCount; frame += 1) {
   const rendered = new Uint8Array(idle);
@@ -67,10 +72,11 @@ for (let frame = 0; frame < frameCount; frame += 1) {
   for (let y = 0; y < sourceSize; y += 1) {
     for (let x = 0; x < sourceSize; x += 1) {
       const offset = (y * sourceSize + x) * 4;
-      const mask = faceMask(x, y);
-      blend(rendered, smile, state.smile, mask, offset);
-      blend(rendered, blink, state.blink, mask, offset);
+      blend(rendered, smile, state.smile, expressionMask(x, y), offset);
     }
+  }
+  if (frame === 18) {
+    staticSmile = await sharp(rendered, { raw: { width: sourceSize, height: sourceSize, channels: 4 } }).png().toBuffer();
   }
   frames.push(await sharp(rendered, { raw: { width: sourceSize, height: sourceSize, channels: 4 } })
     .resize(frameSize, frameSize, { fit: "fill" })
@@ -95,6 +101,9 @@ const sheet = await sharp({
   .toBuffer();
 
 const fileName = "resumilio-cat-smile-sheet.png";
+if (!staticSmile) throw new Error("Static smiling pose was not generated.");
+await writeFile(resolve(imagesRoot, "resumilio-cat-smile.png"), staticSmile);
+await writeFile(resolve(starterRoot, "resumilio-cat-smile.png"), staticSmile);
 await writeFile(resolve(imagesRoot, fileName), sheet);
 await writeFile(resolve(starterRoot, fileName), sheet);
 console.log(`Built ${frameCount}-frame smile sprite sheet at 14 fps: ${fileName}`);

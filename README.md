@@ -51,7 +51,7 @@ Initialization never changes global agent configuration.
 
 ## Companion animation
 
-The default companion uses five registered transparent illustration poses plus a real 32-frame, 8×4 smile sprite sheet played at 14 fps—no canvas or WebGL. CSS motion supplies slow breathing, blinking, waiting, nodding, desktop pointing, and mobile downward guidance; the sprite sequence animates the face while the body and paws remain pixel-anchored. Replace the matching `public/images/resumilio-cat-*.png` files with equally sized transparent assets, or disable the companion in `resumilio.config.json` without affecting the constellation. `prefers-reduced-motion` keeps the same interaction states with static pose handoffs.
+The default companion uses five registered transparent illustration poses plus a real 32-frame, 8×4 smile sprite sheet played at 14 fps—no canvas or WebGL. CSS motion supplies slow breathing, blinking, waiting, nodding, desktop pointing, and mobile downward guidance; the sprite sequence opens the mouth into a clearly separate smile while the eyes stay bright and the body and paws remain pixel-anchored. Replace the matching `public/images/resumilio-cat-*.png` files with equally sized transparent assets, or disable the companion in `resumilio.config.json` without affecting the constellation. `prefers-reduced-motion` keeps the same interaction states with static pose handoffs.
 
 ## Public resources, not private files
 

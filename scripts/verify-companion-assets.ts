@@ -81,10 +81,38 @@ for (let frame = 0; frame < spriteFrames; frame += 1) {
   else if (!pawAnchor.equals(anchor)) throw new Error(`Smile frame ${frame} moved the body or paws outside the face-only animation region.`);
 }
 
+async function spriteRegion(frame: number, left: number, top: number, width: number, height: number) {
+  return sharp(siteSpritePath)
+    .extract({
+      left: (frame % spriteColumns) * spriteFrameSize + left,
+      top: Math.floor(frame / spriteColumns) * spriteFrameSize + top,
+      width,
+      height,
+    })
+    .raw()
+    .toBuffer();
+}
+
+function meanAbsoluteDifference(first: Buffer, second: Buffer) {
+  if (first.length !== second.length) throw new Error("Cannot compare sprite regions with different sizes.");
+  let difference = 0;
+  for (let index = 0; index < first.length; index += 1) difference += Math.abs(first[index] - second[index]);
+  return difference / first.length;
+}
+
+const idleMouth = await spriteRegion(0, 88, 78, 80, 55);
+const smilingMouth = await spriteRegion(18, 88, 78, 80, 55);
+const idleEyes = await spriteRegion(0, 72, 45, 112, 45);
+const smilingEyes = await spriteRegion(18, 72, 45, 112, 45);
+const mouthDifference = meanAbsoluteDifference(idleMouth, smilingMouth);
+const eyeDifference = meanAbsoluteDifference(idleEyes, smilingEyes);
+if (mouthDifference < 10) throw new Error(`Smile does not change the mouth strongly enough (${mouthDifference.toFixed(2)} MAE).`);
+if (eyeDifference > 5) throw new Error(`Smile changes the eye region too much and may read as another blink (${eyeDifference.toFixed(2)} MAE).`);
+
 const css = await readFile(resolve("site/styles/global.css"), "utf8");
 if (!css.includes("2.285714s steps(1,end)")) throw new Error("Smile sheet is not configured for 32 frames at 14 fps.");
 for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-smile-frames", "cat-guide-wide", "cat-guide-mobile"]) {
   if (!css.includes(`@keyframes ${animation}`)) throw new Error(`Missing smooth companion animation: ${animation}.`);
 }
 
-console.log(JSON.stringify({ ok: true, poses: results, smileSprite: { frames: spriteFrames, fps: 14, width: spriteMetadata.width, height: spriteMetadata.height, pawsAnchored: true }, motion: "hybrid-css-and-sprite" }, null, 2));
+console.log(JSON.stringify({ ok: true, poses: results, smileSprite: { frames: spriteFrames, fps: 14, width: spriteMetadata.width, height: spriteMetadata.height, pawsAnchored: true, mouthDifference, eyeDifference, distinctFromBlink: true }, motion: "hybrid-css-and-sprite" }, null, 2));
