@@ -5,6 +5,9 @@ import sharp from "sharp";
 
 const poses = ["idle", "blink", "smile", "guide-wide", "guide-mobile"] as const;
 const expectedSize = 1024;
+const spriteFrameSize = 256;
+const spriteColumns = 8;
+const spriteFrames = 32;
 
 async function inspect(path: string) {
   const { data, info } = await sharp(path)
@@ -57,12 +60,31 @@ for (const pose of poses) {
   results.push({ pose, ...(await inspect(sitePath)) });
 }
 
-const css = await readFile(resolve("site/styles/global.css"), "utf8");
-if (css.includes("companion-frames") || css.includes("steps(1,end)")) {
-  throw new Error("Legacy stepped sprite animation is still present in the product site.");
+const spriteName = "resumilio-cat-smile-sheet.png";
+const siteSpritePath = resolve("site/public/images", spriteName);
+const starterSpritePath = resolve("starter/site/public/images", spriteName);
+const siteSprite = await readFile(siteSpritePath);
+const starterSprite = await readFile(starterSpritePath);
+if (!siteSprite.equals(starterSprite)) throw new Error(`${spriteName} differs between the product site and starter.`);
+
+const spriteMetadata = await sharp(siteSpritePath).metadata();
+if (spriteMetadata.width !== spriteFrameSize * spriteColumns || spriteMetadata.height !== spriteFrameSize * 4 || spriteMetadata.channels !== 4) {
+  throw new Error(`${spriteName} must be a 2048x1024 RGBA sheet.`);
 }
-for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-happy-lift", "cat-smile-face", "cat-smile-eyes", "cat-guide-wide", "cat-guide-mobile"]) {
+
+let pawAnchor: Buffer | undefined;
+for (let frame = 0; frame < spriteFrames; frame += 1) {
+  const left = (frame % spriteColumns) * spriteFrameSize + 58;
+  const top = Math.floor(frame / spriteColumns) * spriteFrameSize + 178;
+  const anchor = await sharp(siteSpritePath).extract({ left, top, width: 142, height: 70 }).raw().toBuffer();
+  if (!pawAnchor) pawAnchor = anchor;
+  else if (!pawAnchor.equals(anchor)) throw new Error(`Smile frame ${frame} moved the body or paws outside the face-only animation region.`);
+}
+
+const css = await readFile(resolve("site/styles/global.css"), "utf8");
+if (!css.includes("2.285714s steps(1,end)")) throw new Error("Smile sheet is not configured for 32 frames at 14 fps.");
+for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-smile-frames", "cat-guide-wide", "cat-guide-mobile"]) {
   if (!css.includes(`@keyframes ${animation}`)) throw new Error(`Missing smooth companion animation: ${animation}.`);
 }
 
-console.log(JSON.stringify({ ok: true, poses: results, motion: "continuous-css" }, null, 2));
+console.log(JSON.stringify({ ok: true, poses: results, smileSprite: { frames: spriteFrames, fps: 14, width: spriteMetadata.width, height: spriteMetadata.height, pawsAnchored: true }, motion: "hybrid-css-and-sprite" }, null, 2));

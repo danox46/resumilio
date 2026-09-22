@@ -16,5 +16,6 @@ test("init creates the complete site and local skill without changing global con
     for (const state of ["idle", "blink", "smile", "guide-wide", "guide-mobile"]) {
       assert.ok((await stat(join(target, `public/images/resumilio-cat-${state}.png`))).size > 0);
     }
+    assert.ok((await stat(join(target, "public/images/resumilio-cat-smile-sheet.png"))).size > 0);
   } finally { await rm(parent, { recursive: true, force: true }); }
 });

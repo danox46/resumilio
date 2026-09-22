@@ -31,6 +31,18 @@ export function Companion({
           key={layer}
         />
       ))}
+      <span className="companion-smile-window">
+        <img
+          className="companion-smile-sprite"
+          src={`${assetBasePath}-smile-sheet.png`}
+          alt=""
+          width="2048"
+          height="1024"
+          loading="eager"
+          decoding="async"
+          draggable="false"
+        />
+      </span>
     </div>
   );
 }

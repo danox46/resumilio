@@ -26,6 +26,7 @@
     "build": "npm run build:package && npm run build:site",
     "build:package": "tsc -p tsconfig.build.json",
     "build:site": "astro build --root site",
+    "build:companion-smile": "tsx scripts/build-companion-smile-sheet.ts",
     "typecheck": "tsc --noEmit && astro check --root site",
     "test": "tsx --test tests/**/*.test.ts",
     "validate": "tsx scripts/validate-profile.ts profiles/demo.json",

@@ -3,7 +3,10 @@ import { execSync } from "node:child_process";
 const output = execSync("npm pack --dry-run --json", { encoding: "utf8" });
 const result = JSON.parse(output) as Array<{ files: Array<{ path: string }> }>;
 const files = result[0]?.files.map((entry) => entry.path) ?? [];
-const companionAssets = ["idle", "blink", "smile", "guide-wide", "guide-mobile"].map((state) => `starter/site/public/images/resumilio-cat-${state}.png`);
+const companionAssets = [
+  ...["idle", "blink", "smile", "guide-wide", "guide-mobile"].map((state) => `starter/site/public/images/resumilio-cat-${state}.png`),
+  "starter/site/public/images/resumilio-cat-smile-sheet.png",
+];
 const required = ["dist/core/cli.js", "dist/core/mcp-server.js", "dist/ui/Constellation.js", "schemas/profile.v1.schema.json", "starter/site/resumilio.json", ...companionAssets, "skills/resumilio-authoring/SKILL.md"];
 const missing = required.filter((path) => !files.includes(path));
 const forbidden = files.filter((path) => /daniel|avatar\/.+\.(mp4|webp|mov)/i.test(path));
