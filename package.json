@@ -32,7 +32,7 @@
     "scan:clean": "tsx scripts/scan-clean.ts",
     "verify:package": "tsx scripts/verify-package.ts",
     "verify:browser": "tsx scripts/verify-browser.ts",
-    "verify:companion": "tsx scripts/verify-companion-sprites.ts",
+    "verify:companion": "tsx scripts/verify-companion-assets.ts",
     "verify:packed": "tsx scripts/smoke-packed.ts",
     "deploy:preview": "npm run build:site && wrangler versions upload",
     "deploy:public": "npm run build:site && wrangler deploy",

@@ -18,7 +18,7 @@ npm run dev
 The generated project includes:
 
 - Responsive constellation discovery with four mobile and five desktop preview nodes.
-- A removable illustrated sprite companion that reacts to navigation without WebGL.
+- A removable illustrated cat companion that reacts to navigation without WebGL.
 - A classic resume route designed for printing and eventual PDF export.
 - Configured-locale routes and machine-readable profile, graph, search, and LLM endpoints.
 - A local Resumilio authoring skill and project-level agent instructions.
@@ -51,7 +51,7 @@ Initialization never changes global agent configuration.
 
 ## Companion animation
 
-The default companion uses six preloaded transparent CSS sprite sheets, not canvas or WebGL. Idle, waiting, nod, smile, wide-screen guidance, and mobile downward guidance each have a dedicated 4-by-4 sheet with 16 drawings played at 14 frames per second. Replace the matching `public/images/resumilio-companion-*.png` sheets while preserving their 4-by-4 layout, or disable the companion in `resumilio.config.json` without affecting the constellation.
+The default companion uses five registered transparent illustration poses, not canvas or WebGL. Continuous CSS motion supplies slow breathing, blinking, waiting, nodding, smiling, desktop pointing, and mobile downward guidance while keeping the paws anchored. Replace the matching `public/images/resumilio-cat-*.png` files with equally sized transparent poses, or disable the companion in `resumilio.config.json` without affecting the constellation. `prefers-reduced-motion` keeps the same interaction states with static pose handoffs.
 
 ## Public resources, not private files
 

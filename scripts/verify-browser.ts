@@ -40,22 +40,30 @@ const address = server.address();
 if (!address || typeof address === "string") throw new Error("Unable to start QA server.");
 const origin = `http://127.0.0.1:${address.port}`;
 const browser = await chromium.launch({ headless: true });
+const runtimeErrors: string[] = [];
+const watchRuntime = (page: Page, label: string) => {
+  page.on("pageerror", (error) => runtimeErrors.push(`${label} page error: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(`${label} console error: ${message.text()}`);
+  });
+};
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  watchRuntime(desktop, "Desktop");
   await desktop.goto(origin, { waitUntil: "networkidle" });
   await desktop.waitForTimeout(1400);
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
-  const sprites = desktop.locator(".companion-sprite");
-  if (await sprites.count() !== 6) throw new Error("Companion must preload all six behavior sheets.");
-  const spriteSizes = await sprites.evaluateAll((elements) => elements.map((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight })));
-  if (spriteSizes.some(({ width, height }) => width !== 1024 || height !== 1024)) throw new Error("A companion sprite sheet has unexpected dimensions.");
-  const idleSprite = desktop.locator(".companion-sprite--idle");
-  const idleTiming = await idleSprite.evaluate((element) => ({ name: getComputedStyle(element).animationName, duration: parseFloat(getComputedStyle(element).animationDuration) }));
-  if (idleTiming.name !== "companion-frames" || Math.abs(idleTiming.duration - 16 / 2.8) > 0.001) throw new Error("Idle companion is not playing sixteen drawings at 2.8 fps.");
+  const poses = desktop.locator(".companion-pose");
+  if (await poses.count() !== 5) throw new Error("Companion must preload all five registered poses.");
+  const poseSizes = await poses.evaluateAll((elements) => elements.map((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight })));
+  if (poseSizes.some(({ width, height }) => width !== 1024 || height !== 1024)) throw new Error("A companion pose has unexpected dimensions.");
+  const idlePose = desktop.locator(".companion-pose--idle");
+  const idleTiming = await idlePose.evaluate((element) => ({ name: getComputedStyle(element).animationName, duration: parseFloat(getComputedStyle(element).animationDuration) }));
+  if (idleTiming.name !== "cat-breathe" || Math.abs(idleTiming.duration - 6.4) > 0.001) throw new Error("Idle companion is not using the smooth anchored breathing cycle.");
   await assertCompanionFaceClear(desktop, "Desktop");
   const before = await desktop.locator(".focus-node h2").innerText();
   await desktop.locator(".preview-node").first().click();
-  if (await desktop.locator(".companion-sprite--guide-wide").evaluate((element) => getComputedStyle(element).animationName) !== "companion-frames") throw new Error("Desktop selection did not trigger the wide guidance sheet.");
+  if (await desktop.locator(".companion-pose--guide-wide").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-wide") throw new Error("Desktop selection did not trigger the wide guidance pose.");
   const after = await desktop.locator(".focus-node h2").innerText();
   if (before === after) throw new Error("Node selection did not promote a new career item.");
   await desktop.getByPlaceholder("Search roles, skills, or projects").fill("Field Guide");
@@ -64,12 +72,13 @@ try {
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watchRuntime(mobile, "Mobile");
   await mobile.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   await mobile.waitForTimeout(1400);
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
   await assertCompanionFaceClear(mobile, "Mobile");
   await mobile.locator(".preview-node").first().click();
-  if (await mobile.locator(".companion-sprite--guide-mobile").evaluate((element) => getComputedStyle(element).animationName) !== "companion-frames") throw new Error("Mobile selection did not trigger the downward guidance sheet.");
+  if (await mobile.locator(".companion-pose--guide-mobile").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-mobile") throw new Error("Mobile selection did not trigger the downward guidance pose.");
   const focus = await mobile.locator(".focus-node").boundingBox();
   if (!focus) throw new Error("Mobile focus node is missing.");
   for (const node of await mobile.locator(".preview-node").all()) {
@@ -81,12 +90,14 @@ try {
   if (await mobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Mobile has horizontal overflow.");
 
   const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+  watchRuntime(reduced, "Reduced motion");
   await reduced.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   const animation = await reduced.locator(".preview-node").first().evaluate((element) => getComputedStyle(element).animationName);
   if (animation !== "none") throw new Error("Reduced-motion mode still animates preview nodes.");
-  const companionAnimation = await reduced.locator(".companion-sprite--idle").evaluate((element) => getComputedStyle(element).animationName);
+  const companionAnimation = await reduced.locator(".companion-pose--idle").evaluate((element) => getComputedStyle(element).animationName);
   if (companionAnimation !== "none") throw new Error("Reduced-motion mode still animates the companion.");
-  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionSheets: spriteSizes.length, companionFramesPerState: 16, companionFps: 2.8, reducedMotion: true, noOverflow: true, faceSafe: true }, null, 2));
+  if (runtimeErrors.length) throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
+  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionAssets: poseSizes.length, companionAnimation: "smooth-css", reducedMotion: true, noOverflow: true, faceSafe: true, runtimeErrors: 0 }, null, 2));
 } finally {
   await browser.close();
   await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
