@@ -34,6 +34,7 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
   const [query, setQuery] = useState("");
   const [mood, setMood] = useState<CompanionMood>("idle");
   const waitTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reactionTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const media = matchMedia("(max-width: 700px)");
@@ -48,6 +49,8 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
     return () => clearTimeout(waitTimer.current);
   }, [centerId]);
 
+  useEffect(() => () => clearTimeout(reactionTimer.current), []);
+
   const center = profile.careerItems.find((item) => item.id === centerId) ?? profile.careerItems[0];
   const visibleIds = useMemo(() => recommendations(profile, center.id, limit, visited), [profile, center.id, limit, visited]);
   const visible = visibleIds.map((id) => profile.careerItems.find((item) => item.id === id)!).filter(Boolean);
@@ -61,7 +64,8 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
     setVisited((current) => [...new Set([...current, center.id])]);
     setMood(reaction);
     setCenterId(id);
-    window.setTimeout(() => setMood("idle"), companionReactionMs);
+    clearTimeout(reactionTimer.current);
+    reactionTimer.current = window.setTimeout(() => setMood("idle"), companionReactionMs);
   };
 
   const submitSearch = (event: React.SyntheticEvent<HTMLFormElement>) => {
