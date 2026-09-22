@@ -8,6 +8,7 @@ const expectedSize = 1024;
 const spriteFrameSize = 256;
 const spriteColumns = 8;
 const spriteFrames = 32;
+const idleSpriteFrames = 64;
 
 async function inspect(path: string) {
   const { data, info } = await sharp(path)
@@ -60,6 +61,17 @@ for (const pose of poses) {
   results.push({ pose, ...(await inspect(sitePath)) });
 }
 
+const idleSpriteName = "resumilio-cat-idle-sheet.png";
+const siteIdleSpritePath = resolve("site/public/images", idleSpriteName);
+const starterIdleSpritePath = resolve("starter/site/public/images", idleSpriteName);
+const siteIdleSprite = await readFile(siteIdleSpritePath);
+const starterIdleSprite = await readFile(starterIdleSpritePath);
+if (!siteIdleSprite.equals(starterIdleSprite)) throw new Error(`${idleSpriteName} differs between the product site and starter.`);
+const idleSpriteMetadata = await sharp(siteIdleSpritePath).metadata();
+if (idleSpriteMetadata.width !== spriteFrameSize * spriteColumns || idleSpriteMetadata.height !== spriteFrameSize * 8 || idleSpriteMetadata.channels !== 4) {
+  throw new Error(`${idleSpriteName} must be a 2048x2048 RGBA sheet.`);
+}
+
 const spriteName = "resumilio-cat-smile-sheet.png";
 const siteSpritePath = resolve("site/public/images", spriteName);
 const starterSpritePath = resolve("starter/site/public/images", spriteName);
@@ -100,6 +112,34 @@ function meanAbsoluteDifference(first: Buffer, second: Buffer) {
   return difference / first.length;
 }
 
+async function idleSpriteRegion(frame: number, left: number, top: number, width: number, height: number) {
+  return sharp(siteIdleSpritePath)
+    .extract({
+      left: (frame % spriteColumns) * spriteFrameSize + left,
+      top: Math.floor(frame / spriteColumns) * spriteFrameSize + top,
+      width,
+      height,
+    })
+    .raw()
+    .toBuffer();
+}
+
+const idleOpenEyes = await idleSpriteRegion(0, 70, 42, 116, 72);
+const idleBlinkEyes = await idleSpriteRegion(41, 70, 42, 116, 72);
+const idleOpenMouth = await idleSpriteRegion(0, 100, 88, 60, 36);
+const idleBlinkMouth = await idleSpriteRegion(41, 100, 88, 60, 36);
+const idleEyeDifference = meanAbsoluteDifference(idleOpenEyes, idleBlinkEyes);
+const idleMouthDifference = meanAbsoluteDifference(idleOpenMouth, idleBlinkMouth);
+if (idleEyeDifference < 6) throw new Error(`Idle sprite does not contain a visible blink (${idleEyeDifference.toFixed(2)} MAE).`);
+if (idleMouthDifference > 2) throw new Error(`Idle blink unexpectedly changes the accepted mouth style (${idleMouthDifference.toFixed(2)} MAE).`);
+
+let idlePawAnchor: Buffer | undefined;
+for (let frame = 0; frame < idleSpriteFrames; frame += 1) {
+  const anchor = await idleSpriteRegion(frame, 58, 178, 142, 70);
+  if (!idlePawAnchor) idlePawAnchor = anchor;
+  else if (!idlePawAnchor.equals(anchor)) throw new Error(`Idle frame ${frame} moved the body or paws outside the eye-only animation region.`);
+}
+
 const idleMouth = await spriteRegion(0, 88, 78, 80, 55);
 const smilingMouth = await spriteRegion(18, 88, 78, 80, 55);
 const idleEyes = await spriteRegion(0, 72, 45, 112, 45);
@@ -110,9 +150,10 @@ if (mouthDifference < 10) throw new Error(`Smile does not change the mouth stron
 if (eyeDifference > 5) throw new Error(`Smile changes the eye region too much and may read as another blink (${eyeDifference.toFixed(2)} MAE).`);
 
 const css = await readFile(resolve("site/styles/global.css"), "utf8");
-if (!css.includes("2.285714s steps(1,end)")) throw new Error("Smile sheet is not configured for 32 frames at 14 fps.");
-for (const animation of ["cat-breathe", "cat-blink", "cat-waiting", "cat-nod", "cat-smile-frames", "cat-guide-wide", "cat-guide-mobile"]) {
+for (const animation of ["cat-breathe", "cat-waiting", "cat-nod", "cat-smile-settle", "cat-guide-wide", "cat-guide-mobile", "companion-backdrop-guide", "reserve-guide"]) {
   if (!css.includes(`@keyframes ${animation}`)) throw new Error(`Missing smooth companion animation: ${animation}.`);
 }
+if (css.includes("companion-pose--blink")) throw new Error("Runtime CSS still treats blink as a separate pose.");
+if (!css.includes("data-companion-state=\"guide\"") || !css.includes("data-companion-state=\"smile\"")) throw new Error("Constellation background is not synchronized to companion state.");
 
-console.log(JSON.stringify({ ok: true, poses: results, smileSprite: { frames: spriteFrames, fps: 14, width: spriteMetadata.width, height: spriteMetadata.height, pawsAnchored: true, mouthDifference, eyeDifference, distinctFromBlink: true }, motion: "hybrid-css-and-sprite" }, null, 2));
+console.log(JSON.stringify({ ok: true, poses: results, idleSprite: { frames: idleSpriteFrames, fps: 14, width: idleSpriteMetadata.width, height: idleSpriteMetadata.height, pawsAnchored: true, eyeDifference: idleEyeDifference, mouthDifference: idleMouthDifference, blinkIntegrated: true }, smileSprite: { frames: spriteFrames, fps: 14, width: spriteMetadata.width, height: spriteMetadata.height, pawsAnchored: true, mouthDifference, eyeDifference, distinctFromBlink: true }, backgroundStates: ["idle", "waiting", "nod", "smile", "guide"], motion: "sprite-state-machine" }, null, 2));

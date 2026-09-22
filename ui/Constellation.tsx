@@ -2,7 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ResumilioConfig, ResumilioProfile, ResourceKind } from "../core/profile.js";
 import { localized } from "../core/profile.js";
 import { recommendations } from "../core/graph.js";
-import { Companion, type CompanionMood } from "./Companion.js";
+import { Companion } from "./Companion.js";
+import {
+  companionReactionDurationMs,
+  pickAmbientCompanionMood,
+  pickGuideCooldownMs,
+  shouldStartGuide,
+  shouldStartWelcome,
+  type CompanionMood,
+  type CompanionPlayback,
+  type CompanionPlaybackMode,
+} from "./companion-schedule.js";
 
 export interface ConstellationProps {
   profile: ResumilioProfile;
@@ -15,7 +25,6 @@ const desktopSlots = [
   { x: 18, y: 25 }, { x: 75, y: 17 }, { x: 84, y: 64 }, { x: 31, y: 78 }, { x: 56, y: 87 },
 ];
 const mobileSlots = [{ x: 82, y: 14 }, { x: 14, y: 14 }, { x: 84, y: 90 }, { x: 16, y: 90 }];
-const companionReactionMs = 5800;
 
 const resourceLabels: Record<ResourceKind, Record<string, string>> = {
   "live-demo": { en: "Live demo", es: "Demo en vivo" },
@@ -32,9 +41,11 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
   const [visited, setVisited] = useState<string[]>([]);
   const [limit, setLimit] = useState(config.presentation.activeNodes.desktop);
   const [query, setQuery] = useState("");
-  const [mood, setMood] = useState<CompanionMood>("idle");
-  const waitTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [playback, setPlayback] = useState<CompanionPlayback>({ mood: "idle", sequence: 0, mode: "loading" });
+  const playbackRef = useRef(playback);
   const reactionTimer = useRef<number | undefined>(undefined);
+  const guideCooldownUntil = useRef(0);
+  const welcomeHandled = useRef(false);
 
   useEffect(() => {
     const media = matchMedia("(max-width: 700px)");
@@ -43,13 +54,53 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
     return () => media.removeEventListener("change", update);
   }, [config.presentation.activeNodes]);
 
-  useEffect(() => {
-    clearTimeout(waitTimer.current);
-    waitTimer.current = setTimeout(() => setMood("waiting"), 24000);
-    return () => clearTimeout(waitTimer.current);
-  }, [centerId]);
-
   useEffect(() => () => clearTimeout(reactionTimer.current), []);
+
+  const commitPlayback = (mood: CompanionMood, mode: CompanionPlaybackMode) => {
+    const next = { mood, mode, sequence: playbackRef.current.sequence + 1 };
+    playbackRef.current = next;
+    setPlayback(next);
+  };
+  const beginGuideCooldown = () => {
+    guideCooldownUntil.current = Date.now() + pickGuideCooldownMs();
+  };
+  const advanceAmbientReaction = () => commitPlayback(pickAmbientCompanionMood(), "ambient");
+  const showReaction = (mood: Exclude<CompanionMood, "guide">) => {
+    if (playbackRef.current.mode === "interactive" && playbackRef.current.mood === "guide") beginGuideCooldown();
+    commitPlayback(mood, "interactive");
+  };
+  const showGuide = () => {
+    if (!shouldStartGuide(playbackRef.current, Date.now(), guideCooldownUntil.current)) return false;
+    commitPlayback("guide", "interactive");
+    return true;
+  };
+  const acknowledgeNode = () => {
+    if (playbackRef.current.mode !== "interactive") showReaction("nod");
+  };
+
+  useEffect(() => {
+    let listening = true;
+    const announceReady = () => {
+      if (!listening) return;
+      const handled = welcomeHandled.current;
+      welcomeHandled.current = true;
+      if (shouldStartWelcome(playbackRef.current, handled)) commitPlayback("smile", "welcome");
+    };
+    if (document.readyState === "complete") queueMicrotask(announceReady);
+    else window.addEventListener("load", announceReady, { once: true });
+    return () => { listening = false; window.removeEventListener("load", announceReady); };
+  }, []);
+
+  useEffect(() => {
+    clearTimeout(reactionTimer.current);
+    if (playback.mode === "loading") return;
+    reactionTimer.current = window.setTimeout(() => {
+      if (playbackRef.current.sequence !== playback.sequence) return;
+      if (playback.mode === "interactive" && playback.mood === "guide") beginGuideCooldown();
+      advanceAmbientReaction();
+    }, companionReactionDurationMs[playback.mood]);
+    return () => clearTimeout(reactionTimer.current);
+  }, [playback]);
 
   const center = profile.careerItems.find((item) => item.id === centerId) ?? profile.careerItems[0];
   const visibleIds = useMemo(() => recommendations(profile, center.id, limit, visited), [profile, center.id, limit, visited]);
@@ -60,12 +111,11 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
   const primaryResource = resources.find((item) => item.availability === "public") ?? resources[0];
   const ghostIds = visible.flatMap((item) => recommendations(profile, item.id, 2, [...visited, center.id, ...visibleIds])).filter((id, index, all) => id !== center.id && !visibleIds.includes(id) && all.indexOf(id) === index).slice(0, 8);
 
-  const select = (id: string, reaction: CompanionMood = "guide") => {
+  const select = (id: string, reaction: "guide" | "smile" = "guide") => {
     setVisited((current) => [...new Set([...current, center.id])]);
-    setMood(reaction);
+    if (reaction === "guide") showGuide();
+    else showReaction("smile");
     setCenterId(id);
-    clearTimeout(reactionTimer.current);
-    reactionTimer.current = window.setTimeout(() => setMood("idle"), companionReactionMs);
   };
 
   const submitSearch = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -82,14 +132,14 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
         <input id="constellation-query" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={locale === "es" ? "Buscar roles, habilidades o proyectos" : "Search roles, skills, or projects"} />
         <button type="submit" aria-label={locale === "es" ? "Buscar" : "Search"}>⌕</button>
       </form>
-      <div className="constellation-stage">
-        <Companion enabled={config.presentation.companion.enabled} mood={mood} />
+      <div className="constellation-stage" data-companion-state={playback.mood} data-companion-mode={playback.mode} data-companion-sequence={playback.sequence}>
+        <Companion enabled={config.presentation.companion.enabled} playback={playback} />
         <svg className="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {visible.map((item, index) => <line key={item.id} x1="50" y1="49" x2={slots[index]?.x ?? 50} y2={slots[index]?.y ?? 50} />)}
         </svg>
         {ghostIds.map((id, index) => <span key={id} className="reserve-node" style={{ left: `${8 + ((index * 23) % 86)}%`, top: `${10 + ((index * 31) % 78)}%` }} aria-hidden="true" />)}
         {visible.map((item, index) => (
-          <button className="preview-node" key={item.id} style={{ left: `${slots[index]?.x ?? 50}%`, top: `${slots[index]?.y ?? 50}%` }} onClick={() => select(item.id)}>
+          <button className="preview-node" key={item.id} style={{ left: `${slots[index]?.x ?? 50}%`, top: `${slots[index]?.y ?? 50}%` }} onFocus={acknowledgeNode} onMouseEnter={acknowledgeNode} onClick={() => select(item.id)}>
             <span>{localized(item.title, locale, fallback)}</span>
           </button>
         ))}

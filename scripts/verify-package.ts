@@ -5,6 +5,7 @@ const result = JSON.parse(output) as Array<{ files: Array<{ path: string }> }>;
 const files = result[0]?.files.map((entry) => entry.path) ?? [];
 const companionAssets = [
   ...["idle", "blink", "smile", "guide-wide", "guide-mobile"].map((state) => `starter/site/public/images/resumilio-cat-${state}.png`),
+  "starter/site/public/images/resumilio-cat-idle-sheet.png",
   "starter/site/public/images/resumilio-cat-smile-sheet.png",
 ];
 const required = ["dist/core/cli.js", "dist/core/mcp-server.js", "dist/ui/Constellation.js", "schemas/profile.v1.schema.json", "starter/site/resumilio.json", ...companionAssets, "skills/resumilio-authoring/SKILL.md"];

@@ -54,22 +54,31 @@ try {
   await desktop.waitForTimeout(1400);
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
   const poses = desktop.locator(".companion-pose");
-  if (await poses.count() !== 5) throw new Error("Companion must preload all five registered poses.");
+  if (await poses.count() !== 4) throw new Error("Companion must preload the four reduced-motion and responsive fallback poses.");
   const poseSizes = await poses.evaluateAll((elements) => elements.map((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight })));
   if (poseSizes.some(({ width, height }) => width !== 1024 || height !== 1024)) throw new Error("A companion pose has unexpected dimensions.");
-  const smileSprite = desktop.locator(".companion-smile-sprite");
-  if (await smileSprite.count() !== 1) throw new Error("Companion must preload the smiling sprite sheet.");
-  const spriteSize = await smileSprite.evaluate((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight }));
-  if (spriteSize.width !== 2048 || spriteSize.height !== 1024) throw new Error("Smiling sprite sheet has unexpected dimensions.");
-  const idlePose = desktop.locator(".companion-pose--idle");
-  const idleTiming = await idlePose.evaluate((element) => ({ name: getComputedStyle(element).animationName, duration: parseFloat(getComputedStyle(element).animationDuration) }));
-  if (idleTiming.name !== "cat-breathe" || Math.abs(idleTiming.duration - 6.4) > 0.001) throw new Error("Idle companion is not using the smooth anchored breathing cycle.");
+  const sprite = desktop.locator(".companion-sprite");
+  if (await sprite.count() !== 1) throw new Error("Companion must render one state-driven sprite surface.");
+  const initialCompanion = desktop.locator(".resumilio-companion");
+  if (await initialCompanion.getAttribute("data-companion-state") !== "smile" || await initialCompanion.getAttribute("data-companion-mode") !== "welcome") {
+    throw new Error("Companion did not run the same welcome-smile trigger as the full avatar.");
+  }
+  if (!(await sprite.evaluate((element) => getComputedStyle(element).backgroundImage)).includes("resumilio-cat-smile-sheet")) throw new Error("Welcome state did not load the smiling sprite sheet.");
+  const initialFrame = Number(await sprite.getAttribute("data-sprite-frame"));
+  await desktop.waitForTimeout(240);
+  if (Number(await sprite.getAttribute("data-sprite-frame")) <= initialFrame) throw new Error("Welcome smile sprite did not advance at runtime.");
   await assertCompanionFaceClear(desktop, "Desktop");
+  await desktop.locator(".preview-node").first().hover();
+  await desktop.waitForTimeout(100);
+  if (await initialCompanion.getAttribute("data-companion-state") !== "nod") throw new Error("Preview focus did not trigger companion acknowledgement.");
+  if (await desktop.locator(".reserve-node").first().evaluate((element) => getComputedStyle(element).animationName) !== "reserve-ack") throw new Error("Nod state did not synchronize the background nodes.");
   const before = await desktop.locator(".focus-node h2").innerText();
   await desktop.locator(".preview-node").first().click();
   await desktop.waitForTimeout(450);
   if (await desktop.locator(".companion-pose--guide-wide").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-wide") throw new Error("Desktop selection did not trigger the wide guidance pose.");
   if (Number(await desktop.locator(".companion-pose--guide-wide").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Desktop guidance pose did not become visibly opaque.");
+  if (await desktop.locator(".reserve-node").first().evaluate((element) => getComputedStyle(element).animationName) !== "reserve-guide") throw new Error("Desktop guidance did not shift the constellation background.");
+  if (await desktop.locator(".companion-backdrop").evaluate((element) => getComputedStyle(element).animationName) !== "companion-backdrop-guide") throw new Error("Desktop guidance did not animate the companion backdrop.");
   const after = await desktop.locator(".focus-node h2").innerText();
   if (before === after) throw new Error("Node selection did not promote a new career item.");
   await desktop.getByPlaceholder("Search roles, skills, or projects").fill("Field Guide");
@@ -78,12 +87,10 @@ try {
   await desktop.getByRole("button", { name: "Similar Work" }).click();
   await desktop.waitForTimeout(320);
   if (!/resumilio-companion--smile/.test(await desktop.locator(".resumilio-companion").getAttribute("class") ?? "")) throw new Error("Similar Work did not trigger the smiling companion state.");
-  if (Number(await desktop.locator(".companion-smile-window").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Smiling sprite window did not become visibly opaque.");
-  const spriteTiming = await smileSprite.evaluate((element) => ({ name: getComputedStyle(element).animationName, duration: parseFloat(getComputedStyle(element).animationDuration), transform: getComputedStyle(element).transform }));
-  if (spriteTiming.name !== "cat-smile-frames" || Math.abs(spriteTiming.duration - (32 / 14)) > 0.001) throw new Error("Smiling state did not start the 32-frame animation at 14 fps.");
-  await desktop.waitForTimeout(720);
-  const laterSpriteTransform = await smileSprite.evaluate((element) => getComputedStyle(element).transform);
-  if (spriteTiming.transform === laterSpriteTransform) throw new Error("Smiling sprite sheet did not advance between sampled frames.");
+  if (!(await sprite.evaluate((element) => getComputedStyle(element).backgroundImage)).includes("resumilio-cat-smile-sheet")) throw new Error("Similar Work did not select the smile sprite sequence.");
+  const similarFrame = Number(await sprite.getAttribute("data-sprite-frame"));
+  await desktop.waitForTimeout(240);
+  if (Number(await sprite.getAttribute("data-sprite-frame")) <= similarFrame) throw new Error("Similar Work smile sprite did not advance between sampled frames.");
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -111,13 +118,11 @@ try {
   await reduced.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   const animation = await reduced.locator(".preview-node").first().evaluate((element) => getComputedStyle(element).animationName);
   if (animation !== "none") throw new Error("Reduced-motion mode still animates preview nodes.");
-  const companionAnimation = await reduced.locator(".companion-pose--idle").evaluate((element) => getComputedStyle(element).animationName);
-  if (companionAnimation !== "none") throw new Error("Reduced-motion mode still animates the companion.");
+  if (await reduced.locator(".companion-sprite-window").evaluate((element) => getComputedStyle(element).display) !== "none") throw new Error("Reduced-motion mode still displays the animated sprite surface.");
   await reduced.getByRole("button", { name: "Similar Work" }).click();
-  if (await reduced.locator(".companion-smile-window").evaluate((element) => getComputedStyle(element).display) !== "none") throw new Error("Reduced-motion mode still displays the animated smile sheet.");
   if (Number(await reduced.locator(".companion-pose--smile").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Reduced-motion mode did not reveal the static smiling pose.");
   if (runtimeErrors.length) throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
-  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionAssets: poseSizes.length + 1, companionAnimation: "32-frame-smile-at-14fps", reducedMotion: true, noOverflow: true, faceSafe: true, runtimeErrors: 0 }, null, 2));
+  console.log(JSON.stringify({ ok: true, desktopNodes: 5, mobileNodes: 4, companionAssets: poseSizes.length + 2, companionAnimation: "64-frame-idle-with-blink-and-32-frame-smile-at-14fps", triggers: ["welcome", "focus-acknowledgement", "selection-guide", "search-smile", "similar-work-smile", "ambient-mix"], synchronizedBackground: true, reducedMotion: true, noOverflow: true, faceSafe: true, runtimeErrors: 0 }, null, 2));
 } finally {
   await browser.close();
   await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
