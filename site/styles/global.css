@@ -11,6 +11,17 @@
 @media(max-width:700px){.site-nav{height:64px;padding:0 20px}.site-nav-links{gap:12px}.hero{padding:36px 18px}.hero h1{font-size:clamp(3.4rem,16vw,5rem)}.hero-demo{min-height:720px}.constellation{min-height:720px}.constellation-search{left:4%;right:4%}.constellation-stage{inset:60px 0 84px}.focus-node{width:min(66vw,272px);left:52%;top:49%;padding:26px}.focus-node h2{font-size:clamp(1.45rem,6.2vw,2rem)}.focus-node p{font-size:.86rem}.preview-node{width:104px;font-size:.8rem}.resumilio-companion{width:230px;left:-13%;bottom:-7%;opacity:.68}.constellation-actions{left:2%;right:2%;gap:7px}.constellation-actions a,.constellation-actions button{font-size:.83rem;padding:0 8px}.site-footer{display:block}.classic-resume{padding:44px 22px 90px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.focus-node,.preview-node,.reserve-node,.resumilio-companion{animation:none!important;transition:none!important}}
 
+/* The focus is a fixed circle; its copy is a preview, not a second page. */
+.focus-node{height:min(330px,36vw);padding:clamp(34px,2vw,38px);gap:7px;overflow:hidden}
+.focus-node h2{min-width:0;margin:0;font-size:clamp(1.5rem,1.55vw,1.9rem);line-height:1.06;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.focus-node p{min-width:0;margin:0;font-size:clamp(.85rem,.9vw,1rem);line-height:1.38;overflow-wrap:anywhere}
+.focus-node .focus-organization{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.focus-node p:not(.focus-organization){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden}
+.focus-node .resource-link{min-width:0;width:max-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:950px){.focus-node{width:320px;height:320px}}
+@media(max-width:700px){.focus-node{width:min(74vw,280px);height:min(74vw,280px);padding:clamp(22px,6.5vw,26px);gap:5px}.focus-node h2{font-size:clamp(1.25rem,5.3vw,1.65rem)}.focus-node p{font-size:.82rem}}
+
+
 /* The companion mirrors the full avatar state machine. Idle already includes its blink frames. */
 .resumilio-companion{aspect-ratio:1;overflow:visible;animation:none;filter:drop-shadow(0 18px 28px rgba(0,0,0,.3));pointer-events:none;isolation:isolate}
 .companion-backdrop{position:absolute;left:50%;top:53%;z-index:-1;width:148%;aspect-ratio:1;border:1px solid rgba(245,173,61,.24);border-radius:50%;background:radial-gradient(circle at 50% 42%,rgba(49,46,39,.48),rgba(15,17,15,.22) 62%,transparent 74%);box-shadow:inset 0 0 62px rgba(0,0,0,.28),0 0 50px rgba(245,173,61,.06);transform:translate(-50%,-50%);transition:border-color .36s ease,background .36s ease,box-shadow .36s ease}

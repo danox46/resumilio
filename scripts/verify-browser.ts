@@ -20,6 +20,23 @@ async function assertCompanionFaceClear(page: Page, label: string) {
   }
 }
 
+async function assertFocusCircle(page: Page, label: string) {
+  const focus = await page.locator(".focus-node").boundingBox();
+  if (!focus) throw new Error(`${label} focus node is missing.`);
+  if (Math.abs(focus.width - focus.height) > 1) throw new Error(`${label} focus node became an oval (${focus.width}×${focus.height}).`);
+  const radius = focus.width / 2;
+  const centerX = focus.x + radius;
+  const centerY = focus.y + radius;
+  for (const node of await page.locator(".preview-node").all()) {
+    const box = await node.boundingBox();
+    if (!box) continue;
+    const distance = Math.hypot(box.x + box.width / 2 - centerX, box.y + box.height / 2 - centerY);
+    if (distance < radius + box.width / 2 - 2) throw new Error(`${label} preview node intersects the focus circle.`);
+  }
+  const titleOverflows = await page.locator(".focus-node h2").evaluate((element) => element.scrollWidth > element.clientWidth + 1);
+  if (titleOverflows) throw new Error(`${label} focus title exceeds its content area.`);
+}
+
 const root = normalize(join(process.cwd(), "site", "dist"));
 const types: Record<string, string> = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".txt": "text/plain" };
 const server = createServer(async (request, response) => {
@@ -53,6 +70,7 @@ try {
   await desktop.goto(origin, { waitUntil: "networkidle" });
   await desktop.waitForTimeout(1400);
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
+  await assertFocusCircle(desktop, "Desktop home demo");
   const poses = desktop.locator(".companion-pose");
   if (await poses.count() !== 4) throw new Error("Companion must preload the four reduced-motion and responsive fallback poses.");
   const poseSizes = await poses.evaluateAll((elements) => elements.map((element) => ({ width: (element as HTMLImageElement).naturalWidth, height: (element as HTMLImageElement).naturalHeight })));
@@ -93,11 +111,21 @@ try {
   if (Number(await sprite.getAttribute("data-sprite-frame")) <= similarFrame) throw new Error("Similar Work smile sprite did not advance between sampled frames.");
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
 
+  for (const width of [1920, 768, 320]) {
+    const viewport = await browser.newPage({ viewport: { width, height: 900 } });
+    watchRuntime(viewport, `${width}px demo`);
+    await viewport.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
+    await viewport.waitForTimeout(1400);
+    await assertFocusCircle(viewport, `${width}px demo`);
+    await viewport.close();
+  }
+
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   watchRuntime(mobile, "Mobile");
   await mobile.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
   await mobile.waitForTimeout(1400);
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
+  await assertFocusCircle(mobile, "Mobile demo");
   await assertCompanionFaceClear(mobile, "Mobile");
   await mobile.locator(".preview-node").first().click();
   await mobile.waitForTimeout(450);

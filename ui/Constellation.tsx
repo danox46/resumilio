@@ -22,7 +22,7 @@ export interface ConstellationProps {
 }
 
 const desktopSlots = [
-  { x: 18, y: 25 }, { x: 75, y: 17 }, { x: 84, y: 64 }, { x: 31, y: 78 }, { x: 56, y: 87 },
+  { x: 18, y: 25 }, { x: 75, y: 17 }, { x: 84, y: 64 }, { x: 34, y: 88 }, { x: 68, y: 88 },
 ];
 const mobileSlots = [{ x: 82, y: 14 }, { x: 14, y: 14 }, { x: 84, y: 90 }, { x: 16, y: 90 }];
 
