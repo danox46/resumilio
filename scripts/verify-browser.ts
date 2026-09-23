@@ -119,6 +119,7 @@ try {
 
   await desktop.getByRole("link", { name: "Roadmap" }).click();
   if (new URL(desktop.url()).pathname !== "/roadmap/") throw new Error("Product navigation did not open the roadmap.");
+  if (await desktop.getByRole("heading", { level: 1, name: "Product roadmap" }).count() !== 1) throw new Error("Product roadmap heading is missing.");
   if (await desktop.locator(".roadmap-milestone").count() !== 4) throw new Error("Roadmap must show the four planned release stages.");
   for (const title of ["Stability", "Authoring skill", "Claude + Antigravity", "Manual authoring"]) {
     if (await desktop.getByRole("heading", { name: title, exact: true }).count() !== 1) throw new Error(`Roadmap stage is missing: ${title}.`);
@@ -128,6 +129,7 @@ try {
   if (await desktop.locator(".roadmap-milestone:target h2").innerText() !== "Claude + Antigravity") throw new Error("Roadmap target styling did not follow the selected waypoint.");
   await desktop.getByRole("link", { name: "ES", exact: true }).click();
   if (new URL(desktop.url()).pathname !== "/es/hoja-de-ruta/") throw new Error("Roadmap locale switch lost the roadmap route.");
+  if (await desktop.getByRole("heading", { level: 1, name: "Hoja de ruta" }).count() !== 1) throw new Error("Spanish roadmap heading is missing.");
   if (await desktop.getByRole("heading", { name: "Estabilidad", exact: true }).count() !== 1) throw new Error("Spanish roadmap translation is missing.");
   if (await desktop.locator("html").getAttribute("lang") !== "es") throw new Error("Spanish roadmap has the wrong document language.");
   for (const width of [1440, 768, 390, 320]) {

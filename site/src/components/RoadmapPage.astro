@@ -5,7 +5,7 @@ import "../../styles/roadmap.css";
 const { locale = "en" } = Astro.props;
 const es = locale === "es";
 const copy = es ? {
-  title: ["Una ruta para", "tu carrera", "en movimiento."],
+  title: ["Hoja de", "ruta"],
   intro: "Cuatro entregas enfocadas. Primero confianza; después, mejores maneras de contar tu trayectoria, con o sin agente.",
   stages: [
     { id: "estabilidad", name: "Estabilidad", promise: "Una base en la que confiar", detail: "Navegación conectada, cambios seguros e instalaciones confiables." },
@@ -16,7 +16,7 @@ const copy = es ? {
   note: "Esta es la secuencia, no un calendario. Las versiones se definirán a partir de la base 0.8.0.",
   back: "Volver a Resumilio",
 } : {
-  title: ["A roadmap", "for a resume", "that keeps moving."],
+  title: ["Product", "roadmap"],
   intro: "Four focused releases. Trust first, then better ways to build a career story—with or without an agent.",
   stages: [
     { id: "stability", name: "Stability", promise: "Make the foundation dependable", detail: "Connected navigation, safe record edits, reliable installs." },
@@ -32,7 +32,7 @@ const copy = es ? {
   <Nav locale={locale} />
   <main class="roadmap-page">
     <header class="roadmap-intro">
-      <h1>{copy.title[0]}<br />{copy.title[1]}<br /><em>{copy.title[2]}</em></h1>
+      <h1>{copy.title[0]} <em>{copy.title[1]}</em></h1>
       <p>{copy.intro}</p>
     </header>
     <section class="roadmap-stage" aria-label={es ? "Próximas entregas" : "Upcoming releases"}>
