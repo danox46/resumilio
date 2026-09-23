@@ -64,3 +64,12 @@
 @media(prefers-reduced-motion:reduce){.companion-sprite-window{display:none}.companion-pose{animation:none!important;transition:none!important;transform:none!important}.resumilio-companion:not(.resumilio-companion--smile):not(.resumilio-companion--guide) .companion-pose--idle{opacity:1}.resumilio-companion--smile .companion-pose--smile{opacity:1}.resumilio-companion--guide .companion-pose--guide-wide{opacity:1}.companion-backdrop{animation:none!important}.constellation-stage .reserve-node{animation:none!important}}
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.resumilio-companion--guide .companion-pose--guide-wide{opacity:0}.resumilio-companion--guide .companion-pose--guide-mobile{opacity:1}}
 @media print{.site-nav,.constellation{display:none}.classic-resume{padding:0;max-width:none}.classic-resume details{display:block}.classic-resume details>*{display:block}}
+
+/* A generated resume is the full experience, not the product site's inset demo. */
+.constellation{min-height:100svh}
+.constellation{background:var(--bg);color:var(--text)}
+.constellation .constellation-search,.constellation .focus-node,.constellation .preview-node,.constellation .constellation-actions a,.constellation .constellation-actions button{background:color-mix(in srgb,var(--bg) 95%,transparent)}
+.constellation .constellation-actions a:first-child{background:var(--accent)}
+@media(max-width:700px){
+  .resumilio-companion{width:clamp(148px,47vw,190px);left:50%;top:0;bottom:auto;transform:translateX(-50%);opacity:.9}
+}

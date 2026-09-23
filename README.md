@@ -6,14 +6,23 @@ Resumilio is an open-source living resume: an interactive career constellation, 
 
 [Product and fictional demo](https://resumilio.danienremoto.com) · [How to use it](https://resumilio.danienremoto.com/how-to/)
 
-## Create a site
+## Create a site from source (pre-release)
+
+The npm package is not published yet. Until it is, build a local tarball from this repository rather than running the unavailable `npx resumilio@latest` command:
 
 ```bash
-npx resumilio@latest init my-resume
-cd my-resume
-npm install
+git clone https://github.com/danox46/resumilio.git
+cd resumilio
+npm ci
+npm run build
+npm pack
+node dist/core/cli.js init ../my-resume
+cd ../my-resume
+npm install ../resumilio/resumilio-0.8.0.tgz
 npm run dev
 ```
+
+The source checkout and generated resume are separate folders. This path uses the locally built package; it does not claim a public npm release.
 
 The generated project includes:
 

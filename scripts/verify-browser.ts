@@ -70,6 +70,7 @@ try {
   await desktop.goto(origin, { waitUntil: "networkidle" });
   await desktop.waitForTimeout(1400);
   if (await desktop.getByRole("heading", { name: "One career. More ways to understand it." }).count() !== 1) throw new Error("English product outcomes heading is missing.");
+  if (await desktop.getByText("Source setup available now").count() !== 1) throw new Error("Product home still advertises an unpublished npm install.");
   if (await desktop.locator(".feature-band .feature").count() !== 3) throw new Error("Product home must present the three career outcomes.");
   for (const title of ["A new visual experience", "A classic resume, ready", "Recommendations that react"]) {
     if (await desktop.getByRole("heading", { name: title }).count() !== 1) throw new Error(`English product outcome is missing: ${title}.`);
@@ -153,16 +154,21 @@ try {
   watchRuntime(spanishHome, "Spanish mobile home");
   await spanishHome.goto(`${origin}/es/`, { waitUntil: "networkidle" });
   if (await spanishHome.getByRole("heading", { name: "Una carrera. Más formas de entenderla." }).count() !== 1) throw new Error("Spanish product outcomes heading is missing.");
+  if (await spanishHome.getByText("Instalación desde código disponible").count() !== 1) throw new Error("Spanish product home still advertises an unpublished npm install.");
   for (const title of ["Una nueva experiencia visual", "Una hoja de vida clásica, lista", "Recomendaciones que reaccionan"]) {
     if (await spanishHome.getByRole("heading", { name: title }).count() !== 1) throw new Error(`Spanish product outcome is missing: ${title}.`);
   }
   if (await spanishHome.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Spanish mobile product home has horizontal overflow.");
+  await spanishHome.goto(`${origin}/es/demo/`, { waitUntil: "networkidle" });
+  if ((await spanishHome.locator(".demo-watermark").textContent())?.trim() !== "Perfil ficticio") throw new Error("Spanish demo lost its fictional-profile watermark.");
   await spanishHome.close();
 
   for (const width of [1920, 768, 320]) {
     const viewport = await browser.newPage({ viewport: { width, height: 900 } });
     watchRuntime(viewport, `${width}px demo`);
     await viewport.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
+    if (await viewport.locator(".demo-disclosure").count()) throw new Error(`${width}px demo still has a framed disclosure.`);
+    if ((await viewport.locator(".demo-watermark").textContent())?.trim() !== "Fictional profile") throw new Error(`${width}px demo lost its fictional-profile watermark.`);
     await viewport.waitForTimeout(1400);
     await assertFocusCircle(viewport, `${width}px demo`);
     await viewport.close();
@@ -171,6 +177,7 @@ try {
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   watchRuntime(mobile, "Mobile");
   await mobile.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
+  if ((await mobile.locator(".demo-watermark").textContent())?.trim() !== "Fictional profile") throw new Error("Mobile demo lost its fictional-profile watermark.");
   await mobile.waitForTimeout(1400);
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
   await assertFocusCircle(mobile, "Mobile demo");

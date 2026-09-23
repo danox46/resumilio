@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "profile": "profiles/demo.json",
+  "profile": "resumilio.json",
   "presentation": {
     "companion": { "enabled": true, "variant": "illustrated-pet" },
     "palette": { "background": "#0b0d0c", "text": "#f4f1e8", "accent": "#f5ad3d", "muted": "#8f9691" },

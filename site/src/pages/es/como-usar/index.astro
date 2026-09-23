@@ -6,9 +6,9 @@ import Nav from "../../../components/Nav.astro";
   <div class="site-shell"><Nav locale="es"/><main class="docs-page">
     <h1>Construye una experiencia profesional, no otro formulario.</h1>
     <p>Empieza manualmente con el formato abierto o pide a un agente que te entreviste. Ambos caminos producen el mismo sitio versionable.</p>
-    <h2>1. Crea el sitio</h2><pre>npx resumilio@latest init my-resume</pre>
+    <h2>1. Crea el sitio desde el código</h2><p>La publicación en npm está pendiente. Por ahora, compila e instala un paquete local desde el repositorio público:</p><pre>git clone https://github.com/danox46/resumilio.git<br/>cd resumilio<br/>npm ci<br/>npm run build<br/>npm pack<br/>node dist/core/cli.js init ../my-resume<br/>cd ../my-resume<br/>npm install ../resumilio/resumilio-0.8.0.tgz<br/>npm run dev</pre>
     <h2>2. Añade tu carrera</h2><p>Reemplaza el ejemplo ficticio con roles, proyectos, educación, credenciales y recursos públicos útiles. El trabajo puede ser real y valioso sin tener un enlace público.</p>
-    <h2>3. Valida y previsualiza</h2><pre>npx resumilio validate resumilio.json<br/>npm run dev</pre>
+    <h2>3. Valida y previsualiza</h2><pre>npx resumilio validate resumilio.json<br/>npm run dev</pre><p>El proyecto generado incluye una guía manual de cada campo en su README. No necesitas un agente.</p>
     <h2>4. Publica cuando tú decidas</h2><p>La compilación es estática y funciona en cualquier host. Los archivos privados, notas y detalles protegidos quedan fuera del proyecto público.</p>
     <h2>Autoría con agentes</h2><p>Los proyectos incluyen la habilidad de Resumilio localmente. Ejecuta <code>npx resumilio agent install codex</code> solo si quieres instalarla globalmente para Codex.</p>
   </main></div>

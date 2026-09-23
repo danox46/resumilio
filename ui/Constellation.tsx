@@ -126,7 +126,12 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
   };
 
   return (
-    <section className="constellation" style={{ "--constellation-accent": config.presentation.palette.accent } as React.CSSProperties}>
+    <section className="constellation" style={{
+      "--bg": config.presentation.palette.background,
+      "--text": config.presentation.palette.text,
+      "--accent": config.presentation.palette.accent,
+      "--muted": config.presentation.palette.muted,
+    } as React.CSSProperties}>
       <form className="constellation-search" onSubmit={submitSearch} role="search">
         <label className="sr-only" htmlFor="constellation-query">{locale === "es" ? "Buscar experiencia" : "Search experience"}</label>
         <input id="constellation-query" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={locale === "es" ? "Buscar roles, habilidades o proyectos" : "Search roles, skills, or projects"} />
