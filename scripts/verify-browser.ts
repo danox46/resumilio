@@ -69,6 +69,12 @@ try {
   watchRuntime(desktop, "Desktop");
   await desktop.goto(origin, { waitUntil: "networkidle" });
   await desktop.waitForTimeout(1400);
+  if (await desktop.getByRole("heading", { name: "One career. More ways to understand it." }).count() !== 1) throw new Error("English product outcomes heading is missing.");
+  if (await desktop.locator(".feature-band .feature").count() !== 3) throw new Error("Product home must present the three career outcomes.");
+  for (const title of ["A new visual experience", "A classic resume, ready", "Recommendations that react"]) {
+    if (await desktop.getByRole("heading", { name: title }).count() !== 1) throw new Error(`English product outcome is missing: ${title}.`);
+  }
+  if (await desktop.locator(".wordmark .brand-mark circle").count() !== 6) throw new Error("The connected-node Resumilio logo is missing.");
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
   await assertFocusCircle(desktop, "Desktop home demo");
   const poses = desktop.locator(".companion-pose");
@@ -110,6 +116,16 @@ try {
   await desktop.waitForTimeout(240);
   if (Number(await sprite.getAttribute("data-sprite-frame")) <= similarFrame) throw new Error("Similar Work smile sprite did not advance between sampled frames.");
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
+
+  const spanishHome = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watchRuntime(spanishHome, "Spanish mobile home");
+  await spanishHome.goto(`${origin}/es/`, { waitUntil: "networkidle" });
+  if (await spanishHome.getByRole("heading", { name: "Una carrera. Más formas de entenderla." }).count() !== 1) throw new Error("Spanish product outcomes heading is missing.");
+  for (const title of ["Una nueva experiencia visual", "Una hoja de vida clásica, lista", "Recomendaciones que reaccionan"]) {
+    if (await spanishHome.getByRole("heading", { name: title }).count() !== 1) throw new Error(`Spanish product outcome is missing: ${title}.`);
+  }
+  if (await spanishHome.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Spanish mobile product home has horizontal overflow.");
+  await spanishHome.close();
 
   for (const width of [1920, 768, 320]) {
     const viewport = await browser.newPage({ viewport: { width, height: 900 } });

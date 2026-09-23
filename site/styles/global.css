@@ -65,3 +65,20 @@
 @media(prefers-reduced-motion:reduce){.companion-sprite-window{display:none}.companion-pose{animation:none!important;transition:none!important;transform:none!important}.resumilio-companion:not(.resumilio-companion--smile):not(.resumilio-companion--guide) .companion-pose--idle{opacity:1}.resumilio-companion--smile .companion-pose--smile{opacity:1}.resumilio-companion--guide .companion-pose--guide-wide{opacity:1}.companion-backdrop{animation:none!important}.constellation-stage .reserve-node{animation:none!important}}
 @media(max-width:700px) and (prefers-reduced-motion:reduce){.resumilio-companion--guide .companion-pose--guide-wide{opacity:0}.resumilio-companion--guide .companion-pose--guide-mobile{opacity:1}}
 @media print{.site-nav,.constellation{display:none}.classic-resume{padding:0;max-width:none}.classic-resume details{display:block}.classic-resume details>*{display:block}}
+
+/* Keep the established dark product layout while giving the brand and outcomes their own hierarchy. */
+.brand-mark{display:block;width:40px;height:40px;flex:none;overflow:visible;color:var(--accent)}
+.brand-mark-line{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.brand-mark-line--spine{stroke-width:1.45}
+.brand-mark-line--fold{stroke-width:1.18}
+.brand-mark-taper,.brand-mark circle{fill:currentColor}
+.feature-band{row-gap:40px}
+.feature-band-heading{grid-column:1/-1;max-width:850px;padding:0 0 10px}
+.feature-eyebrow{margin:0 0 12px;color:var(--accent);font-size:.8rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.feature-band-heading h2{margin:0;font-size:clamp(2.35rem,4.2vw,4.4rem);line-height:1.02;letter-spacing:-.055em}
+.feature-band-heading + .feature{padding-left:0}
+.feature-number{display:block;margin:0 0 20px;color:var(--accent);font-size:.86rem;font-weight:800;letter-spacing:.12em}
+.feature h3{font-size:clamp(1.45rem,1.7vw,1.85rem);line-height:1.15;letter-spacing:-.025em;margin:0 0 16px}
+.feature p{max-width:34ch;margin:0;font-size:1.04rem}
+@media(max-width:950px){.feature-band{row-gap:0}.feature-band-heading{padding-bottom:22px}.feature{padding:34px 0}.feature p{max-width:52ch}}
+@media(max-width:700px){.brand-mark{width:35px;height:35px}.wordmark{gap:8px;font-size:1.18rem}.feature-band{padding:52px 0 64px}.feature-band-heading h2{font-size:clamp(2.2rem,10vw,3.4rem)}}
