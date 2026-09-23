@@ -1,0 +1,68 @@
+---
+import Nav from "./Nav.astro";
+import "../../styles/roadmap.css";
+
+const { locale = "en" } = Astro.props;
+const es = locale === "es";
+const copy = es ? {
+  title: ["Una ruta para", "tu carrera", "en movimiento."],
+  intro: "Cuatro entregas enfocadas. Primero confianza; después, mejores maneras de contar tu trayectoria, con o sin agente.",
+  stages: [
+    { id: "estabilidad", name: "Estabilidad", promise: "Una base en la que confiar", detail: "Navegación conectada, cambios seguros e instalaciones confiables." },
+    { id: "guia", name: "Guía de autoría", promise: "Mejores entrevistas", detail: "Preguntas más claras, perfiles fieles y privacidad desde el inicio." },
+    { id: "agentes", name: "Claude + Antigravity", promise: "Donde trabajan tus agentes", detail: "Configuraciones locales al proyecto basadas en una sola guía compartida." },
+    { id: "manual", name: "Autoría manual", promise: "Tu carrera, en tus manos", detail: "Crea y conecta registros sin IA ni editar JSON." },
+  ],
+  note: "Esta es la secuencia, no un calendario. Las versiones se definirán a partir de la base 0.8.0.",
+  back: "Volver a Resumilio",
+} : {
+  title: ["A roadmap", "for a resume", "that keeps moving."],
+  intro: "Four focused releases. Trust first, then better ways to build a career story—with or without an agent.",
+  stages: [
+    { id: "stability", name: "Stability", promise: "Make the foundation dependable", detail: "Connected navigation, safe record edits, reliable installs." },
+    { id: "authoring", name: "Authoring skill", promise: "Sharpen the interview", detail: "Clearer questions, accurate profiles, privacy by default." },
+    { id: "agents", name: "Claude + Antigravity", promise: "Meet agents where they work", detail: "Project-local setups around one shared skill." },
+    { id: "manual", name: "Manual authoring", promise: "Your career, your hands", detail: "Create and connect records without AI or raw JSON." },
+  ],
+  note: "This is a sequence, not a schedule. Version numbers will follow the 0.8.0 baseline.",
+  back: "Back to Resumilio",
+};
+---
+<div class="site-shell roadmap-shell">
+  <Nav locale={locale} />
+  <main class="roadmap-page">
+    <header class="roadmap-intro">
+      <h1>{copy.title[0]}<br />{copy.title[1]}<br /><em>{copy.title[2]}</em></h1>
+      <p>{copy.intro}</p>
+    </header>
+    <section class="roadmap-stage" aria-label={es ? "Próximas entregas" : "Upcoming releases"}>
+      <svg class="roadmap-path" viewBox="0 0 1000 660" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="62,430 370,325 650,225 905,85" />
+      </svg>
+      <ol class="roadmap-milestones">
+        {copy.stages.map((stage, index) => (
+          <li class={`roadmap-milestone roadmap-milestone--${index + 1}`} id={stage.id}>
+            {index < copy.stages.length - 1 && (
+              <svg class="roadmap-mobile-link" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <line x1={index % 2 === 0 ? "54" : "34"} y1="0" x2={index % 2 === 0 ? "34" : "54"} y2="100" />
+              </svg>
+            )}
+            <a class="roadmap-point" href={`#${stage.id}`} aria-label={`${String(index + 1).padStart(2, "0")}: ${stage.name}`}>
+              <span></span>
+            </a>
+            <div class="roadmap-milestone-copy">
+              <span class="roadmap-number">{String(index + 1).padStart(2, "0")}</span>
+              <h2>{stage.name}</h2>
+              <p class="roadmap-promise">{stage.promise}</p>
+              <p class="roadmap-detail">{stage.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+    <footer class="roadmap-footer">
+      <p>{copy.note}</p>
+      <a href={es ? "/es/" : "/"}>{copy.back} <span aria-hidden="true">→</span></a>
+    </footer>
+  </main>
+</div>

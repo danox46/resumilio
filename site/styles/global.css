@@ -82,3 +82,7 @@
 .feature p{max-width:34ch;margin:0;font-size:1.04rem}
 @media(max-width:950px){.feature-band{row-gap:0}.feature-band-heading{padding-bottom:22px}.feature{padding:34px 0}.feature p{max-width:52ch}}
 @media(max-width:700px){.brand-mark{width:35px;height:35px}.wordmark{gap:8px;font-size:1.18rem}.feature-band{padding:52px 0 64px}.feature-band-heading h2{font-size:clamp(2.2rem,10vw,3.4rem)}}
+
+/* Keep the release map one tap away even when the full product nav collapses. */
+.site-nav-links a[aria-current="page"]{color:var(--accent)}
+@media(max-width:950px){.site-nav-links a.nav-roadmap{display:inline}}

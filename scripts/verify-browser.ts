@@ -117,6 +117,36 @@ try {
   if (Number(await sprite.getAttribute("data-sprite-frame")) <= similarFrame) throw new Error("Similar Work smile sprite did not advance between sampled frames.");
   if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
 
+  await desktop.getByRole("link", { name: "Roadmap" }).click();
+  if (new URL(desktop.url()).pathname !== "/roadmap/") throw new Error("Product navigation did not open the roadmap.");
+  if (await desktop.locator(".roadmap-milestone").count() !== 4) throw new Error("Roadmap must show the four planned release stages.");
+  for (const title of ["Stability", "Authoring skill", "Claude + Antigravity", "Manual authoring"]) {
+    if (await desktop.getByRole("heading", { name: title, exact: true }).count() !== 1) throw new Error(`Roadmap stage is missing: ${title}.`);
+  }
+  await desktop.getByRole("link", { name: "03: Claude + Antigravity" }).click();
+  if (new URL(desktop.url()).hash !== "#agents") throw new Error("Roadmap waypoint did not link to its release stage.");
+  if (await desktop.locator(".roadmap-milestone:target h2").innerText() !== "Claude + Antigravity") throw new Error("Roadmap target styling did not follow the selected waypoint.");
+  await desktop.getByRole("link", { name: "ES", exact: true }).click();
+  if (new URL(desktop.url()).pathname !== "/es/hoja-de-ruta/") throw new Error("Roadmap locale switch lost the roadmap route.");
+  if (await desktop.getByRole("heading", { name: "Estabilidad", exact: true }).count() !== 1) throw new Error("Spanish roadmap translation is missing.");
+  if (await desktop.locator("html").getAttribute("lang") !== "es") throw new Error("Spanish roadmap has the wrong document language.");
+  for (const width of [1440, 768, 390, 320]) {
+    const roadmap = await browser.newPage({ viewport: { width, height: 900 } });
+    watchRuntime(roadmap, `${width}px roadmap`);
+    await roadmap.goto(`${origin}/roadmap/`, { waitUntil: "networkidle" });
+    if (await roadmap.locator(".roadmap-milestone").count() !== 4) throw new Error(`${width}px roadmap lost a release stage.`);
+    if (await roadmap.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error(`${width}px roadmap has horizontal overflow.`);
+    if (!(await roadmap.getByRole("link", { name: "Roadmap", exact: true }).isVisible())) throw new Error(`${width}px roadmap navigation is hidden.`);
+    await roadmap.close();
+  }
+  for (const width of [390, 320]) {
+    const roadmap = await browser.newPage({ viewport: { width, height: 900 } });
+    watchRuntime(roadmap, `${width}px Spanish roadmap`);
+    await roadmap.goto(`${origin}/es/hoja-de-ruta/`, { waitUntil: "networkidle" });
+    if (await roadmap.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error(`${width}px Spanish roadmap has horizontal overflow.`);
+    await roadmap.close();
+  }
+
   const spanishHome = await browser.newPage({ viewport: { width: 390, height: 844 } });
   watchRuntime(spanishHome, "Spanish mobile home");
   await spanishHome.goto(`${origin}/es/`, { waitUntil: "networkidle" });
