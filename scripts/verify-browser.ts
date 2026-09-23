@@ -143,12 +143,18 @@ try {
   if (await mobile.locator(".preview-node").count() !== 4) throw new Error("Mobile must render four preview nodes.");
   await assertFocusCircle(mobile, "Mobile demo");
   await assertCompanionFaceClear(mobile, "Mobile");
+  const mobileCat = await mobile.locator(".resumilio-companion").boundingBox();
+  const initialMobileFocus = await mobile.locator(".focus-node").boundingBox();
+  if (!mobileCat || !initialMobileFocus || mobileCat.y + mobileCat.height * 0.55 >= initialMobileFocus.y) {
+    throw new Error("Mobile companion face must sit above the focused node so its downward guide pose has a target.");
+  }
   await mobile.locator(".preview-node").first().click();
   await mobile.waitForTimeout(450);
   if (await mobile.locator(".companion-pose--guide-mobile").evaluate((element) => getComputedStyle(element).animationName) !== "cat-guide-mobile") throw new Error("Mobile selection did not trigger the downward guidance pose.");
   if (Number(await mobile.locator(".companion-pose--guide-mobile").evaluate((element) => getComputedStyle(element).opacity)) < 0.95) throw new Error("Mobile guidance pose did not become visibly opaque.");
   const focus = await mobile.locator(".focus-node").boundingBox();
   if (!focus) throw new Error("Mobile focus node is missing.");
+  if (mobileCat.y + mobileCat.height * 0.55 >= focus.y) throw new Error("Mobile guide pose no longer looks down toward the promoted focus node.");
   for (const node of await mobile.locator(".preview-node").all()) {
     const box = await node.boundingBox();
     if (!box) continue;
