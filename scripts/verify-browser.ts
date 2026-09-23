@@ -202,6 +202,18 @@ try {
   }
   if (await mobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Mobile has horizontal overflow.");
 
+  const classic = await browser.newPage({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+  watchRuntime(classic, "Classic without JavaScript");
+  await classic.goto(`${origin}/classic/#cloud-integration-certificate`, { waitUntil: "networkidle" });
+  await classic.waitForTimeout(200);
+  const target = classic.locator("#cloud-integration-certificate");
+  if (!(await target.isVisible()) || !(await target.evaluate((element) => (element.closest("details") as HTMLDetailsElement)?.open))) throw new Error("Classic deep link did not reveal a collapsed target without JavaScript.");
+  if (!(await classic.locator(".classic-resources a").count())) throw new Error("Classic view does not expose public resource links.");
+  await classic.goto(`${origin}/classic/`, { waitUntil: "networkidle" });
+  await classic.emulateMedia({ media: "print" });
+  if (!(await classic.locator("#cloud-integration-certificate").isVisible())) throw new Error("Classic print view hides entries inside closed sections.");
+  await classic.close();
+
   const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   watchRuntime(reduced, "Reduced motion");
   await reduced.goto(`${origin}/demo/`, { waitUntil: "networkidle" });

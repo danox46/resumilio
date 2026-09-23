@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import test from "node:test";
 import type { ResumilioConfig, ResumilioProfile } from "../core/profile.js";
 import { Constellation } from "../ui/Constellation.js";
+import { ClassicResume } from "../ui/ClassicResume.js";
 
 const profile = JSON.parse(await readFile("profiles/demo.json", "utf8")) as ResumilioProfile;
 const config = JSON.parse(await readFile("resumilio.config.json", "utf8")) as ResumilioConfig;
@@ -19,4 +20,21 @@ test("constellation applies all configured palette tokens", () => {
   };
   const html = renderToStaticMarkup(createElement(Constellation, { profile, config: customized }));
   for (const token of Object.values(customized.presentation.palette)) assert.ok(html.includes(token), `Missing palette token ${token}`);
+});
+
+test("classic view retains dates, tags, public links, private labels, and section anchors", () => {
+  const html = renderToStaticMarkup(createElement(ClassicResume, { profile }));
+  assert.match(html, /2024.*Present/);
+  assert.match(html, /class="classic-tags"/);
+  assert.match(html, /href="https:\/\/example\.com\/demo"/);
+  assert.match(html, /NDA protected/);
+  assert.match(html, /id="cloud-integration-certificate"/);
+  assert.match(html, /href="#cloud-integration-certificate"/);
+  assert.match(html, />Certifications</);
+});
+
+test("classic view localizes section and resource labels", () => {
+  const html = renderToStaticMarkup(createElement(ClassicResume, { profile, locale: "es" }));
+  assert.match(html, />Certificaciones</);
+  assert.match(html, /Certificado en línea/);
 });

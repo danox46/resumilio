@@ -91,3 +91,12 @@
 .constellation{background:var(--bg);color:var(--text)}
 .constellation .constellation-search,.constellation .focus-node,.constellation .preview-node,.constellation .constellation-actions a,.constellation .constellation-actions button{background:color-mix(in srgb,var(--bg) 95%,transparent)}
 .constellation .constellation-actions a:first-child{background:var(--accent)}
+.classic-entry-heading{display:flex;align-items:baseline;gap:10px}
+.classic-permalink{color:#8e5b0c;font-size:.95rem;text-decoration:none;opacity:.68}
+.classic-permalink:hover,.classic-permalink:focus-visible{opacity:1;text-decoration:underline}
+.classic-tags,.classic-resources{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:14px 0 0}
+.classic-tags li{padding:4px 9px;border-radius:999px;background:#f2f3f0;color:#505953;font-size:.82rem}
+.classic-resources li{font-size:.9rem}
+.classic-resources a{color:#8e5b0c;text-underline-offset:3px}
+.classic-resources span{color:#68706b}
+@media print{.classic-permalink{display:none}.classic-tags li{background:none;border:1px solid #bec5bf}.classic-resume details::details-content{content-visibility:visible!important;display:block!important}}
