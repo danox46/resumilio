@@ -19,6 +19,7 @@ export interface ConstellationProps {
   config: ResumilioConfig;
   locale?: string;
   classicBase?: string;
+  sourceRepositoryUrl?: string;
 }
 
 const desktopSlots = [
@@ -36,7 +37,7 @@ const resourceLabels: Record<ResourceKind, Record<string, string>> = {
   "career-note": { en: "Career note", es: "Nota profesional" },
 };
 
-export function Constellation({ profile, config, locale = profile.profile.defaultLocale, classicBase = "/classic/" }: ConstellationProps) {
+export function Constellation({ profile, config, locale = profile.profile.defaultLocale, classicBase = "/classic/", sourceRepositoryUrl }: ConstellationProps) {
   const fallback = profile.profile.defaultLocale;
   const [centerId, setCenterId] = useState(profile.careerItems[0]?.id ?? "");
   const [visited, setVisited] = useState<string[]>([]);
@@ -159,7 +160,7 @@ export function Constellation({ profile, config, locale = profile.profile.defaul
       <nav className="constellation-actions" aria-label={locale === "es" ? "Acciones de currículum" : "Resume actions"}>
         <a href={`${classicBase}#${center.id}`}>{locale === "es" ? "Vista clásica" : "Classic View"}</a>
         <button onClick={() => visible[0] && select(visible[0].id, "smile")}>{locale === "es" ? "Trabajo similar" : "Similar Work"}</button>
-        {profile.profile.contacts[0] && <a href={profile.profile.contacts[0].url}>{localized(profile.profile.contacts[0].label, locale, fallback)}</a>}
+        {sourceRepositoryUrl && <a href={sourceRepositoryUrl} target="_blank" rel="noopener noreferrer">GitHub</a>}
       </nav>
     </section>
   );

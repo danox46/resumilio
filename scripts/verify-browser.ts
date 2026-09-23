@@ -77,6 +77,8 @@ try {
   }
   if (await desktop.locator(".wordmark .brand-mark circle").count() !== 6) throw new Error("The connected-node Resumilio logo is missing.");
   if (await desktop.locator(".preview-node").count() !== 5) throw new Error("Desktop must render five preview nodes.");
+  if (await desktop.locator(".constellation-actions > *").count() !== 3) throw new Error("Product home demo must show three actions.");
+  if (await desktop.locator('.constellation-actions a[href="https://github.com/danox46/resumilio"][target="_blank"]').count() !== 1) throw new Error("Product home demo GitHub action is missing.");
   await assertFocusCircle(desktop, "Desktop home demo");
   const poses = desktop.locator(".companion-pose");
   if (await poses.count() !== 4) throw new Error("Companion must preload the four reduced-motion and responsive fallback poses.");
@@ -159,8 +161,10 @@ try {
     if (await spanishHome.getByRole("heading", { name: title }).count() !== 1) throw new Error(`Spanish product outcome is missing: ${title}.`);
   }
   if (await spanishHome.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Spanish mobile product home has horizontal overflow.");
+  if (await spanishHome.locator('.constellation-actions a[href="https://github.com/danox46/resumilio"]').count() !== 1) throw new Error("Spanish product home demo GitHub action is missing.");
   await spanishHome.goto(`${origin}/es/demo/`, { waitUntil: "networkidle" });
   if ((await spanishHome.locator(".demo-watermark").textContent())?.trim() !== "Perfil ficticio") throw new Error("Spanish demo lost its fictional-profile watermark.");
+  if (await spanishHome.locator('.constellation-actions a[href="https://github.com/danox46/resumilio"]').count() !== 1) throw new Error("Spanish demo GitHub action is missing.");
   await spanishHome.close();
 
   for (const width of [1920, 768, 320]) {
@@ -169,6 +173,7 @@ try {
     await viewport.goto(`${origin}/demo/`, { waitUntil: "networkidle" });
     if (await viewport.locator(".demo-disclosure").count()) throw new Error(`${width}px demo still has a framed disclosure.`);
     if ((await viewport.locator(".demo-watermark").textContent())?.trim() !== "Fictional profile") throw new Error(`${width}px demo lost its fictional-profile watermark.`);
+    if (await viewport.locator('.constellation-actions a[href="https://github.com/danox46/resumilio"]').count() !== 1) throw new Error(`${width}px demo GitHub action is missing.`);
     await viewport.waitForTimeout(1400);
     await assertFocusCircle(viewport, `${width}px demo`);
     await viewport.close();

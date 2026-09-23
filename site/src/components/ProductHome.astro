@@ -20,7 +20,7 @@ const config = configDocument as ResumilioConfig;
         <a class="primary-link" href={es ? "/es/demo/" : "/demo/"}>{es ? "Probar la demo ficticia →" : "Try the fictional demo →"}</a>
         <p class="hero-note">{es ? <>La publicación en npm está pendiente. <a href="/es/como-usar/">Cómo instalar desde código</a>. La demo es completamente ficticia.</> : <>The npm release is pending. <a href="/how-to/">Set up from source</a>. The demo is entirely fictional.</>}</p>
       </div>
-      <div class="hero-demo"><Constellation profile={profile} config={config} locale={locale} classicBase={es ? "/es/classic/" : "/classic/"} client:load /></div>
+      <div class="hero-demo"><Constellation profile={profile} config={config} locale={locale} classicBase={es ? "/es/classic/" : "/classic/"} sourceRepositoryUrl="https://github.com/danox46/resumilio" client:load /></div>
     </section>
     <section class="feature-band" id="how-it-works" aria-labelledby="feature-heading">
       <div class="feature-band-heading">

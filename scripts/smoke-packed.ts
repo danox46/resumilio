@@ -36,6 +36,8 @@ async function verifyGeneratedMobile(project: string): Promise<void> {
     const focus = await page.locator(".focus-node").boundingBox();
     const constellation = await page.locator(".constellation").boundingBox();
     if (!companion || !focus || !constellation) throw new Error("Generated mobile constellation is blank.");
+    if (await page.locator(".constellation-actions > *").count() !== 2) throw new Error("Generated resume must show only Classic View and Similar Work actions.");
+    if (await page.locator(".constellation-actions").getByRole("link", { name: "GitHub" }).count()) throw new Error("Generated resume inherited the product demo GitHub action.");
     if (constellation.height < 844) throw new Error("Generated mobile constellation is still demo-sized.");
     if (companion.y + companion.height * 0.55 >= focus.y) throw new Error("Generated mobile companion is below the focused record.");
     if (process.env.RESUMILIO_QA_SCREENSHOT) await page.screenshot({ path: process.env.RESUMILIO_QA_SCREENSHOT, fullPage: true });
