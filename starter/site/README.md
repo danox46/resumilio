@@ -6,11 +6,13 @@ This project starts with a **fictional profile**. Replace it with your own caree
 
 Open `resumilio.json` and work through these sections in order:
 
+The file uses Resumilio's public career profile format `2.0.0`. This is separate from the package's npm version. To import an older profile, run `npx resumilio migrate old-profile.json` first, then use `--out resumilio-v2.json` after reviewing its receipt. The original file is not changed.
+
 1. `profile`: set your name, headline, summary, and public contact links. `defaultLocale` must be included in `locales`.
 2. `organizations`: add the employers, clients, schools, or publishers you want to name publicly. Give each a stable `id`.
 3. `careerItems`: add roles, projects, education, certifications, publications, and skills. Each item needs a stable `id`, localized `title` and `summary`, a truthful `state`, `resourceIds`, and `tags`. Add dates or an `organizationId` only when known and appropriate to share.
 4. `resources`: connect public demos, previews, repositories, certificates, or work samples to items through both `careerItemIds` and `resourceIds`. A `public` resource needs a public URL. An `nda-protected` resource must **not** have a URL; describe only what you are permitted to disclose.
-5. `connections`: link related career items using their stable IDs. Every item should have a path to the rest of the graph, so visitors can reach more than one cluster.
+5. `connections`: link records using their stable IDs. Career-item-to-career-item links guide discovery; links to organizations or resources preserve context. Every career item should have a path to the rest of the career graph, so visitors can reach more than one cluster.
 
 For another language, add its locale code to `profile.locales` and translate every localized name, title, summary, contact label, and resource label. If you want one language only, remove the extra locale from the list and localized fields. Routes are generated from the configured locales.
 

@@ -2,12 +2,12 @@ export type LocaleCode = string;
 export type LocalizedText = Record<LocaleCode, string>;
 
 export type CareerItemKind = "role" | "project" | "education" | "certification" | "publication" | "skill";
-export type CareerItemState = "current" | "available" | "completed" | "in-development" | "archived";
-export type ResourceKind = "live-demo" | "external-preview" | "public-repository" | "online-certificate" | "work-sample" | "nda-protected";
+export type CareerItemState = "current" | "available" | "completed" | "in-development" | "archived" | "idea" | "proposal" | "working-prelaunch" | "shipped" | "production" | "retired";
+export type ResourceKind = "live-demo" | "external-preview" | "public-repository" | "online-certificate" | "work-sample" | "nda-protected" | "career-note";
 export type ResourceAvailability = "public" | "restricted" | "unavailable";
 
 export interface ResumilioProfile {
-  schemaVersion: "1.0.0";
+  schemaVersion: "2.0.0";
   profile: {
     id: string;
     name: LocalizedText;
@@ -42,12 +42,20 @@ export interface ResumilioProfile {
     kind: ResourceKind;
     availability: ResourceAvailability;
     url?: string;
+    provenance?: {
+      recordType: "public-source" | "owner-attestation" | "repository" | "credential" | "artifact";
+      strength: "self-attested" | "corroborated" | "primary";
+      lifecycle: "available" | "restricted" | "archived" | "unavailable";
+      visibility: "public" | "public-summary" | "private-reference";
+      observedAt: string;
+      sourceLabel?: LocalizedText;
+    };
   }>;
   connections: Array<{
     id: string;
     sourceId: string;
     targetId: string;
-    kind: "related-to" | "built-on" | "performed-for" | "learned-through";
+    kind: "related-to" | "built-on" | "performed-for" | "learned-through" | "provided-by" | "supports";
   }>;
 }
 

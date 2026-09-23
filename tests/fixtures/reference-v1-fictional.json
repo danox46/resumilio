@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0.0",
+  "profile": {
+    "id": "alex-rivera-fictional",
+    "name": { "en": "Alex Rivera", "es": "Alex Rivera" },
+    "headline": { "en": "Integration builder", "es": "Especialista en integraciones" },
+    "summary": { "en": "A fictional career for migration testing.", "es": "Una carrera ficticia para probar migraciones." },
+    "defaultLocale": "en",
+    "locales": ["en", "es"],
+    "contacts": [
+      { "id": "contact-alex", "kind": "portfolio", "label": { "en": "Contact", "es": "Contacto" }, "url": "https://example.com/contact" }
+    ]
+  },
+  "organizations": [
+    { "id": "fictional-studio", "name": { "en": "Fictional Studio", "es": "Estudio Ficticio" }, "url": "https://example.org" }
+  ],
+  "claims": [
+    {
+      "id": "integration-lead", "type": "experience", "lifecycle": "production",
+      "title": { "en": "Integration Lead", "es": "Líder de Integraciones" },
+      "summary": { "en": "Led a fictional integration team.", "es": "Lideró un equipo ficticio de integraciones." },
+      "organizationId": "fictional-studio", "evidenceIds": ["public-role-page"], "tags": ["integrations", "leadership"]
+    },
+    {
+      "id": "private-workflow", "type": "project", "lifecycle": "proposal",
+      "title": { "en": "Private Workflow", "es": "Flujo Privado" },
+      "summary": { "en": "Proposed a fictional client workflow.", "es": "Propuso un flujo ficticio para un cliente." },
+      "evidenceIds": ["private-source"], "tags": ["automation"]
+    },
+    {
+      "id": "cloud-certificate", "type": "certification", "lifecycle": "completed",
+      "title": { "en": "Cloud Certificate", "es": "Certificado de Nube" },
+      "summary": { "en": "Completed fictional coursework.", "es": "Completó estudios ficticios." },
+      "evidenceIds": ["online-credential"], "tags": ["learning"]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "public-role-page", "claimIds": ["integration-lead"],
+      "title": { "en": "Role overview", "es": "Resumen del rol" },
+      "evidenceType": "public-source", "strength": "corroborated", "lifecycle": "available",
+      "source": { "label": { "en": "Studio role page", "es": "Página del rol" }, "visibility": "public", "url": "https://example.org/role" },
+      "observedAt": "2026-01-10"
+    },
+    {
+      "id": "private-source", "claimIds": ["private-workflow"],
+      "title": { "en": "Owner account", "es": "Relato del autor" },
+      "evidenceType": "owner-attestation", "strength": "self-attested", "lifecycle": "restricted",
+      "source": { "label": { "en": "Fictional internal folder", "es": "Carpeta interna ficticia" }, "visibility": "private-reference", "url": "https://internal.example.com/private" },
+      "observedAt": "2026-02-02"
+    },
+    {
+      "id": "online-credential", "claimIds": ["cloud-certificate"],
+      "title": { "en": "Online credential", "es": "Credencial en línea" },
+      "evidenceType": "credential", "strength": "primary", "lifecycle": "available",
+      "source": { "label": { "en": "Issuer page", "es": "Página del emisor" }, "visibility": "public", "url": "https://example.edu/credential" },
+      "observedAt": "2026-03-03"
+    }
+  ],
+  "relationships": [
+    { "id": "relationship-lead-workflow", "type": "supports", "sourceId": "integration-lead", "targetId": "private-workflow" },
+    { "id": "relationship-lead-cert", "type": "provided-by", "sourceId": "cloud-certificate", "targetId": "integration-lead" },
+    { "id": "relationship-lead-studio", "type": "performed-for", "sourceId": "integration-lead", "targetId": "fictional-studio" },
+    { "id": "relationship-credential-cert", "type": "supports", "sourceId": "online-credential", "targetId": "cloud-certificate" }
+  ]
+}

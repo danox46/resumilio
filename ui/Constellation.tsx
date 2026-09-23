@@ -33,6 +33,7 @@ const resourceLabels: Record<ResourceKind, Record<string, string>> = {
   "online-certificate": { en: "Online certificate", es: "Certificado en línea" },
   "work-sample": { en: "Work sample", es: "Muestra de trabajo" },
   "nda-protected": { en: "NDA protected", es: "Protegido por NDA" },
+  "career-note": { en: "Career note", es: "Nota profesional" },
 };
 
 export function Constellation({ profile, config, locale = profile.profile.defaultLocale, classicBase = "/classic/" }: ConstellationProps) {

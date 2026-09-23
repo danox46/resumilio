@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/profile.v1.schema.json",
-  "title": "Resumilio early package career profile v1 (historical)",
+  "$id": "https://github.com/danox46/resumilio/blob/main/schemas/profile.v2.schema.json",
+  "title": "Resumilio public career profile v2",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "profile", "organizations", "careerItems", "resources", "connections"],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "2.0.0" },
     "profile": { "$ref": "#/$defs/profile" },
     "organizations": { "type": "array", "items": { "$ref": "#/$defs/organization" } },
     "careerItems": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/careerItem" } },
@@ -31,16 +31,41 @@
       "type": "object", "additionalProperties": false,
       "required": ["id", "kind", "state", "title", "summary", "resourceIds", "tags"],
       "properties": {
-        "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["role", "project", "education", "certification", "publication", "skill"] }, "state": { "enum": ["current", "available", "completed", "in-development", "archived"] },
+        "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["role", "project", "education", "certification", "publication", "skill"] },
+        "state": { "enum": ["current", "available", "completed", "in-development", "archived", "idea", "proposal", "working-prelaunch", "shipped", "production", "retired"] },
         "title": { "$ref": "#/$defs/localized" }, "summary": { "$ref": "#/$defs/localized" }, "organizationId": { "$ref": "#/$defs/id" },
         "startDate": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" }, "endDate": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" },
         "resourceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "tags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
       }
     },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["recordType", "strength", "lifecycle", "visibility", "observedAt"],
+      "properties": {
+        "recordType": { "enum": ["public-source", "owner-attestation", "repository", "credential", "artifact"] },
+        "strength": { "enum": ["self-attested", "corroborated", "primary"] },
+        "lifecycle": { "enum": ["available", "restricted", "archived", "unavailable"] },
+        "visibility": { "enum": ["public", "public-summary", "private-reference"] },
+        "observedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "sourceLabel": { "$ref": "#/$defs/localized" }
+      },
+      "allOf": [
+        { "if": { "properties": { "visibility": { "enum": ["public-summary", "private-reference"] } } }, "then": { "not": { "required": ["sourceLabel"] } } }
+      ]
+    },
     "resource": {
       "type": "object", "additionalProperties": false, "required": ["id", "careerItemIds", "label", "kind", "availability"],
-      "properties": { "id": { "$ref": "#/$defs/id" }, "careerItemIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "label": { "$ref": "#/$defs/localized" }, "kind": { "enum": ["live-demo", "external-preview", "public-repository", "online-certificate", "work-sample", "nda-protected"] }, "availability": { "enum": ["public", "restricted", "unavailable"] }, "url": { "type": "string", "pattern": "^https://" } }
+      "properties": {
+        "id": { "$ref": "#/$defs/id" }, "careerItemIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "label": { "$ref": "#/$defs/localized" }, "kind": { "enum": ["live-demo", "external-preview", "public-repository", "online-certificate", "work-sample", "nda-protected", "career-note"] },
+        "availability": { "enum": ["public", "restricted", "unavailable"] }, "url": { "type": "string", "pattern": "^https://" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "allOf": [
+        { "if": { "properties": { "availability": { "const": "public" } } }, "then": { "required": ["url"], "properties": { "kind": { "not": { "const": "nda-protected" } } } }, "else": { "not": { "required": ["url"] } } },
+        { "if": { "properties": { "kind": { "const": "nda-protected" } } }, "then": { "properties": { "availability": { "not": { "const": "public" } } }, "not": { "required": ["url"] } } }
+      ]
     },
-    "connection": { "type": "object", "additionalProperties": false, "required": ["id", "sourceId", "targetId", "kind"], "properties": { "id": { "$ref": "#/$defs/id" }, "sourceId": { "$ref": "#/$defs/id" }, "targetId": { "$ref": "#/$defs/id" }, "kind": { "enum": ["related-to", "built-on", "performed-for", "learned-through"] } } }
+    "connection": { "type": "object", "additionalProperties": false, "required": ["id", "sourceId", "targetId", "kind"], "properties": { "id": { "$ref": "#/$defs/id" }, "sourceId": { "$ref": "#/$defs/id" }, "targetId": { "$ref": "#/$defs/id" }, "kind": { "enum": ["related-to", "built-on", "performed-for", "learned-through", "provided-by", "supports"] } } }
   }
 }

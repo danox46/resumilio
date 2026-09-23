@@ -35,6 +35,10 @@ The generated project includes:
 
 No model key is required.
 
+## Profile format
+
+New projects use public profile format `2.0.0`. Existing reference profiles and early package profiles both identified themselves as `1.0.0` despite having different fields. Use `resumilio migrate` to preview a validated conversion, then write a separate v2 file and review its privacy report. See the [format and migration guide](docs/migration-v2.md). The original file is never overwritten.
+
 ## Author manually or with an agent
 
 Edit `resumilio.json`, then run:

@@ -60,6 +60,11 @@ try {
   const project = join(temporary, "generated-site");
   execFileSync(process.execPath, [resolve("dist/core/cli.js"), "init", project], { stdio: "inherit" });
   execSync(`npm install "${tarball}"`, { cwd: project, stdio: "inherit" });
+  const migratedPath = join(temporary, "imported-v2.json");
+  execFileSync(process.execPath, [join(project, "node_modules", "resumilio", "dist", "core", "cli.js"), "migrate", resolve("tests/fixtures/reference-v1-fictional.json"), "--out", migratedPath], { cwd: project, stdio: "pipe" });
+  const migrated = JSON.parse(await readFile(migratedPath, "utf8")) as { schemaVersion?: string; resources?: Array<{ url?: string }> };
+  const migrationReport = JSON.parse(await readFile(`${migratedPath}.migration-report.json`, "utf8")) as { review?: unknown[] };
+  if (migrated.schemaVersion !== "2.0.0" || migrated.resources?.length !== 3 || migrated.resources[1].url || migrationReport.review?.length !== 2) throw new Error("Packed CLI migration lost format or privacy guarantees.");
   execSync("npm run check", { cwd: project, stdio: "inherit" });
   execSync("npm run build", { cwd: project, stdio: "inherit" });
   const generatedConfig = JSON.parse(await readFile(join(project, "resumilio.config.json"), "utf8")) as { profile?: string };

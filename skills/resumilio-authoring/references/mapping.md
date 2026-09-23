@@ -2,6 +2,10 @@
 
 Map identity and contact routes into `profile`, organizations into `organizations`, and each distinct role, project, course, certificate, publication, or skill into `careerItems`.
 
+New projects use profile format `2.0.0`. For a reference or early-package v1 file, run `resumilio migrate` without `--out` to inspect the review receipt before writing a new file. Never silently rename fields or overwrite the original. Review every withheld private source label or URL against the original locally; do not copy it into the public profile.
+
+Connections can retain profile, organization, career-item, and resource relationships. Only career-item-to-career-item connections guide the visitor's next-node recommendations; preserve other known links for context rather than silently dropping them.
+
 Use `resources` only for recruiter-useful availability:
 
 - `live-demo`: an interactive running product.

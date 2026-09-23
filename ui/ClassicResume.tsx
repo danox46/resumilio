@@ -19,6 +19,7 @@ export function ClassicResume({ profile, locale = profile.profile.defaultLocale 
     "online-certificate": ["Online certificate", "Certificado en línea"],
     "work-sample": ["Work sample", "Muestra de trabajo"],
     "nda-protected": ["NDA protected", "Protegido por acuerdo de confidencialidad"],
+    "career-note": ["Career note", "Nota profesional"],
   };
   const groups = new Map<string, ResumilioProfile["careerItems"]>();
   for (const item of profile.careerItems) groups.set(item.kind, [...(groups.get(item.kind) ?? []), item]);

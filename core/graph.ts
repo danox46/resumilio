@@ -11,9 +11,10 @@ export interface GraphHealth {
 
 function neighbors(profile: ResumilioProfile, id: string): Set<string> {
   const result = new Set<string>();
+  const careerItemIds = new Set(profile.careerItems.map((item) => item.id));
   for (const connection of profile.connections) {
-    if (connection.sourceId === id) result.add(connection.targetId);
-    if (connection.targetId === id) result.add(connection.sourceId);
+    if (connection.sourceId === id && careerItemIds.has(connection.targetId)) result.add(connection.targetId);
+    if (connection.targetId === id && careerItemIds.has(connection.sourceId)) result.add(connection.sourceId);
   }
   return result;
 }

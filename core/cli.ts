@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
+import { readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { analyzeGraphHealth } from "./graph.js";
+import { migrateProfileDocument } from "./migration.js";
 import { installCodexSkill, initializeWorkspace, loadProfile } from "./workspace.js";
 import { RESUMILIO_VERSION } from "./version.js";
 
@@ -14,6 +16,7 @@ function help(): void {
 Commands:
   init <directory>       Create a complete Astro resume project
   validate [profile]     Validate content and graph health
+  migrate <profile> [--out <file>]  Preview a v1 import; --out writes v2 plus a review receipt
   preview [directory]    Start the generated project's local preview
   build [directory]      Build static deployment artifacts
   agent install codex    Install the optional Codex authoring skill
@@ -42,6 +45,30 @@ async function main(): Promise<void> {
   if (command === "validate") {
     const profile = await loadProfile(args.shift() ?? "resumilio.json");
     console.log(JSON.stringify({ ok: true, profile: profile.profile.id, careerItems: profile.careerItems.length, resources: profile.resources.length, graphHealth: analyzeGraphHealth(profile) }, null, 2));
+    return;
+  }
+  if (command === "migrate") {
+    const sourceName = args.shift();
+    if (!sourceName || (args.length !== 0 && (args.length !== 2 || args[0] !== "--out" || !args[1]))) throw new Error("Usage: resumilio migrate <v1-profile.json> [--out <v2-profile.json>]");
+    const sourcePath = resolve(sourceName);
+    const source = JSON.parse(await readFile(sourcePath, "utf8")) as unknown;
+    const result = migrateProfileDocument(source);
+    if (!args.length) {
+      console.log(JSON.stringify({ ok: true, written: false, receipt: result.receipt }, null, 2));
+      return;
+    }
+    const outputPath = resolve(args[1]);
+    const reportPath = `${outputPath}.migration-report.json`;
+    if (sourcePath === outputPath || sourcePath === reportPath) throw new Error("Migration output must differ from its source.");
+    if (await stat(outputPath).catch(() => undefined) || await stat(reportPath).catch(() => undefined)) throw new Error("Migration output or review receipt already exists; nothing was overwritten.");
+    await writeFile(outputPath, `${JSON.stringify(result.profile, null, 2)}\n`, { flag: "wx" });
+    try {
+      await writeFile(reportPath, `${JSON.stringify(result.receipt, null, 2)}\n`, { flag: "wx" });
+    } catch (error) {
+      await unlink(outputPath);
+      throw error;
+    }
+    console.log(JSON.stringify({ ok: true, written: true, receipt: result.receipt }, null, 2));
     return;
   }
   if (command === "preview" || command === "build") {
