@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   attest:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -18,19 +19,25 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Require the selected tag to match the package version
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          test "$GITHUB_REF" = "refs/tags/v$version"
+          echo "PACKAGE_TARBALL=resumilio-$version.tgz" >> "$GITHUB_ENV"
+          echo "PACKAGE_SBOM=resumilio-$version.cdx.json" >> "$GITHUB_ENV"
       - run: npm run build:package
       - run: npm pack
-      - run: npm sbom --sbom-format cyclonedx --package-lock-only > resumilio-0.8.0.cdx.json
+      - run: npm sbom --sbom-format cyclonedx --package-lock-only > "$PACKAGE_SBOM"
       - uses: actions/attest-build-provenance@v3
         with:
-          subject-path: resumilio-0.8.0.tgz
+          subject-path: ${{ env.PACKAGE_TARBALL }}
       - uses: actions/attest-sbom@v3
         with:
-          subject-path: resumilio-0.8.0.tgz
-          sbom-path: resumilio-0.8.0.cdx.json
+          subject-path: ${{ env.PACKAGE_TARBALL }}
+          sbom-path: ${{ env.PACKAGE_SBOM }}
       - uses: actions/upload-artifact@v4
         with:
-          name: resumilio-0.8.0-release
+          name: resumilio-${{ github.ref_name }}-release
           path: |
-            resumilio-0.8.0.tgz
-            resumilio-0.8.0.cdx.json
+            ${{ env.PACKAGE_TARBALL }}
+            ${{ env.PACKAGE_SBOM }}

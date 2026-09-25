@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { chromium, type Page } from "playwright";
 
@@ -35,6 +35,46 @@ async function assertFocusCircle(page: Page, label: string) {
   }
   const titleOverflows = await page.locator(".focus-node h2").evaluate((element) => element.scrollWidth > element.clientWidth + 1);
   if (titleOverflows) throw new Error(`${label} focus title exceeds its content area.`);
+}
+
+async function assertNoHorizontalOverflow(page: Page, label: string) {
+  const evidence = await page.evaluate((label) => {
+    const documentWidth = document.documentElement.scrollWidth;
+    const viewportWidth = document.documentElement.clientWidth;
+    if (documentWidth <= viewportWidth) return null;
+    const elements = [...document.querySelectorAll("body *")].map((element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        element: element.tagName.toLowerCase(),
+        id: element.id,
+        className: typeof element.className === "string" ? element.className.slice(0, 120) : "",
+        left: Math.round(rect.left * 100) / 100,
+        right: Math.round(rect.right * 100) / 100,
+        width: Math.round(rect.width * 100) / 100,
+        overflowX: style.overflowX,
+        transform: style.transform,
+      };
+    }).filter((element) => element.right > viewportWidth + 0.5 || element.left < -0.5)
+      .sort((a, b) => b.right - a.right)
+      .slice(0, 12);
+    return {
+      label,
+      url: location.pathname,
+      viewportWidth,
+      documentWidth,
+      overflowPx: documentWidth - viewportWidth,
+      fonts: document.fonts.status,
+      elements,
+    };
+  }, label);
+  if (!evidence) return;
+  const safeLabel = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const directory = join("output", "playwright", "browser-overflow");
+  await mkdir(directory, { recursive: true });
+  await writeFile(join(directory, `${safeLabel}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
+  await page.screenshot({ path: join(directory, `${safeLabel}.png`), fullPage: true });
+  throw new Error(`${label} has ${evidence.overflowPx}px horizontal overflow. Evidence: ${directory}/${safeLabel}.json and .png`);
 }
 
 const root = normalize(join(process.cwd(), "site", "dist"));
@@ -118,7 +158,7 @@ try {
   const similarFrame = Number(await sprite.getAttribute("data-sprite-frame"));
   await desktop.waitForTimeout(240);
   if (Number(await sprite.getAttribute("data-sprite-frame")) <= similarFrame) throw new Error("Similar Work smile sprite did not advance between sampled frames.");
-  if (await desktop.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Desktop has horizontal overflow.");
+  await assertNoHorizontalOverflow(desktop, "Desktop home");
 
   await desktop.getByRole("link", { name: "Roadmap" }).click();
   if (new URL(desktop.url()).pathname !== "/roadmap/") throw new Error("Product navigation did not open the roadmap.");
@@ -140,7 +180,7 @@ try {
     watchRuntime(roadmap, `${width}px roadmap`);
     await roadmap.goto(`${origin}/roadmap/`, { waitUntil: "networkidle" });
     if (await roadmap.locator(".roadmap-milestone").count() !== 4) throw new Error(`${width}px roadmap lost a release stage.`);
-    if (await roadmap.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error(`${width}px roadmap has horizontal overflow.`);
+    await assertNoHorizontalOverflow(roadmap, `${width}px roadmap`);
     if (!(await roadmap.getByRole("link", { name: "Roadmap", exact: true }).isVisible())) throw new Error(`${width}px roadmap navigation is hidden.`);
     await roadmap.close();
   }
@@ -148,7 +188,7 @@ try {
     const roadmap = await browser.newPage({ viewport: { width, height: 900 } });
     watchRuntime(roadmap, `${width}px Spanish roadmap`);
     await roadmap.goto(`${origin}/es/hoja-de-ruta/`, { waitUntil: "networkidle" });
-    if (await roadmap.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error(`${width}px Spanish roadmap has horizontal overflow.`);
+    await assertNoHorizontalOverflow(roadmap, `${width}px Spanish roadmap`);
     await roadmap.close();
   }
 
@@ -160,7 +200,7 @@ try {
   for (const title of ["Una nueva experiencia visual", "Una hoja de vida clásica, lista", "Recomendaciones que reaccionan"]) {
     if (await spanishHome.getByRole("heading", { name: title }).count() !== 1) throw new Error(`Spanish product outcome is missing: ${title}.`);
   }
-  if (await spanishHome.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Spanish mobile product home has horizontal overflow.");
+  await assertNoHorizontalOverflow(spanishHome, "Spanish mobile product home");
   if (await spanishHome.locator('.constellation-actions a[href="https://github.com/danox46/resumilio"]').count() !== 1) throw new Error("Spanish product home demo GitHub action is missing.");
   await spanishHome.goto(`${origin}/es/demo/`, { waitUntil: "networkidle" });
   if ((await spanishHome.locator(".demo-watermark").textContent())?.trim() !== "Perfil ficticio") throw new Error("Spanish demo lost its fictional-profile watermark.");
@@ -205,7 +245,7 @@ try {
     const overlap = !(box.x + box.width < focus.x || focus.x + focus.width < box.x || box.y + box.height < focus.y || focus.y + focus.height < box.y);
     if (overlap) throw new Error("A mobile preview node overlaps the focus node.");
   }
-  if (await mobile.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) throw new Error("Mobile has horizontal overflow.");
+  await assertNoHorizontalOverflow(mobile, "Mobile demo");
 
   const classic = await browser.newPage({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
   watchRuntime(classic, "Classic without JavaScript");

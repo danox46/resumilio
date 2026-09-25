@@ -2,8 +2,6 @@ name: Publish npm package
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
 
 permissions:
   contents: read
@@ -11,7 +9,7 @@ permissions:
 
 jobs:
   publish:
-    if: startsWith(github.event.release.tag_name || github.ref_name, 'v')
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,5 +20,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Require the selected tag to match the package version
+        run: |
+          expected="refs/tags/v$(node -p 'require("./package.json").version')"
+          test "$GITHUB_REF" = "$expected"
       - run: npm run verify
+      - name: Upload browser evidence when verification fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-overflow-${{ github.sha }}
+          path: output/playwright/browser-overflow/
+          if-no-files-found: ignore
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
