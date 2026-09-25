@@ -18,7 +18,7 @@ npm run build
 npm pack
 node dist/core/cli.js init ../my-resume
 cd ../my-resume
-npm install ../resumilio/resumilio-0.8.0.tgz
+npm install ../resumilio/resumilio-0.8.1.tgz
 npm run dev
 ```
 

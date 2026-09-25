@@ -6,7 +6,7 @@ import Nav from "../../components/Nav.astro";
   <div class="site-shell"><Nav/><main class="docs-page">
     <h1>Build a career experience, not another form.</h1>
     <p>Start manually with the open profile file or ask an agent to interview you. Both paths produce the same versioned format and the same site.</p>
-    <h2>1. Create the site from source</h2><p>The npm release is pending. For now, build and install a local package from the public repository:</p><pre>git clone https://github.com/danox46/resumilio.git<br/>cd resumilio<br/>npm ci<br/>npm run build<br/>npm pack<br/>node dist/core/cli.js init ../my-resume<br/>cd ../my-resume<br/>npm install ../resumilio/resumilio-0.8.0.tgz<br/>npm run dev</pre>
+    <h2>1. Create the site from source</h2><p>The npm release is pending. For now, build and install a local package from the public repository:</p><pre>git clone https://github.com/danox46/resumilio.git<br/>cd resumilio<br/>npm ci<br/>npm run build<br/>npm pack<br/>node dist/core/cli.js init ../my-resume<br/>cd ../my-resume<br/>npm install ../resumilio/resumilio-0.8.1.tgz<br/>npm run dev</pre>
     <h2>2. Add your career</h2><p>Replace the fictional starter with roles, projects, education, credentials, and useful public resources. Work can be real and valuable without a public link.</p>
     <h2>3. Validate and preview</h2><pre>npx resumilio validate resumilio.json<br/>npm run dev</pre><p>The generated project includes a manual field-by-field guide in its README. No agent is required.</p>
     <h2>4. Publish when you choose</h2><p>The build is static and host-neutral. Private files, source notes, and NDA details stay outside the public project.</p>

@@ -1,0 +1,11 @@
+{
+  "package": "resumilio",
+  "version": "0.8.1",
+  "baseCommit": "196ed6bee49c3fac5ec5b5bbf8b5d0503c780be2",
+  "scope": "Mechanical version and release-metadata update only; no product changes in this commit.",
+  "profileFormatVersion": "2.0.0",
+  "sourceState": "prepared",
+  "artifactState": "Not generated or attested by this source commit.",
+  "attestationWorkflowState": "Existing workflow still targets 0.8.0 and must be updated before 0.8.1 attestation.",
+  "publicationState": "No tag, GitHub release, npm publication, or deployment in this source commit."
+}

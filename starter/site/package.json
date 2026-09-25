@@ -9,7 +9,7 @@
     "astro": "^7.3.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "resumilio": "^0.8.0"
+    "resumilio": "^0.8.1"
   },
   "devDependencies": { "@astrojs/check": "^0.9.10", "typescript": "^5.9.2" }
 }

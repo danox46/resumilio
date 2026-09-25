@@ -1,6 +1,6 @@
 # Profile format v2 and v1 imports
 
-The package version (`0.8.0`) and the public profile format version (`2.0.0`) are independent. New projects use `careerItems`, `resources`, and `connections` with `schemaVersion: "2.0.0"`. Two incompatible historical formats both used `1.0.0`: the original reference profile used `claims`, `evidence`, and `relationships`, while early package starters used the new field names. The importer identifies them by their fields; the v2 validator never treats either as current.
+The package version (`0.8.1`) and the public profile format version (`2.0.0`) are independent. New projects use `careerItems`, `resources`, and `connections` with `schemaVersion: "2.0.0"`. Two incompatible historical formats both used `1.0.0`: the original reference profile used `claims`, `evidence`, and `relationships`, while early package starters used the new field names. The importer identifies them by their fields; the v2 validator never treats either as current.
 
 ## Preview before writing
 
